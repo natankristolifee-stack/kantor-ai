@@ -312,8 +312,10 @@ body.pop-chat #fabc{background:#0b1426}
   if(API_URL.indexOf('https://script.google.com/')!==0)return;   /* belum diisi -> mode DEMO */
   var TK='kai_tok';
   try{if(!sessionStorage.getItem(TK))sessionStorage.removeItem('kai_in')}catch(e){}
+  var pend={};   /* panggilan yang menunggu login selesai */
   function call(fn,args,ok,bad){
     var tok='';try{tok=sessionStorage.getItem(TK)||''}catch(e){}
+    if(!tok&&fn!=='loginWeb'){pend[fn]=[fn,args,ok,bad];return}
     fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:fn,args:args,token:tok})})
     .then(function(r){return r.json()})
     .then(function(d){
@@ -321,6 +323,7 @@ body.pop-chat #fabc{background:#0b1426}
         var r=d.r;
         if(fn==='loginWeb'&&r&&r.ok&&r.token){try{sessionStorage.setItem(TK,r.token)}catch(e){}}
         if(ok)ok(r);
+        if(fn==='loginWeb'&&r&&r.ok){var q=pend;pend={};Object.keys(q).forEach(function(k){call.apply(null,q[k])})}
       }else if(d&&d.auth){
         try{sessionStorage.removeItem(TK);sessionStorage.removeItem('kai_in')}catch(e){}
         alert('Sesi login habis. Silakan masuk lagi.');location.reload();
