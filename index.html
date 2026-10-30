@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<base target="_top">
+<title>Kantor AI - Saham IDX</title>
+<style>
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:#0b1220;color:#e8edf7;font:13px system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+#pg-kantor{grid-template-columns:1fr 360px;min-height:0;overflow:hidden}
+@media(max-width:860px){#pg-kantor{grid-template-columns:1fr;grid-template-rows:58% 1fr}}
+#stage{position:relative;overflow:hidden;min-height:0}
+#gl{width:100%;height:100%;display:block;touch-action:none}
+#chips{position:absolute;left:10px;right:10px;top:10px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+#chips2{position:absolute;left:10px;right:10px;bottom:24px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.chip{pointer-events:auto;background:#fffe;color:#12305a;border-radius:999px;padding:6px 11px;font-weight:600;box-shadow:0 1px 4px #0003;border:0;font-size:12px}
+.chip.pri{background:#2563eb;color:#fff}
+button.chip{cursor:pointer}button.chip:disabled{opacity:.55;cursor:wait}
+.sp{flex:1}
+.hint{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:11px;color:#1f4a2a;pointer-events:none}
+#side{background:#0e1627;border-left:1px solid #22304a;padding:10px;min-height:0;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+#side h3{margin:4px 2px 8px;font-size:12px;color:#8b9ab5;text-transform:uppercase;letter-spacing:.06em}
+#chat{flex:none;height:min(50vh,420px);display:flex;flex-direction:column;background:#0b1626;border:1px solid #22304a;border-radius:14px;overflow:hidden}
+.chh{padding:10px 12px;border-bottom:1px solid #1d2a44;font-weight:700;display:flex;align-items:center;gap:8px}
+.chh i{width:8px;height:8px;border-radius:50%;background:#34d399;display:inline-block}
+#msgs{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.m{max-width:90%;padding:8px 11px;border-radius:12px;line-height:1.55;font-size:12.5px;white-space:pre-wrap;word-wrap:break-word}
+.m.a{background:#16213a;border:1px solid #243255;align-self:flex-start}
+.m.u{background:#0f9f6e;color:#fff;align-self:flex-end}
+.m.t{opacity:.65}
+#qr{display:flex;gap:6px;flex-wrap:wrap;padding:0 10px 8px}
+#qr button{background:#131d33;color:#cbd5e1;border:1px solid #2a3a5e;border-radius:8px;padding:5px 9px;font-size:11.5px;cursor:pointer}
+.cin{display:flex;gap:6px;padding:8px;border-top:1px solid #1d2a44}
+.cin input{flex:1;min-width:0;background:#101a2e;color:#e8edf7;border:1px solid #22304a;border-radius:10px;padding:8px;font:inherit}
+.cin button{background:#0f9f6e;color:#fff;border:0;border-radius:10px;width:42px;cursor:pointer;font-size:16px}
+.cin button:disabled{opacity:.5}
+.vb{background:transparent;border:0;cursor:pointer;font-size:15px;color:#fff}
+#agl{flex:1;min-height:0;overflow:auto}
+.ag{display:flex;gap:10px;align-items:center;padding:8px;border:1px solid #22304a;border-radius:12px;margin-bottom:7px;cursor:pointer;background:#131d33}
+.ag.on{border-color:#2563eb;background:#16264a}
+.ag i{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-size:18px}
+.ag b{display:block}.ag small{display:block;color:#8b9ab5}
+.bekerja{color:#34d399!important}.selesai{color:#60a5fa!important}
+.lg{font-size:11.5px;color:#8b9ab5;border-bottom:1px solid #1d2a44;padding:4px 2px}
+#pres{position:fixed;inset:0;background:#000d;display:none;z-index:9;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#pres.on{display:flex}
+#pres canvas{width:min(96vw,calc(82vh*16/9));height:auto;border-radius:10px;touch-action:none}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111c;color:#fff;padding:8px 14px;border-radius:8px;display:none;z-index:20;max-width:90vw}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:15}.modal.on{display:flex}
+.modal .box{background:#111a2e;border:1px solid #2a3a5e;border-radius:14px;padding:16px;width:min(440px,94vw);max-height:92vh;overflow:auto}
+.modal h3{margin:0 0 4px;font-size:16px;text-transform:none;letter-spacing:0;color:#fff}
+.modal label{display:block;margin:10px 0 4px;color:#8b9ab5;font-size:12px}
+.modal textarea{width:100%;background:#0b1626;color:#e8edf7;border:1px solid #2a3a5e;border-radius:8px;padding:8px;font:inherit;resize:vertical}
+.modal input,.modal select{width:100%;background:#0b1626;color:#e8edf7;border:1px solid #2a3a5e;border-radius:8px;padding:8px;font:inherit}
+#o_info{font-size:12px;color:#93c5fd;margin-top:6px}
+#o_res table{width:100%;border-collapse:collapse;margin-top:10px}#o_res td{padding:5px 2px;border-bottom:1px solid #22304a}#o_res td:last-child{text-align:right}
+.g{color:#4ade80}.rr{color:#f87171}
+.modal .box.wide{width:min(920px,96vw)}
+.cards{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.cards>div{flex:1;min-width:150px;background:#0b1626;border:1px solid #22304a;border-radius:10px;padding:8px 10px}.cards small{display:block;color:#8b9ab5;font-size:11px}.cards b{font-size:16px}
+.tabs2{display:flex;gap:6px;margin:6px 0}.tabs2 button{background:#131d33;color:#cbd5e1;border:1px solid #2a3a5e;border-radius:999px;padding:5px 12px;cursor:pointer}.tabs2 button.on{background:#2563eb;color:#fff}
+.pfw{overflow:auto;max-height:46vh}.pft{width:100%;border-collapse:collapse;font-size:12.5px}.pft th,.pft td{padding:6px 8px;border-bottom:1px solid #22304a;text-align:right;white-space:nowrap}.pft th:first-child,.pft td:first-child{text-align:left}.pft th{color:#8b9ab5;position:sticky;top:0;background:#111a2e}
+.sm{background:#2563eb;color:#fff;border:0;border-radius:8px;padding:3px 9px;cursor:pointer}
+.btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}.btns button{border:0;border-radius:8px;padding:8px 14px;cursor:pointer;background:#22304a;color:#e8edf7}.btns .pri{background:#2563eb}
+#topbar{position:absolute;left:12px;top:10px;right:12px;display:flex;gap:10px;align-items:center;pointer-events:none;flex-wrap:wrap}
+.pill{pointer-events:auto;background:linear-gradient(180deg,rgba(14,40,78,.93),rgba(8,26,56,.93));border:1px solid rgba(80,160,230,.35);border-radius:16px;box-shadow:0 4px 14px #0006;color:#e8f2ff}
+#brand{display:flex;gap:10px;align-items:center;padding:7px 16px}
+#brand b{font-size:19px;letter-spacing:.08em;display:block;line-height:1.05}
+#brand small{color:#9cc4ee;font-size:12px}
+#nav{display:flex;gap:4px;padding:5px 8px}
+.np{background:transparent;color:#cfe3fa;border:0;border-radius:12px;padding:9px 13px;font-weight:600;cursor:pointer;font-size:13px}
+.np.on{background:#1d7bff;color:#fff;box-shadow:0 0 12px #1d7bff88}
+#stat{display:flex;gap:8px;padding:6px 10px;margin-left:auto}
+.sc{display:flex;align-items:center;gap:6px;background:#0c2a55;border-radius:12px;padding:7px 11px;font-weight:600;font-size:12.5px}
+.sc i{width:9px;height:9px;border-radius:50%;background:#34d399;display:inline-block}
+#roomtabs{position:absolute;left:12px;top:74px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none;max-width:70%}
+.rt{pointer-events:auto;background:rgba(10,30,60,.85);color:#cfe3fa;border:1px solid rgba(80,160,230,.3);border-radius:10px;padding:4px 10px;font-size:11.5px;cursor:pointer}
+.rt:hover{background:#1d7bff;color:#fff}
+#rl .rl{position:absolute;left:0;top:0;background:linear-gradient(180deg,rgba(14,40,78,.95),rgba(8,26,56,.95));border:1px solid rgba(90,170,240,.55);color:#fff;border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 3px 10px #0007;cursor:pointer;display:none;will-change:transform}
+#tools{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:4px;padding:6px 8px}
+.tb{background:transparent;color:#dcebff;border:0;border-radius:12px;padding:8px 13px;cursor:pointer;font-weight:600;font-size:13px}
+.tb.on{background:#1d7bff}
+#mini{position:absolute;left:12px;bottom:12px;padding:8px;width:210px}
+#mini canvas{width:100%;display:block;background:#06182f;border-radius:10px;cursor:pointer}
+.mm{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px}
+.mm button{background:#12396f;color:#fff;border:0;border-radius:8px;width:26px;height:26px;cursor:pointer;margin-left:4px;font-size:15px}
+#tag{position:absolute;right:20px;bottom:16px;font:italic 700 24px "Segoe Script","Brush Script MT",cursive;color:#fff;text-shadow:0 2px 8px #000a;transform:rotate(-6deg);pointer-events:none;text-align:right;line-height:1.1}
+#actions{position:absolute;left:240px;right:12px;bottom:66px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none;justify-content:center}
+@media(max-width:860px){#mini,#tag{display:none}#actions{left:12px}#roomtabs{top:128px;max-width:100%}}
+body.cmp #brand b,body.cmp #brand small,body.cmp .tx,body.cmp .sc.x{display:none}
+body.cmp #brand{padding:5px 8px}body.cmp #brand>span{font-size:22px!important}
+body.cmp #topbar{flex-wrap:nowrap;gap:6px;overflow:hidden;top:6px;left:6px;right:6px}
+body.cmp #nav{padding:3px 4px}body.cmp .np{padding:7px 10px;font-size:16px}
+body.cmp #stat{padding:3px 6px;margin-left:auto}body.cmp .sc{padding:5px 8px;font-size:11px}
+body.cmp #roomtabs,body.cmp #mini,body.cmp #tag,body.cmp #actions{display:none}
+body.cmp #tools{bottom:8px;padding:3px 4px}body.cmp .tb{padding:7px 11px;font-size:16px}
+body.cmp #rl .rl{font-size:10px;padding:2px 7px}
+#fab{display:none;position:absolute;right:10px;bottom:10px;z-index:4;width:46px;height:46px;border-radius:50%;border:0;background:#1d7bff;color:#fff;font-size:20px;box-shadow:0 4px 14px #0008;cursor:pointer}
+body.cmp #fab{display:block}
+#sheet{display:none;position:absolute;left:8px;right:8px;bottom:62px;max-height:72%;overflow:auto;background:rgba(8,26,56,.97);border:1px solid rgba(80,160,230,.4);border-radius:16px;padding:10px;z-index:5}
+#sheet.on{display:block}
+#sheet h4{margin:8px 0 6px;font-size:11px;color:#9cc4ee;text-transform:uppercase;letter-spacing:.06em}
+#sheet .grid{display:flex;flex-wrap:wrap;gap:6px}
+#sheet .grid button{flex:1 1 44%;background:#12396f;color:#fff;border:0;border-radius:10px;padding:10px 6px;font-size:13px}
+body.map #pg-kantor{grid-template-columns:1fr!important;grid-template-rows:100%!important}body.map #side{display:none}
+body.hideui #topbar,body.hideui #tools,body.hideui #rl,body.hideui #roomtabs,body.hideui #mini,body.hideui #actions,body.hideui #tag{display:none!important}
+@media(max-width:860px){body.cmp #pg-kantor{grid-template-rows:56% 1fr}}
+@media(min-width:861px){body.cmp #pg-kantor{grid-template-columns:1fr 300px}}
+#brand{display:none}
+#pg-kantor{color:#e8edf7}
+#pg-kantor.on{display:grid}
+/* ===== LOGIN ===== */
+#login{position:fixed;inset:0;z-index:50;display:grid;grid-template-columns:1.05fr 1fr;background:#fff;color:#0f172a;transition:opacity .45s,transform .45s}
+#login.out{opacity:0;transform:scale(1.03);pointer-events:none}
+.lg-l{position:relative;overflow:hidden;background:linear-gradient(160deg,#0a1a33,#0d3a52 60%,#0f766e);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:48px}
+.lg-l:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff0d 1px,transparent 1px),linear-gradient(90deg,#ffffff0d 1px,transparent 1px);background-size:38px 38px;animation:gridmv 14s linear infinite}
+@keyframes gridmv{to{background-position:38px 38px}}
+.lg-l>*{position:relative}
+.lg-logo{font-size:30px;font-weight:800;letter-spacing:.06em}.lg-logo span{color:#34d399}
+.lg-l h2{font-size:26px;line-height:1.35;margin:18px 0 0;max-width:340px}
+.bars{display:flex;gap:7px;align-items:flex-end;height:100px;margin-top:34px}
+.bars i{width:16px;border-radius:4px 4px 0 0;background:linear-gradient(#34d399,#0f766e);transform-origin:bottom;animation:bar 2.4s ease-in-out infinite}
+@keyframes bar{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.lg-r{display:grid;place-items:center;padding:24px}
+.lg-c{width:min(380px,100%);animation:up .6s both}
+@keyframes up{from{opacity:0;transform:translateY(18px)}}
+.lg-c h3{margin:0;font-size:24px}.lg-c p{color:#64748b;margin:4px 0 8px}
+.lg-c label{display:block;margin:14px 0 5px;font-size:12px;color:#475569;font-weight:600}
+.lg-c input[type=text],.lg-c input[type=password]{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;font:inherit;transition:border .2s,box-shadow .2s}
+.lg-c input:focus{outline:0;border-color:#10b981;box-shadow:0 0 0 3px #10b98133}
+.pw2{position:relative}.pw2 button{position:absolute;right:6px;top:5px;border:0;background:none;cursor:pointer;font-size:16px}
+.rm{display:flex!important;gap:7px;align-items:center;font-weight:500!important}
+#lg_m{color:#dc2626;font-size:12px;min-height:18px;margin-top:8px}
+.lg-b{width:100%;margin-top:6px;border:0;border-radius:10px;padding:12px;background:#0b1426;color:#fff;font:inherit;font-weight:700;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:transform .15s,background .2s}
+.lg-b:hover{background:#10b981;transform:translateY(-1px)}.lg-b:disabled{opacity:.7;cursor:wait}
+.lg-b.ld:after{content:"";width:14px;height:14px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lg-c small{display:block;margin-top:16px;color:#94a3b8;font-size:11.5px;line-height:1.5}
+/* ===== KERANGKA APLIKASI ===== */
+#app{display:none;height:100%;background:#f1f5f9;color:#0f172a}
+#app.on{display:flex;animation:fadein .5s}
+@keyframes fadein{from{opacity:0}}
+#sb{width:248px;flex:none;background:#0b1426;color:#cbd5e1;display:flex;flex-direction:column;transition:margin .3s,transform .3s;z-index:12}
+body.sbc #sb{margin-left:-248px}
+.sb-h{display:flex;gap:10px;align-items:center;padding:16px 14px;border-bottom:1px solid #ffffff12}
+.sb-h i{width:34px;height:34px;border-radius:10px;background:#10b981;display:grid;place-items:center;font-style:normal;font-size:17px}
+.sb-h b{color:#fff;display:block}.sb-h small{color:#34d399;font-size:10px;letter-spacing:.06em}
+#kn{flex:1;overflow:auto;padding:10px}
+.gp{margin-bottom:4px}
+.gh{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;color:#e2e8f0;font-weight:600;user-select:none;transition:background .2s}
+.gh:hover{background:#ffffff0f}
+.gh em{font-style:normal;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#ffffff12}
+.gh s{margin-left:auto;text-decoration:none;transition:transform .3s;font-size:10px;color:#64748b}
+.gp.open .gh s{transform:rotate(180deg)}
+.its{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+.gp.open .its{grid-template-rows:1fr}
+.its>div{overflow:hidden;padding-left:12px;border-left:1px solid #ffffff14;margin-left:23px}
+.it{display:block;width:100%;text-align:left;background:none;border:0;color:#94a3b8;padding:8px 10px;border-radius:8px;cursor:pointer;font:inherit;transition:background .2s,color .2s,transform .2s}
+.it:hover{background:#ffffff0f;color:#fff;transform:translateX(3px)}
+.it.on{background:#10b98126;color:#34d399;font-weight:700}
+.sb-f{display:flex;gap:10px;align-items:center;padding:12px 14px;border-top:1px solid #ffffff12}
+.av{width:34px;height:34px;border-radius:50%;background:#10b981;color:#fff;display:grid;place-items:center;font-weight:800}
+.sb-f b{color:#fff;display:block;font-size:12.5px}.sb-f small{color:#64748b}
+.sb-f button{margin-left:auto;background:none;border:0;color:#94a3b8;cursor:pointer;font-size:17px}
+#mn{flex:1;min-width:0;display:flex;flex-direction:column}
+#tb{height:54px;flex:none;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;padding:0 14px}
+#hb{width:36px;height:36px;border:1px solid #e2e8f0;background:#fff;border-radius:10px;cursor:pointer;font-size:17px;transition:background .2s,transform .2s}
+#hb:hover{background:#ecfdf5;transform:scale(1.06)}
+#tb h1{font-size:15px;margin:0;line-height:1.1}#tb small{color:#64748b;font-size:11px}
+.lv{display:inline-flex;align-items:center;gap:6px;background:#ecfdf5;color:#047857;font-weight:700;font-size:10.5px;padding:4px 9px;border-radius:999px}
+.lv i{width:7px;height:7px;border-radius:50%;background:#10b981;animation:pls 1.4s infinite}
+@keyframes pls{50%{opacity:.25;transform:scale(1.5)}}
+.dp{margin-left:auto;border:1px solid #e2e8f0;border-radius:10px;padding:7px 11px;font-weight:600;font-size:12px;color:#334155;white-space:nowrap}
+#pgs{flex:1;min-height:0;position:relative}
+.pg{display:none;position:absolute;inset:0;overflow:auto}
+.pg.on{display:block;animation:pgin .35s ease}
+@keyframes pgin{from{opacity:0;transform:translateY(8px)}}
+/* ===== HALAMAN DATA ===== */
+.pw{padding:18px;max-width:1280px;margin:auto}
+.pw h2{margin:0 0 2px;font-size:20px}.pw .sub{color:#64748b;margin-bottom:14px;font-size:12.5px}
+.kg{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:12px}
+.kc,.bx{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;box-shadow:0 1px 3px #0f172a0a;animation:pgin .5s both}
+.kc small{display:block;color:#64748b;font-size:11.5px}.kc b{font-size:21px;display:block;margin-top:4px}
+.g2{color:#16a34a}.r2{color:#dc2626}
+.rw{display:grid;gap:12px;margin-bottom:12px}.rw.a{grid-template-columns:2fr 1fr}.rw.b{grid-template-columns:1fr 1fr}
+.bx h4{margin:0 0 8px;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+.bx canvas{width:100%;height:230px;display:block}
+.sl{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e2e8f0;font-size:12.5px}.sl:last-child{border:0}
+.tw{overflow:auto}
+.tt{width:100%;border-collapse:collapse;font-size:12.5px}
+.tt th{position:sticky;top:0;background:#f8fafc;color:#64748b;text-align:right;padding:9px 10px;font-weight:600;white-space:nowrap}
+.tt td{padding:9px 10px;border-top:1px solid #eef2f7;text-align:right;white-space:nowrap}
+.tt th.l,.tt td.l{text-align:left}
+.tt tbody tr:hover{background:#f0fdf4}
+.bd{padding:2px 9px;border-radius:999px;font-weight:700;font-size:11px}
+.bd.WIN{background:#dcfce7;color:#15803d}.bd.LOSS{background:#fee2e2;color:#b91c1c}.bd.OPEN{background:#dbeafe;color:#1d4ed8}.bd.BE{background:#e2e8f0;color:#475569}
+.fl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.fl input,.fl select{border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:#0f172a}
+.fl button{border:0;border-radius:10px;padding:8px 14px;background:#10b981;color:#fff;font-weight:700;cursor:pointer;transition:transform .15s}
+.fl button:hover{transform:translateY(-1px)}.fl button.sec{background:#0b1426}
+@media(max-width:860px){
+#sb{position:fixed;left:0;top:0;bottom:0;box-shadow:8px 0 30px #0006}
+body.sbc #sb{margin-left:0;transform:translateX(-100%)}body.sbc #sb{box-shadow:none}
+#login{grid-template-columns:1fr}.lg-l{display:none}
+#tb small,.lv{display:none}.rw.a,.rw.b{grid-template-columns:1fr}}
+
+/* ===== Kantor 3D bersih: chat popup + panel divisi ===== */
+#pg-kantor{grid-template-columns:1fr!important;grid-template-rows:100%!important}
+#fab,#sheet,#actions,#tag,#stat{display:none!important}
+#side{display:none!important;position:absolute;right:14px;bottom:74px;width:min(380px,calc(100% - 28px));max-height:calc(100% - 96px);z-index:8;border:1px solid #22304a;border-radius:16px;box-shadow:0 12px 40px #000a;animation:pgin .25s}
+body.pop-chat #side,body.pop-div #side{display:flex!important}
+body.pop-chat #agl,body.pop-div #chat{display:none}
+body.pop-div #side{height:min(70%,540px)}
+#chat{height:min(60vh,440px)}
+#fabc{position:absolute;right:14px;bottom:14px;z-index:9;width:52px;height:52px;border-radius:50%;border:0;background:#10b981;color:#fff;font-size:23px;box-shadow:0 6px 18px #0009;cursor:pointer;transition:transform .2s}
+#fabc:hover{transform:scale(1.1) rotate(-6deg)}
+body.pop-chat #fabc{background:#0b1426}
+</style>
+</head>
+<body>
+<div id="login"><div class="lg-l"><div class="lg-logo">📊 KANTOR <span>AI</span></div><h2>Investasi lebih cerdas, dengan bantuan AI.</h2><div class="bars" id="lg_bars"></div></div>
+<div class="lg-r"><div class="lg-c"><h3>Selamat Datang</h3><p>Masuk untuk melanjutkan ke Kantor AI Anda.</p>
+<label>Username</label><input type="text" id="lg_u" autocomplete="username" placeholder="Masukkan username" onkeydown="if(event.key==='Enter')$('lg_p').focus()">
+<label>Password</label><div class="pw2"><input type="password" id="lg_p" autocomplete="current-password" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" onclick="lgEye()" title="Tampilkan">👁</button></div>
+<label class="rm"><input type="checkbox" id="lg_r" checked> Ingat username</label><div id="lg_m"></div>
+<button class="lg-b" id="lg_b" onclick="doLogin()">Masuk →</button>
+<small>Belum punya login? Di Google Sheets buka menu Kantor Virtual › Atur Login Web.</small></div></div></div>
+<div id="app">
+<aside id="sb"><div class="sb-h"><i>📊</i><div><b>Kantor AI</b><small>FINANCIAL ANALYST</small></div></div>
+<div id="kn"></div>
+<div class="sb-f"><div class="av" id="u_av">U</div><div><b id="u_n">User</b><small>Operator</small></div><button onclick="doLogout()" title="Keluar">⎋</button></div></aside>
+<section id="mn"><header id="tb"><button id="hb" onclick="document.body.classList.toggle('sbc')" title="Menu">☰</button><div><h1 id="tt_h">Kantor AI Agent</h1><small id="tt_s">Kantor 3D & Jarvis</small></div><span class="lv"><i></i>LIVE SYNC</span><span class="dp" id="tb_d">-</span></header>
+<div id="pgs"><div id="pg-kantor" class="pg on">
+<div id="stage">
+  <canvas id="gl"></canvas><button id="fabc" onclick="togglePop('chat')" title="Chat Jarvis">💬</button>
+  <div id="rl"></div>
+  <div id="topbar">
+    <div class="pill" id="brand"><span style="font-size:30px">📊</span><div><b>KANTOR AI</b><small>Financial Analyst</small></div></div>
+    <div class="pill" id="nav"></div>
+    <div class="pill" id="stat"></div>
+  </div>
+  <div id="roomtabs"></div>
+  <div id="actions"></div>
+  <div class="pill" id="tools"><button class="tb" id="m_zoom" onclick="setMode('zoom')">🔍<span class="tx"> Zoom</span></button><button class="tb on" id="m_pan" onclick="setMode('pan')">✋<span class="tx"> Geser</span></button><button class="tb" id="m_rot" onclick="setMode('rot')">🔄<span class="tx"> Rotasi</span></button><button class="tb" onclick="fullView()">⛶<span class="tx"> Full View</span></button></div>
+  <div class="pill" id="mini"><canvas id="mm" width="190" height="138"></canvas><div class="mm"><span>Lantai 1</span><span><button onclick="zoom(.8)">+</button><button onclick="zoom(1.25)">−</button></span></div></div>
+  <button id="fab" onclick="toggleSheet()" title="Menu">☰</button><div id="sheet"></div>
+  <div id="tag">Tim Hebat<br>untuk Tujuan Besar</div>
+</div>
+<div id="side">
+  <div id="chat">
+    <div class="chh"><i></i>J.A.R.V.I.S <small style="color:#8b9ab5;font-weight:400">· asisten Kantor AI</small><span style="margin-left:auto"><button class="vb" id="vbtn" onclick="toggleVoice()" title="Suara jawaban">🔇</button><button class="vb" onclick="togglePop('chat')" title="Tutup">✕</button></span></div>
+    <div id="msgs"></div><div id="qr"></div>
+    <div class="cin"><input id="q" placeholder="Perintahkan Jarvis atau tanya apa saja…" onkeydown="if(event.key==='Enter')ask()"><button id="micb" onclick="listen()" title="Bicara" style="background:#334e7a">🎤</button><button id="askb" onclick="ask()">➤</button></div>
+  </div>
+  <div id="agl"></div>
+</div>
+</div>
+<div id="pg-dash" class="pg"><div class="pw"><h2>Dashboard Trading</h2><div class="sub">Saldo = setoran − penarikan + laba/rugi terealisasi (dari Catat Penjualan).</div>
+<div class="fl"><button onclick="loadTrade()">⟳ Muat ulang</button><button class="sec" onclick="openAkun()">💳 Setor / Tarik</button></div>
+<div class="kg" id="d_cards"></div>
+<div class="rw a"><div class="bx"><h4>Saldo akun (kumulatif)</h4><canvas id="c_eq"></canvas></div><div class="bx"><h4>Win rate</h4><canvas id="c_wr"></canvas></div></div>
+<div class="rw b"><div class="bx"><h4>Statistik</h4><div id="d_st"></div></div><div class="bx"><h4>Laba/rugi 10 transaksi terakhir</h4><canvas id="c_bar"></canvas></div></div>
+</div></div>
+<div id="pg-log" class="pg"><div class="pw"><h2>Trade Log</h2><div class="sub" id="l_sub">-</div>
+<div class="fl"><input id="l_q" placeholder="Cari kode saham…" oninput="TF.q=this.value;tLog()"><select onchange="TF.st=this.value;tLog()"><option value="ALL">Semua status</option><option value="OPEN">OPEN</option><option value="WIN">WIN</option><option value="LOSS">LOSS</option></select><button onclick="loadTrade()">⟳ Muat ulang</button></div>
+<div class="bx tw" style="padding:0"><table class="tt"><thead><tr><th class="l">Waktu</th><th class="l">Saham</th><th>Lot</th><th>Harga beli</th><th>Harga jual</th><th>Fee</th><th>L/R (Rp)</th><th>L/R %</th><th>Status</th><th>Sesi</th><th class="l">Catatan</th></tr></thead><tbody id="l_tb"></tbody></table></div>
+</div></div>
+</div></section></div>
+<div id="pres"><div id="pbar"></div></div>
+<div id="ord" class="modal"><div class="box">
+  <h3>🛒 Rencana Beli · Leader</h3><div style="color:#8b9ab5;font-size:12px">Pilih saham rekomendasi, lalu isi harga dan jumlah lot. Total dihitung otomatis.</div>
+  <label>Saham rekomendasi (urut skor)</label><select id="o_s" onchange="ordPick()"></select><div id="o_info"></div>
+  <label>Harga beli per lembar (Rp)</label><input id="o_p" type="number" min="1" oninput="ordCalc('p')">
+  <label>Jumlah lot (1 lot = 100 lembar)</label><input id="o_l" type="number" min="0" oninput="ordCalc('l')">
+  <label>atau isi Budget (Rp) → lot dihitung otomatis</label><input id="o_b" type="number" min="0" oninput="ordCalc('b')">
+  <div id="o_res"></div>
+  <div class="btns"><button onclick="closeOrd()">Batal</button><button class="pri" onclick="saveOrd()">Simpan rencana</button></div>
+</div></div>
+<div id="inp" class="modal"><div class="box">
+  <h3>⌨ Input Saham · Beli Sore Jual Pagi</h3>
+  <div style="color:#8b9ab5;font-size:12px;line-height:1.5">Tempel kode saham dari screener Anda (satu per baris atau dipisah koma). Opsional: tambahkan harga dan volume live setelah kode, misalnya <b>TMPO 167 160083900</b> (volume dalam lembar). Agent menganalisis semuanya, mengurutkan dari skor tertinggi, dan memberi harga beli serta harga jual besok pagi. Kode yang sama diperbarui otomatis.</div>
+  <label>Kode saham</label><textarea id="i_t" rows="7" placeholder="TMPO&#10;TRUK 4020 2667000&#10;ACES"></textarea>
+  <div class="btns"><button onclick="closeInp()">Batal</button><button class="pri" onclick="runManualWeb()">Analisis & Urutkan</button></div>
+</div></div>
+<div id="pf" class="modal"><div class="box wide">
+  <h3>💼 Portofolio</h3><div id="pf_sum"></div>
+  <div class="tabs2"><button id="pt_pos" class="on" onclick="pfTab('pos')">Posisi saya</button><button id="pt_jual" onclick="pfTab('jual')">Riwayat penjualan</button></div>
+  <div class="pfw" id="pf_body"></div>
+  <div class="btns"><button onclick="closePf()">Tutup</button><button class="pri" onclick="openSell()">💸 Catat Penjualan</button></div>
+</div></div>
+<div id="sell" class="modal"><div class="box">
+  <h3>💸 Catat Penjualan</h3><div style="color:#8b9ab5;font-size:12px;line-height:1.5">Isi harga jual dan lot. Untung/rugi dihitung otomatis (sudah termasuk fee). Sesi 1 = sebelum 12:30, Sesi 2 = sesudahnya.</div>
+  <label>Saham di portofolio</label><select id="s_k" onchange="sellPick()"></select><div id="s_info" style="font-size:12px;color:#93c5fd;margin-top:6px"></div>
+  <label>Harga jual per lembar (Rp)</label><input id="s_p" type="number" min="1" oninput="sellCalc()">
+  <label>Jumlah lot dijual</label><input id="s_l" type="number" min="1" oninput="sellCalc()">
+  <label>Sesi</label><select id="s_s"><option value="auto">Otomatis (sesuai jam sekarang)</option><option value="1">Sesi 1 (sebelum 12:00)</option><option value="2">Sesi 2 (setelah 13:30)</option></select>
+  <div id="s_res"></div>
+  <div class="btns"><button onclick="closeSell()">Batal</button><button class="pri" onclick="saveSell()">Simpan penjualan</button></div>
+</div></div>
+<div id="akn" class="modal"><div class="box"><h3>💳 Setor / Tarik Dana</h3><div style="color:#8b9ab5;font-size:12px;line-height:1.5">Saldo akun = setoran − penarikan + laba/rugi terealisasi.</div>
+<label>Jenis</label><select id="a_j"><option value="Deposit">Setor (Deposit)</option><option value="Withdraw">Tarik (Withdraw)</option></select>
+<label>Jumlah (Rp)</label><input id="a_n" type="number" min="1"><label>Tanggal</label><input id="a_t" type="date"><label>Catatan (opsional)</label><input id="a_c" maxlength="100">
+<div class="btns"><button onclick="closeAkun()">Batal</button><button class="pri" onclick="saveAkun()">Simpan</button></div></div></div>
+<div id="toast"></div>
+<script>
+/* ===== PENGHUBUNG GITHUB -> APPS SCRIPT =====
+   Otomatis tidak aktif jika halaman dibuka di dalam Apps Script.
+   Isi API_URL dengan alamat Web App Anda (berakhiran /exec). */
+(function(){
+  if(window.google&&window.google.script&&window.google.script.run)return;
+  var API_URL='https://script.google.com/macros/s/AKfycbyQQQsfp55ed9krrvwv0Y24lfpXTREsg8gLIodS61zOZJmvzqXqixZ8PRj7wrUOAJ5Z/exec';
+  if(API_URL.indexOf('https://script.google.com/')!==0)return;   /* belum diisi -> mode DEMO */
+  var TK='kai_tok';
+  try{if(!sessionStorage.getItem(TK))sessionStorage.removeItem('kai_in')}catch(e){}
+  function call(fn,args,ok,bad){
+    var tok='';try{tok=sessionStorage.getItem(TK)||''}catch(e){}
+    fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:fn,args:args,token:tok})})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d&&d.ok){
+        var r=d.r;
+        if(fn==='loginWeb'&&r&&r.ok&&r.token){try{sessionStorage.setItem(TK,r.token)}catch(e){}}
+        if(ok)ok(r);
+      }else if(d&&d.auth){
+        try{sessionStorage.removeItem(TK);sessionStorage.removeItem('kai_in')}catch(e){}
+        alert('Sesi login habis. Silakan masuk lagi.');location.reload();
+      }else if(bad)bad(new Error((d&&d.error)||'Server tidak merespons'));
+    })
+    .catch(function(e){if(bad)bad(e)});
+  }
+  function mk(ok,bad){return new Proxy({},{get:function(_,n){
+    if(typeof n!=='string'||n==='then')return undefined;
+    if(n==='withSuccessHandler')return function(f){return mk(f,bad)};
+    if(n==='withFailureHandler')return function(f){return mk(ok,f)};
+    return function(){call(n,[].slice.call(arguments),ok,bad)};
+  }})}
+  window.google={script:{run:mk(null,null)}};
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============ DATA & STATE ============ */
+const HAS=!!(window.google&&google.script&&google.script.run);
+const $=id=>document.getElementById(id);
+const TICK=['BBCA','BBRI','BMRI','TLKM','ASII','ANTM','GOTO','ADRO','MDKA','BRIS','UNTR','ICBP'];
+const AG=[
+ {k:'lead',n:'Leader & Evaluator',r:'Memantau market, evaluasi & rencana beli',ic:'🧭',c:0xa855f7,hair:0x3b1d4a,skin:0xd9a07a},
+ {k:'day',n:'Beli Sore Jual Pagi',r:'Analisis & ranking hasil screening Anda',ic:'🌇',c:0xef4444,hair:0x2b2118,skin:0xf1c9a5},
+ {k:'tech',n:'Analis Teknikal',r:'Chart & indikator',ic:'📊',c:0xf59e0b,hair:0x5a3a1e,skin:0xf4d2b0},
+ {k:'fund',n:'Analis Fundamental',r:'Valuasi & kinerja emiten',ic:'🏦',c:0x10b981,hair:0x111827,skin:0xe8b992},
+ {k:'div',n:'Dividend Hunter',r:'Cum date hingga pembayaran',ic:'💰',c:0x14b8a6,hair:0x7c2d12,skin:0xf1c9a5},
+ {k:'ask',n:'Analis Pasar',r:'Diskusi, berita & analisis',ic:'💬',c:0xec4899,hair:0x1f2937,skin:0xe0ac82}
+];
+const ALLK=AG.map(a=>a.k);
+const PH={dividen:{lbl:'Dividend Hunter',ag:['div']},laporan:{lbl:'Laporan 16:30',ag:['lead']},ibadah:{lbl:'Menyiapkan firman',ag:ALLK}};
+let DATA={recs:[],reports:[],log:[],div:[],divSummary:'',ibadah:[],updated:''},RUN=null,SEL=null,SPK=null,SL=[],SI=0,PAUSE=false,dirty=true,lastSlide=0,GOAL=null,LASTQ=null,ASKING=false,WD=null,lastWm=null,tSec=-9,sideSig='',ORD=[];
+const SC={y:0,max:0,man:false},CHAT=[];
+AG.forEach(a=>{a.done=false;a.busy=false;a.text='standby'});
+
+function jk(){const o={};new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jakarta',weekday:'short',hour:'2-digit',minute:'2-digit',year:'numeric',month:'2-digit',day:'2-digit',hour12:false}).formatToParts(new Date()).forEach(x=>o[x.type]=x.value);return{date:o.year+'-'+o.month+'-'+o.day,min:(+o.hour%24)*60+ +o.minute,wd:{Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7}[o.weekday]}}
+function phase(){const j=jk(),m=j.min;if(j.wd>5)return j.wd===7&&m>=900&&m<960?'Ibadah mingguan':'Akhir pekan';return m<360?'Menunggu 06:00':m<540?'Pre-market':m<930?'Market buka':m<990?'Pra-penutupan (BTST)':'Laporan penutupan'}
+function wmode(){if(WD){const e=performance.now()/1000-WD;if(e<18)return'pujian';if(e<18+AG.length*8)return'sharing';WD=null}const j=jk();if(j.wd===7){if(j.min>=900&&j.min<930)return'pujian';if(j.min>=930&&j.min<960)return'sharing'}return null}
+function sched(){const j=jk(),m=j.min,S=new Set();if(j.wd>=1&&j.wd<=5){if(m>=540&&m<955)S.add('lead');if(m>=960&&m<1000)S.add('div');if(m>=990&&m<1005)S.add('lead')}return S}
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',5000)}
+const n0=v=>Math.round(+v).toLocaleString('id-ID');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function norm(d){d.recs=d.recs||[];d.reports=d.reports||[];d.log=d.log||[];d.div=d.div||[];d.ibadah=d.ibadah||[];d.port=d.port||[];d.sales=d.sales||[];d.prices=d.prices||{};d.divSummary=d.divSummary||'';d.recs.forEach(r=>['skor','acuan','lo','hi','t1','t2','sl','rr'].forEach(k=>r[k]=+r[k]));return d}
+const latest=t=>{const a=DATA.recs.filter(r=>r.tipe===t),d=a.map(r=>r.date).sort().pop();return a.filter(r=>r.date===d).sort((x,y)=>y.skor-x.skor)};
+
+let MODE='pan',MT=null,lastMt=false,AUTO_MEET='',NOW=0;
+function meetMode(){return !!MT&&(MT.st==='kumpul'||MT.st==='diskusi')}
+
+/* ============ ADEGAN 3D: kantor isometrik multi-ruang ============ */
+const WH=9.5;
+const gl=$('gl'),ren=new THREE.WebGLRenderer({canvas:gl,antialias:true});
+ren.setPixelRatio(Math.min(devicePixelRatio||1,2));
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xbfe3f7);scene.fog=new THREE.Fog(0xbfe3f7,150,330);
+const cam=new THREE.PerspectiveCamera(30,1,1,600);
+scene.add(new THREE.AmbientLight(0xfff4e0,.7));scene.add(new THREE.HemisphereLight(0xffffff,0xcfe8c0,.5));const dl=new THREE.DirectionalLight(0xffffff,.55);dl.position.set(14,40,22);scene.add(dl);
+const M=c=>new THREE.MeshLambertMaterial({color:c});
+function bx(w,h,d,c,x,y,z,p){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M(c));m.position.set(x,y,z);(p||scene).add(m);return m}
+function cyl(r,h,c,x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,18),M(c));m.position.set(x,y,z);scene.add(m);return m}
+function ball(r,c,x,y,z){const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),M(c));m.position.set(x,y,z);scene.add(m)}
+function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+function wl(x0,z0,x1,z1,h,c){const t=.3,w=Math.max(Math.abs(x1-x0),t),d=Math.max(Math.abs(z1-z0),t);return bx(w,h,d,c,(x0+x1)/2,h/2,(z0+z1)/2)}
+function gw(x0,z0,x1,z1,h){const w=Math.max(Math.abs(x1-x0),.08),d=Math.max(Math.abs(z1-z0),.08),cx=(x0+x1)/2,cz=(z0+z1)/2;const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshBasicMaterial({color:0x9fd8ff,transparent:true,opacity:.2,depthWrite:false}));m.position.set(cx,h/2,cz);scene.add(m);bx(Math.max(w,.14),.14,Math.max(d,.14),0x3b5169,cx,h,cz)}
+function floor(x0,x1,z0,z1,c){bx(x1-x0,.04,z1-z0,c,(x0+x1)/2,.02,(z0+z1)/2)}
+function plant(x,z,s){s=s||1;bx(.6*s,.5*s,.6*s,0xa05a3c,x,.25*s,z);bx(.9*s,1*s,.9*s,0x3f9b4f,x,s,z);bx(.55*s,.6*s,.55*s,0x55b565,x,1.8*s,z)}
+function tree(x,z,s){bx(.5*s,1.8*s,.5*s,0x7a4a2b,x,-.4+.9*s,z);bx(2.2*s,1.7*s,2.2*s,0x2f9e44,x,-.4+2.5*s,z);bx(1.4*s,1.1*s,1.4*s,0x3fb454,x,-.4+3.7*s,z)}
+function chair(x,z,f,c){c=c||0x1f2937;bx(.75,.12,.75,c,x,.62,z);cyl(.07,.5,0x111827,x,.35,z);if(f[0])bx(.12,.85,.75,c,x-f[0]*.4,1.05,z);else bx(.75,.85,.12,c,x,1.05,z-f[1]*.4)}
+function textPlane(txt,w,h,x,y,z,ry,font,col,bgc){const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const g=c.getContext('2d');if(bgc){g.fillStyle=bgc;g.fillRect(0,0,c.width,c.height)}g.fillStyle=col;g.font=font;g.textAlign='center';const L=txt.split('\n');L.forEach((l,i)=>g.fillText(l,256,c.height/2+(i-(L.length-1)/2)*54+16));const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:!bgc}));p.position.set(x,y,z);p.rotation.y=ry;scene.add(p)}
+
+// tanah, rumput, jalan, pohon (kantor menempel di tanah)
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(900,900),M(0x6fbf5c));ground.rotation.x=-Math.PI/2;ground.position.y=-.4;scene.add(ground);
+bx(8,.04,18,0xd9d4c7,-15,-.38,25);bx(140,.04,6,0xd9d4c7,0,-.38,31);
+[[-30,-6,1.5],[-34,8,1.7],[-30,22,1.3],[30,-8,1.6],[34,6,1.4],[30,22,1.5],[-26,-24,1.7],[26,-24,1.5],[-10,-27,1.4],[8,-27,1.7],[0,-32,1.9],[-24,34,1.4],[22,35,1.5],[-40,-20,1.8],[40,-18,1.8],[-44,14,1.6],[44,16,1.6]].forEach(t=>tree(t[0],t[1],t[2]));
+bx(45,.4,33,0xd9cdb8,0,-.2,0);
+// lantai tiap ruang
+floor(-22,22,-16,16,0xeadfcb);floor(-22,-11,-16,-5,0xd2a56b);floor(11,22,-16,-4,0xb4824f);floor(-22,-11,-4,5.5,0xdccaa6);
+floor(-22,-11,5.5,16,0xaebcd8);floor(0,11,10.5,16,0xf4f0e8);floor(11,22,-4,7,0xc9a46c);floor(12,22,8,16,0xbcc7ce);
+floor(-12,-3,-4,8.5,0xc9d3e3);floor(3,12,-4,8.5,0xc9d3e3);floor(-9,9,-6.4,-4.4,0xd7e0ee);
+// dinding luar
+wl(-22,-16,22,-16,WH,0xf2e9d8);wl(-22,-16,-22,16,7.5,0xf2e9d8);wl(22,-16,22,16,7.5,0xf2e9d8);
+gw(-22,16,-17,16,1.5);gw(-13,16,22,16,1.5);bx(.3,3.4,.3,0x9a6b3d,-17,1.7,16);bx(.3,3.4,.3,0x9a6b3d,-13,1.7,16);bx(4,.3,.3,0x9a6b3d,-15,3.4,16);
+[-12,-8,9,13].forEach(z=>{const p=new THREE.Mesh(new THREE.PlaneGeometry(2.6,3),new THREE.MeshBasicMaterial({color:0xcfe6ff}));p.position.set(-21.8,3.8,z);p.rotation.y=Math.PI/2;scene.add(p)});
+// dinding dalam
+gw(-11,-16,-11,-9,3.6);gw(-11,-7,-11,-5,3.6);gw(-22,-5,-11,-5,3.6);
+wl(11,-16,11,-9,3.4,0x9a6b3d);wl(11,-7,11,-4,3.4,0x9a6b3d);wl(11,-4,22,-4,3.4,0x9a6b3d);
+wl(-11,-4,-11,1,2.4,0xe7d9bd);wl(-11,4,-11,5.5,2.4,0xe7d9bd);wl(-22,5.5,-11,5.5,2.4,0xe7d9bd);
+wl(-11,5.5,-11,8.5,2.4,0xe7d9bd);wl(-11,10.5,-11,16,2.4,0xe7d9bd);
+wl(11,-4,11,1.2,3.4,0x9a6b3d);wl(11,3.4,11,7,3.4,0x9a6b3d);wl(11,7,22,7,3.4,0x9a6b3d);
+wl(12,8,22,8,3.6,0x8d9aa3);wl(12,10.5,12,16,3.6,0x8d9aa3);wl(12,7.5,12,8.5,3.6,0x8d9aa3);
+// layar presentasi besar (kanvas 1280x720)
+const sc=document.createElement('canvas');sc.width=1280;sc.height=720;const sx=sc.getContext('2d');sc.style.touchAction='none';
+const tex=new THREE.CanvasTexture(sc);tex.anisotropy=4;
+bx(12.8,7.5,.2,0x0f172a,0,5.2,-15.7);
+const scr=new THREE.Mesh(new THREE.PlaneGeometry(12.4,6.98),new THREE.MeshBasicMaterial({map:tex}));scr.position.set(0,5.2,-15.58);scr.userData.screen=true;scene.add(scr);
+// resepsionis
+textPlane('KANTOR AI\nFinancial Analyst',6.4,2.4,-21.8,3.6,-1.5,Math.PI/2,'bold 52px system-ui','#fff','#8a5a35');
+bx(4.2,1.1,1.1,0xc08a4a,-17.5,.55,-.3);bx(4.4,.1,1.3,0xe8d5b0,-17.5,1.12,-.3);bx(.6,.5,.1,0x1f2937,-17.5,1.5,-.5);
+bx(.55,1.05,.55,0xe5e7eb,-12.3,.52,.2);cyl(.25,.65,0x60a5fa,-12.3,1.38,.2);
+// ruang meeting
+bx(5,.12,2,0x8a5a35,-16,.95,-11);[[-18.2,-11.8],[-13.8,-11.8],[-18.2,-10.2],[-13.8,-10.2]].forEach(p=>bx(.12,.9,.12,0x5a3a22,p[0],.45,p[1]));
+[-18,-16,-14].forEach(x=>{chair(x,-9.2,[0,-1]);chair(x,-12.8,[0,1])});
+textPlane('Better Analysis\nBigger Opportunities',6,3,-16,3.6,-15.8,0,'italic bold 44px system-ui','#1f3a5f','#f8fafc');
+// ruang direktur
+bx(3.4,1,1.2,0x7a4a26,16.5,.5,-12.5);bx(3.6,.1,1.4,0xa9773f,16.5,1.02,-12.5);bx(1.1,.7,.1,0x1f2937,16.5,1.5,-12.8);
+bx(7,3.4,.6,0x8a5a35,16.5,1.7,-15.5);[0,1,2,3,4,5,6].forEach(i=>[0.8,1.8,2.8].forEach((y,j)=>bx(.5,.5,.3,[0xef4444,0x3b82f6,0xf59e0b,0x10b981][(i+j)%4],13.8+i*.95,y,-15.1)));
+bx(3,.6,1.2,0x2f4f8f,19.4,.35,-6.6);bx(3,.9,.3,0x24407a,19.4,.8,-7.3);plant(12.2,-14.5);plant(21,-5,1.2);
+chair(16.5,-13.9,[0,1],0x7a4a26);
+// billiard & relax
+[[14.2,0.6],[17.8,0.6],[14.2,2.4],[17.8,2.4]].forEach(p=>bx(.22,.8,.22,0x3b2412,p[0],.4,p[1]));
+bx(4,.24,2.1,0x5b3a1e,16,.88,1.5);bx(3.5,.03,1.6,0x16a34a,16,1.01,1.5);
+bx(4,.18,.2,0x5b3a1e,16,1.08,.5);bx(4,.18,.2,0x5b3a1e,16,1.08,2.5);bx(.2,.18,2.1,0x5b3a1e,14,1.08,1.5);bx(.2,.18,2.1,0x5b3a1e,18,1.08,1.5);
+[0xffffff,0xef4444,0xfacc15,0x3b82f6,0x111111,0x22c55e].forEach((c,i)=>ball(.09,c,15+(i%3)*.7,1.13,1.1+Math.floor(i/3)*.6));
+bx(2.8,.6,1.1,0x2f4f8f,19.5,.35,5.8);bx(2.8,.9,.3,0x24407a,19.5,.8,6.4);plant(12,6,1.1);plant(21,-2.5);
+textPlane('Better Analysis\nBigger Opportunities',6,2.6,21.8,3.6,1.5,-Math.PI/2,'italic bold 44px system-ui','#fff','#7a4a26');
+// pantry
+bx(7,1.1,1.1,0xe9e3d6,4.8,.55,12.3);bx(7.2,.1,1.3,0x2d3748,4.8,1.15,12.3);bx(.5,.45,.45,0x111827,3,1.43,12.3);
+[3,4.8,6.6].forEach(x=>{cyl(.28,.7,0xd6b88a,x,.35,13.4);cyl(.34,.06,0xe5c99a,x,.72,13.4)});
+bx(1.2,2.6,1.1,0xd1d5db,9.6,1.3,15.2);cyl(1,.1,0xd6b88a,8.4,.95,14);cyl(.1,.9,0x8b5a2b,8.4,.5,14);chair(7,14,[1,0]);chair(9.8,14,[-1,0]);chair(8.4,12.6,[0,1]);
+plant(1,15,1.1);plant(10.4,10.9,1.1);
+// toilet
+[17,19,21].forEach(x=>{bx(.12,2.4,2.4,0xaab6bd,x-.9,1.2,10.2);bx(.9,.5,.9,0xf8fafc,x-.1,.25,9.8)});bx(3,.9,.8,0xe5e7eb,15,.45,15.4);bx(3,1.4,.1,0x9fd8ff,15,2,15.8);
+// lounge & pintu masuk
+bx(5.6,.5,1.1,0x24408e,-17,.43,6.5);bx(5.6,.9,.25,0x1e3a8a,-17,.95,5.8);bx(.25,.7,1.1,0x1e3a8a,-19.95,.6,6.5);bx(.25,.7,1.1,0x1e3a8a,-14.05,.6,6.5);
+bx(1.1,.5,3.2,0x24408e,-20.8,.43,10.6);bx(.25,.9,3.2,0x1e3a8a,-21.5,.95,10.6);bx(8,.03,4.6,0x8b9bb8,-17,.03,9.7);bx(3,.03,1.2,0x6b7280,-15,.05,15.2);
+plant(-12.4,12.5,1.2);plant(-21,15,1.2);plant(-12.4,7,1);
+// lemari/ rak bawah tengah
+bx(8,2.2,1,0x9a6b3d,-4.5,1.1,15.3);[0.5,1.2,1.9].forEach(y=>bx(7.4,.12,.9,0xc9a572,-4.5,y,15.2));[-7.5,-5.5,-3.5,-1.5].forEach((x,i)=>bx(.8,.5,.5,[0xef4444,0x3b82f6,0xf59e0b,0x10b981][i],x,1.45,15.2));
+// tanaman area hall
+[[-10.5,-10.5],[10.2,-10.5],[-10.5,3.5],[10.4,8],[-1.2,-4.6],[1.2,-4.6],[-10.4,8.8]].forEach(p=>plant(p[0],p[1],1));
+
+// meja kerja
+const HOMES={lead:{x:-9,z:5,lx:-7,node:'ML'},day:{x:-9,z:-1.5,lx:-7,node:'ML'},tech:{x:5,z:-1.5,lx:7,node:'MR'},fund:{x:9,z:-1.5,lx:7,node:'MR'},div:{x:5,z:5,lx:7,node:'MR'},ask:{x:0,z:-11.5,lx:-2,node:'T2'}};
+function desk(x,z,own){bx(2.3,1,1.1,0xe8d5b0,x,.5,z);bx(.6,.9,1.14,0xc9a572,x+.85,.45,z);bx(.14,.35,.14,0x1f2937,x,1.2,z-.25);bx(1.3,.8,.09,0x1f2937,x,1.8,z-.3);bx(1.2,.05,.4,0x94a3b8,x,1.03,z+.2);
+ const m=new THREE.Mesh(new THREE.PlaneGeometry(1.15,.65),new THREE.MeshBasicMaterial({color:own?0x23304d:0x38bdf8}));m.position.set(x,1.8,z-.25);scene.add(m);return m}
+[[-5,-1.5],[-5,5],[9,5],[-4,-11.5],[4,-11.5]].forEach(p=>{desk(p[0],p[1],false);chair(p[0],p[1]+1.05,[0,-1],0x374151)});
+
+/* ============ KARAKTER (chibi) ============ */
+function paintLabel(a){const g=a.lc.getContext('2d');g.clearRect(0,0,300,110);g.fillStyle='#fff';rrect(g,6,6,288,88,18);g.fill();const on=SEL===a||SPK===a;g.strokeStyle=on?'#2563eb':'#cbd5e1';g.lineWidth=on?6:2;g.stroke();g.textAlign='center';g.fillStyle='#0f172a';let fs=32;g.font='bold '+fs+'px system-ui';while(g.measureText(a.n).width>266&&fs>14){fs--;g.font='bold '+fs+'px system-ui'}g.fillText(a.n,150,46);g.font='21px system-ui';g.fillStyle=a.busy?'#16a34a':a.done?'#2563eb':'#64748b';const t=a.text;g.fillText(t.length>26?t.slice(0,25)+'…':t,150,78);a.lt.needsUpdate=true;a.lastText=a.text+(on?'*':'')}
+const shadowGeo=new THREE.CircleGeometry(.6,18);
+/* --- Gaya karakter (mirip contoh vector): kepala besar membulat, mata oval, senyum, rambut tebal --- */
+const STY={
+ lead:{top:0x2a4a86,inner:0xf8fafc,hair:0x2a1a12,skin:0xf1c9a5,style:'short',kind:'jaket'},
+ day:{top:0x17171d,inner:0x17171d,hair:0x2a1a12,skin:0xf4d2b0,style:'short',kind:'hoodie'},
+ tech:{top:0x14473e,inner:0x14473e,hair:0x2a1a12,skin:0xf4d2b0,style:'short',kind:'kemeja',glasses:true},
+ fund:{top:0xa66be0,inner:0xf8fafc,hair:0x3a2417,skin:0xf4d2b0,style:'long',kind:'jaket',pants:0x2b2540},
+ div:{top:0x0f8fa8,inner:0xf8fafc,hair:0x2a1a12,skin:0xe8b992,style:'short',kind:'jaket'},
+ ask:{top:0xe0598f,inner:0xf8fafc,hair:0x1f1a1a,skin:0xe8b992,style:'long',kind:'jaket'},
+ resep:{top:0xe6d3b3,inner:0xf8fafc,hair:0x3a2417,skin:0xf4d2b0,style:'long',kind:'jaket',headset:true,lanyard:true,pants:0x4b3b2e},
+ dir:{top:0x1c2a4a,inner:0xf8fafc,hair:0x2a1a12,skin:0xf1c9a5,style:'short',kind:'jaket',tie:0x1d5fd1}
+};
+function esf(r,c,x,y,z,sx,sy,sz,p){const m=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),M(c));m.position.set(x,y,z);m.scale.set(sx||1,sy||1,sz||1);(p||scene).add(m);return m}
+function sil(rt,rb,h,c,x,y,z,p){const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,14),M(c));m.position.set(x,y,z);(p||scene).add(m);return m}
+function buildChar(a,lab){
+ const S=STY[a.style||a.k]||{},C=S.top!=null?S.top:a.c,SK=S.skin!=null?S.skin:a.skin,HR=S.hair!=null?S.hair:a.hair,PT=S.pants!=null?S.pants:0x1e293b,IN=S.inner!=null?S.inner:C,SH=0x1a1a1f;
+ const g=a.g=new THREE.Group();scene.add(g);
+ /* kaki duduk */
+ a.legsSit=new THREE.Group();g.add(a.legsSit);
+ [-1,1].forEach(sd=>{const th=sil(.12,.12,.72,PT,sd*.15,.78,-.32,a.legsSit);th.rotation.x=Math.PI/2;sil(.1,.1,.74,PT,sd*.15,.4,-.66,a.legsSit);esf(.12,SH,sd*.15,.07,-.72,1,.55,1.5,a.legsSit)});
+ /* kaki berdiri */
+ a.legsStand=new THREE.Group();g.add(a.legsStand);
+ a.leg=[-1,1].map(sd=>{const pv=new THREE.Group();pv.position.set(sd*.15,1.1,0);a.legsStand.add(pv);sil(.12,.1,1.0,PT,0,-.5,0,pv);esf(.12,SH,0,-1.04,-.05,1,.55,1.5,pv);return pv});
+ /* badan */
+ a.body=new THREE.Group();g.add(a.body);const B=a.body;
+ const tor=sil(.31,.35,.82,C,0,1.28,0,B);tor.scale.z=.78;
+ sil(.1,.11,.2,SK,0,1.74,0,B);
+ const col=new THREE.Mesh(new THREE.TorusGeometry(.17,.05,8,16),M(S.kind==='hoodie'||S.kind==='kemeja'?C:IN));col.rotation.x=Math.PI/2;col.position.set(0,1.69,0);B.add(col);
+ if(S.kind==='jaket'){bx(.2,.66,.03,IN,0,1.3,-.255,B);[-1,1].forEach(sd=>{const l=bx(.07,.5,.03,C,sd*.13,1.4,-.262,B);l.rotation.z=-sd*.3;l.material.color.offsetHSL(0,0,-.08)})}
+ if(S.kind==='hoodie'){esf(.3,C,0,1.7,.16,1.15,.75,.7,B);bx(.4,.2,.03,C,0,.98,-.26,B).material.color.offsetHSL(0,0,.04);[-1,1].forEach(sd=>bx(.025,.22,.02,0xe5e7eb,sd*.07,1.5,-.27,B))}
+ if(S.tie){bx(.07,.42,.03,S.tie,0,1.35,-.28,B);bx(.09,.08,.035,S.tie,0,1.56,-.28,B)}
+ if(S.lanyard){[-1,1].forEach(sd=>{const n=bx(.03,.55,.015,0x1f2937,sd*.08,1.4,-.285,B);n.rotation.z=sd*.15});bx(.11,.15,.015,0xf8fafc,0,1.08,-.29,B)}
+ /* kepala */
+ a.head=new THREE.Group();a.head.position.set(0,2.03,0);B.add(a.head);const Hd=a.head;
+ esf(.45,SK,0,0,0,1,.93,.92,Hd);
+ [-1,1].forEach(sd=>{
+  esf(.07,SK,sd*.45,-.04,0,.7,1,1,Hd);
+  esf(.062,0x111111,sd*.16,-.01,-.395,.8,1.35,.5,Hd);
+  esf(.017,0xffffff,sd*.16+.015,.03,-.432,1,1,1,Hd);
+  esf(.055,0xf4a9a0,sd*.27,-.12,-.325,1.1,.7,.5,Hd);
+  const br=bx(.11,.026,.02,HR,sd*.16,.14,-.365,Hd);br.rotation.z=sd*.12});
+ const mo=new THREE.Mesh(new THREE.TorusGeometry(.09,.018,8,16,Math.PI),M(0x7a2d2d));mo.position.set(0,-.11,-.39);mo.rotation.z=Math.PI;Hd.add(mo);
+ const mf=new THREE.Mesh(new THREE.CircleGeometry(.09,16,Math.PI,Math.PI),new THREE.MeshLambertMaterial({color:0xc2413f,side:THREE.DoubleSide}));mf.position.set(0,-.11,-.395);Hd.add(mf);
+ /* rambut */
+ const cap=new THREE.Mesh(new THREE.SphereGeometry(.5,18,12,0,Math.PI*2,0,Math.PI*.52),M(HR));cap.scale.set(1,.96,.98);cap.position.set(0,.03,.05);cap.rotation.x=.6;Hd.add(cap);
+ [[-.2,.3,-.36,.14],[-.07,.34,-.37,.15],[.08,.33,-.37,.14],[.22,.28,-.34,.13]].forEach(f=>esf(f[3],HR,f[0],f[1],f[2],1.1,.8,.8,Hd));
+ [[-.17,.36,-.02,.16],[.12,.38,-.07,.16],[0,.33,.17,.18]].forEach(f=>esf(f[3],HR,f[0],f[1],f[2],1,1,1,Hd));
+ if(S.style==='long'){esf(.5,HR,0,-.3,.16,1,1.3,.45,Hd);[-1,1].forEach(sd=>esf(.16,HR,sd*.4,-.5,-.06,.8,2.1,.8,Hd))}
+ if(S.glasses){[-1,1].forEach(sd=>{const r=new THREE.Mesh(new THREE.TorusGeometry(.105,.016,8,18),M(0x111111));r.position.set(sd*.17,0,-.395);Hd.add(r)});bx(.08,.016,.016,0x111111,0,.03,-.4,Hd)}
+ if(S.headset){const hb=new THREE.Mesh(new THREE.TorusGeometry(.54,.028,8,24,Math.PI),M(0x2b2f36));Hd.add(hb);
+  [-1,1].forEach(sd=>{const cp=sil(.11,.11,.09,0x2b2f36,sd*.52,-.03,0,Hd);cp.rotation.z=Math.PI/2});
+  const bm=bx(.025,.025,.3,0x2b2f36,-.46,-.14,-.2,Hd);bm.rotation.y=.5;esf(.03,0x2b2f36,-.36,-.17,-.34,1,1,1,Hd)}
+ /* lengan */
+ a.arms=[-1,1].map(sd=>{const pv=new THREE.Group();pv.position.set(sd*.4,1.5,0);B.add(pv);esf(.13,C,0,0,0,1,1,1,pv);const ar=sil(.09,.08,.6,C,0,0,-.3,pv);ar.rotation.x=Math.PI/2;esf(.09,SK,0,0,-.64,1,1,1,pv);return pv});
+ a.cue=bx(.05,.05,1.9,0xd2a679,0,0,-.9,a.arms[1]);a.cue.visible=false;
+ a.shadow=new THREE.Mesh(shadowGeo,new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.22,depthWrite:false}));a.shadow.rotation.x=-Math.PI/2;scene.add(a.shadow);
+ g.traverse(o=>o.userData.agent=a);
+ if(lab){a.ring=new THREE.Mesh(new THREE.RingGeometry(.7,.85,32),new THREE.MeshBasicMaterial({color:0x2563eb,side:THREE.DoubleSide}));a.ring.rotation.x=-Math.PI/2;a.ring.visible=false;scene.add(a.ring);
+  a.lc=document.createElement('canvas');a.lc.width=300;a.lc.height=110;a.lt=new THREE.CanvasTexture(a.lc);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:a.lt,transparent:true,depthTest:false}));sp.scale.set(3,1.1,1);sp.position.set(0,3.7,0);sp.renderOrder=5;g.add(sp);sp.userData.agent=a;
+  a.bc=document.createElement('canvas');a.bc.width=420;a.bc.height=150;a.bt=new THREE.CanvasTexture(a.bc);a.sayT=0;a.say='';
+  const bs=new THREE.Sprite(new THREE.SpriteMaterial({map:a.bt,transparent:true,depthTest:false}));bs.scale.set(4.4,1.57,1);bs.position.set(0,5.5,0);bs.renderOrder=8;bs.visible=false;g.add(bs);a.bs=bs}
+}
+const NPC=[];
+function npc(x,z,yaw,sit,c,hair,skin,style){const a={c:c,hair:hair,skin:skin,style:style};buildChar(a,false);a.g.position.set(x,0,z);a.g.rotation.y=yaw;a.legsSit.visible=sit;a.legsStand.visible=!sit;a.body.position.y=sit?0:.21;a.arms.forEach(p=>p.rotation.x=sit?-.55:-Math.PI/2);a.shadow.position.set(x,.02,z);NPC.push(a)}
+npc(-17.5,-1.6,Math.PI,false,0x1e3a8a,0x111827,0xf1c9a5,'resep');   // resepsionis
+npc(16.5,-13.9,Math.PI,true,0x334155,0x1f2937,0xe0ac82,'dir');     // direktur (Anda)
+
+/* ============ JALUR & TITIK AKTIVITAS ============ */
+const NODE={T0:[-10.5,-8],T2:[-2,-8],T3:[0,-8],T4:[10.5,-8],CL:[-10.5,2.3],ML:[-7,2.3],C0:[0,2.3],MR:[7,2.3],CR:[10.5,2.3],VL:[0,9.5],BL:[-10.5,9.5],BP:[4,9.5],BR:[11.5,9.5]};
+const EDGE=[['T0','T2'],['T2','T3'],['T3','T4'],['T3','C0'],['CL','ML'],['ML','C0'],['C0','MR'],['MR','CR'],['C0','VL'],['BL','VL'],['VL','BP'],['BP','BR']],ADJ={};
+EDGE.forEach(e=>{(ADJ[e[0]]=ADJ[e[0]]||[]).push(e[1]);(ADJ[e[1]]=ADJ[e[1]]||[]).push(e[0])});
+function route(a,b){if(a===b)return[a];const prev={},qu=[a];prev[a]=null;while(qu.length){const n=qu.shift();if(n===b)break;(ADJ[n]||[]).forEach(m=>{if(!(m in prev)){prev[m]=n;qu.push(m)}})}const out=[];let n=b;while(n!==null&&n!==undefined){out.unshift(n);n=prev[n]}return out}
+const SP={meet:[],meetLead:[],dir:[],present:[],drink:[],sofa:[],pantry:[],play:[],toilet:[],pray:[]};
+function sp(k,x,z,f,node,via){const o={x:x,z:z,f:f,node:node,via:via,act:k==='meetLead'?'meet':k,occ:null};SP[k].push(o);return o}
+[-18,-16,-14].forEach(x=>sp('meet',x,-9.2,[0,-1],'T0',[[-12.5,-8],[x,-8]]));
+[-18,-16,-14].forEach(x=>sp('meet',x,-12.8,[0,1],'T0',[[-12.5,-8],[-20,-8],[-20,-12.8]]));
+sp('meetLead',-16,-14.6,[0,1],'T0',[[-12.5,-8],[-20.6,-8],[-20.6,-14.6]]);
+sp('dir',15.5,-9.8,[0,-1],'T4',[[13,-8],[15.5,-8]]);sp('dir',17.5,-9.8,[0,-1],'T4',[[13,-8],[17.5,-8]]);
+sp('present',-1.5,-13.6,[0,-1],'T2',[[-2,-13.6]]);
+sp('drink',-13.3,.2,[1,0],'CL',[[-13.3,2.3]]);
+[-19,-17,-15].forEach(x=>sp('sofa',x,6.4,[0,1],'BL',[[x,9.5]]));
+[2.5,4.5,6.5].forEach(x=>sp('pantry',x,11,[0,1],'BP',[[x,9.5]]));
+sp('play',13.2,1.5,[1,0],'CR',[[12.5,2.3],[12.5,1.5]]);sp('play',18.8,1.5,[-1,0],'CR',[[12.5,2.3],[12.5,4.2],[18.8,4.2]]);
+sp('play',15,-.5,[0,1],'CR',[[12.5,2.3],[12.5,-1.3],[15,-1.3]]);sp('play',17,-.5,[0,1],'CR',[[12.5,2.3],[12.5,-1.3],[17,-1.3]]);
+sp('toilet',15.5,9.5,[1,0],'BR',[[13,9.5]]);
+AG.forEach((_,i)=>{const x=(i-(AG.length-1)/2)*2.4;sp('pray',x,-5.4,[0,-1],x<0?'T2':'T3',[[x,-8]])});
+const DUR={drink:4,sofa:12,pantry:6,play:16,toilet:5};
+
+AG.forEach((a,i)=>{const H=HOMES[a.k],hz=H.z+1.05;a.i=i;a.mon=desk(H.x,H.z,true);chair(H.x,hz,[0,-1]);
+ a.homeSpot={x:H.x,z:hz,f:[0,-1],node:H.node,via:[[H.lx,hz]],act:'desk'};a.cur=a.homeSpot;a.dest=a.homeSpot;
+ buildChar(a,true);a.px=H.x;a.pz=hz;a.at='desk';a.q=[];a.yaw=0;a.ty=0;a.walk=0;a.wait=3+i*2.5;a.t=0;a.lastText='';a.err=null;paintLabel(a)});
+const NOTES=[];(function(){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle='#2563eb';g.font='bold 52px system-ui';g.textAlign='center';g.fillText('♪',32,50);const t=new THREE.CanvasTexture(c);for(let i=0;i<8;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(.8,.8,1);s.visible=false;s.renderOrder=6;scene.add(s);NOTES.push(s)}})();
+
+function planTo(a,s){const q=[],cur=a.cur;cur.via.slice().reverse().forEach(p=>q.push(p));route(cur.node,s.node).forEach(n=>q.push(NODE[n]));s.via.forEach(p=>q.push(p));q.push([s.x,s.z]);a.q=q}
+function go(a,s){if(a.cur===s)return true;if(a.cur&&a.cur.occ===a)a.cur.occ=null;s.occ=a;a.dest=s;planTo(a,s);return false}
+function arrive(a){a.cur=a.dest;a.at=a.cur.act;a.ty=Math.atan2(-a.cur.f[0],-a.cur.f[1]);a.t=DUR[a.at]||0}
+function errand(k,spot,t){const a=AG.find(x=>x.k===k);if(a)a.err={k:spot,t:t,done:false}}
+function stepAgent(a,dt,s){
+ const w=lastWm,mt=lastMt;
+ if(a.q.length){const q0=a.q[0],dx=q0[0]-a.px,dz=q0[1]-a.pz,d=Math.hypot(dx,dz),st=2.6*dt;
+  if(d<=st){a.px=q0[0];a.pz=q0[1];a.q.shift();if(!a.q.length)arrive(a)}else{a.px+=dx/d*st;a.pz+=dz/d*st;a.ty=Math.atan2(-dx,-dz);a.walk+=dt}}
+ else if(w)go(a,SP.pray[a.i]);
+ else if(mt)go(a,a.k==='lead'?SP.meetLead[0]:SP.meet[a.i%6]);
+ else if(a.err&&!a.err.done){const s2=SP[a.err.k][a.err.n||0];if(go(a,s2)){a.err.t-=dt;if(a.err.t<=0)a.err.done=true}}
+ else if(a.busy)go(a,a.homeSpot);
+ else if(a.cur===a.homeSpot){a.wait-=dt;if(a.wait<=0){a.wait=6;const ks=['drink','sofa','pantry','play','pantry','sofa','play','toilet'].sort(()=>Math.random()-.5);for(const k of ks){const s2=SP[k].find(p=>!p.occ);if(s2){go(a,s2);break}}}}
+ else{a.t-=dt;if(a.t<=0){go(a,a.homeSpot);a.wait=8+Math.random()*12}}
+ let df=a.ty-a.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));a.yaw+=df*Math.min(1,dt*8);
+ const mv=a.q.length>0,sit=!mv&&(a.at==='desk'||a.at==='sofa'||a.at==='meet'),play=!mv&&a.at==='play';
+ a.g.position.set(a.px,0,a.pz);a.g.rotation.y=a.yaw;a.ring.position.set(a.px,.04,a.pz);a.ring.visible=SEL===a||SPK===a;a.shadow.position.set(a.px,.02,a.pz);
+ a.legsSit.visible=sit;a.legsStand.visible=!sit;a.body.position.y=sit?0:.21;a.body.rotation.x=play?-.3:0;a.cue.visible=play;
+ const sw=Math.sin(a.walk*9),H=-Math.PI/2;
+ a.leg[0].rotation.x=mv?sw*.7:0;a.leg[1].rotation.x=mv?-sw*.7:0;
+ let l=0,r=0;
+ if(mv){l=H+sw*.6;r=H-sw*.6}
+ else if(a.at==='desk'){const t=a.busy?Math.sin(s*16+a.i)*.06:0;l=-.55+t;r=-.55-t}
+ else if(a.at==='drink'||a.at==='pantry'){l=H;r=1+Math.sin(s*2)*.1}
+ else if(a.at==='sofa'){l=r=-.6}
+ else if(a.at==='meet'){const sk=a.sayT>0;l=sk?-.3+Math.sin(s*3)*.2:-.6;r=sk?-.1+Math.sin(s*2.4+1)*.3:-.6}
+ else if(a.at==='present'){l=H;r=.7+Math.sin(s*2)*.2}
+ else if(a.at==='play'){l=-.4;r=-.3+Math.sin(s*3+a.i)*.14}
+ else if(a.at==='pray'){if(w==='pujian'){l=r=1.9+Math.sin(s*3+a.i)*.25}else{l=H;r=SPK===a?.5+Math.sin(s*2)*.15:H}}
+ else{l=r=H}
+ a.arms[0].rotation.x=l;a.arms[1].rotation.x=r;
+ a.head.rotation.y=Math.sin(s*.8+a.i)*(a.busy?.08:.18);
+ a.head.rotation.x=(mt&&a.at==='meet'&&!(a.sayT>0))?Math.sin(s*2.5+a.i*1.7)*.07:0;
+ a.mon.material.color.setHex(a.busy&&a.at==='desk'?(Math.sin(s*6+a.i)>0?0x34d399:0x10b981):a.done?0x60a5fa:0x23304d);
+ let tx;
+ if(MT&&MT.st==='undang'&&a.k==='lead'&&a.at==='desk')tx='Mengundang rapat';
+ else if(w&&a.at==='pray')tx=w==='pujian'?'Pujian ♪':SPK===a?'Membagikan firman':'Mendengarkan';
+ else if(mt&&a.at==='meet')tx=a.k==='lead'?'Memimpin rapat evaluasi':'Rapat evaluasi';
+ else if(a.busy&&a.at==='desk'&&!mv)tx=a.k==='lead'&&!RUN?'Memantau market':a.k==='ask'?'Berdiskusi dengan Anda':'Menganalisis '+TICK[(Math.floor(s*1.7)+a.i*3)%TICK.length]+'…';
+ else if(mv)tx=a.err&&!a.err.done?(a.err.k==='dir'?'Menuju Ruang Direktur':'Menuju layar'):'Berjalan';
+ else tx={dir:'Melapor ke Direktur',present:'Presentasi hasil',drink:'Minum air',pantry:'Ngopi di pantry',sofa:'Santai di sofa',play:'Main billiard 🎱',toilet:'Ke toilet 🚻'}[a.at]||(a.done?'selesai':'standby');
+ a.text=tx;const sig=tx+((SEL===a||SPK===a)?'*':'');if(sig!==a.lastText)paintLabel(a);
+ if(a.sayT>0){a.sayT-=dt;if(a.sayT<=0&&a.bs){a.bs.visible=false;a.say=''}}
+}
+function notes(s){const on=lastWm==='pujian';NOTES.forEach((n,i)=>{n.visible=on;if(on){const p=(s*.5+i/8)%1;n.position.set((i-3.5)*1.3+Math.sin(s*2+i)*.2,3+p*3,-5.4);n.material.opacity=1-p}})}
+
+/* ============ KAMERA: geser / rotasi / zoom ============ */
+const HOME={yaw:0,pitch:.95,dist:72,tx:0,ty:0,tz:2},T=Object.assign({},HOME);
+function place(){const cp=Math.cos(T.pitch);cam.position.set(T.tx+T.dist*Math.sin(T.yaw)*cp,T.ty+T.dist*Math.sin(T.pitch),T.tz+T.dist*Math.cos(T.yaw)*cp);cam.lookAt(T.tx,T.ty,T.tz)}
+function pan(dx,dy){const k=T.dist*.0016,sy=Math.sin(T.yaw),cy=Math.cos(T.yaw);T.tx=clamp(T.tx+(-dx*cy-dy*sy)*k,-34,34);T.tz=clamp(T.tz+(dx*sy-dy*cy)*k,-28,28)}
+function zoom(f){GOAL=null;T.dist=clamp(T.dist*f,8,130)}
+const ptr=new Map();let drag=null;
+gl.addEventListener('pointerdown',e=>{gl.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});if(ptr.size===1)drag={x:e.clientX,y:e.clientY,t:performance.now(),m:false};GOAL=null});
+gl.addEventListener('pointermove',e=>{const p=ptr.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;
+ if(ptr.size===1){if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>5)drag.m=true;const md=(e.buttons&2)?'rot':MODE;
+  if(md==='pan')pan(dx,dy);else if(md==='zoom')zoom(Math.exp(dy*.008));else{T.yaw-=dx*.005;T.pitch=clamp(T.pitch+dy*.005,.05,1.45)}p.x=e.clientX;p.y=e.clientY}
+ else if(ptr.size===2){const o=[...ptr.entries()].find(q=>q[0]!==e.pointerId)[1],d0=Math.hypot(p.x-o.x,p.y-o.y);p.x=e.clientX;p.y=e.clientY;const d1=Math.hypot(p.x-o.x,p.y-o.y);T.dist=clamp(T.dist*d0/(d1||1),8,130);pan(dx/2,dy/2);if(drag)drag.m=true}});
+function up(e){ptr.delete(e.pointerId);if(ptr.size===0&&drag&&!drag.m&&performance.now()-drag.t<400)pick(e);if(!ptr.size)drag=null}
+gl.addEventListener('pointerup',up);gl.addEventListener('pointercancel',up);
+gl.addEventListener('contextmenu',e=>e.preventDefault());
+gl.addEventListener('wheel',e=>{e.preventDefault();zoom(Math.exp(e.deltaY*.0012))},{passive:false});
+const ray=new THREE.Raycaster();
+function pick(e){const r=gl.getBoundingClientRect();ray.setFromCamera({x:(e.clientX-r.left)/r.width*2-1,y:-((e.clientY-r.top)/r.height)*2+1},cam);
+ const h=ray.intersectObjects(scene.children,true).find(i=>i.object.userData.agent||i.object.userData.screen);
+ if(!h)return;if(h.object.userData.screen)openPres();else selectAgent(h.object.userData.agent.k)}
+function fitHome(){const asp=Math.max(.4,cam.aspect),d=clamp(56/(.536*asp),58,125),old=HOME.dist;HOME.dist=d;if(typeof ROOMS!=='undefined'){ROOMS.home.dist=d;ROOMS.desks.dist=Math.round(d*.56)}if(!GOAL&&Math.abs(T.dist-old)<1.5)T.dist=d}
+function resize(){document.body.classList.toggle('cmp',innerWidth-(($('sb')&&$('sb').offsetWidth)||0)<900||innerHeight<560);const r=gl.parentElement.getBoundingClientRect();if(r.width<2||r.height<2)return;ren.setSize(r.width,r.height,false);cam.aspect=r.width/Math.max(1,r.height);cam.updateProjectionMatrix();fitHome()}
+new ResizeObserver(resize).observe(gl.parentElement);
+
+/* ============ SLIDE PRESENTASI ============ */
+function bg(g,title,sub){g.fillStyle='#0b1324';g.fillRect(0,0,1280,720);g.fillStyle='#19b5b0';g.fillRect(0,0,1280,86);g.fillStyle='#fff';g.textAlign='left';g.font='bold 38px system-ui';g.fillText(title,36,56);g.font='22px system-ui';g.textAlign='right';g.fillText((sub||'')+(SL.length?'   '+(SI+1)+'/'+SL.length:''),1244,54);g.textAlign='left'}
+function lines(g,t,mw){const o=[];let l='';String(t).split(' ').forEach(w=>{const q=l?l+' '+w:w;if(g.measureText(q).width>mw&&l){o.push(l);l=w}else l=q});if(l)o.push(l);return o}
+function para(g,t,x,y,mw,lh,max){const L=lines(g,t,mw);L.slice(0,max).forEach((l,i)=>g.fillText(i===max-1&&L.length>max?l+'…':l,x,y+i*lh));return y+Math.min(L.length,max)*lh}
+function empty(g){g.fillStyle='#94a3b8';g.font='28px system-ui';g.fillText('Belum ada data. Tunggu jadwal otomatis atau tekan tombol sesi.',40,200)}
+const TIPE={DAY:'Day Trade',SWING:'Swing Trade',BTST:'BSJP'};
+function hasil(r){const s=r.status,v=(+r.ret>0?'+':'')+r.ret+'%';if(s==='GUGUR')return'✖ Gugur pra-open';if(!s||s==='OPEN')return((r.cek?String(r.cek).split(':')[0]+' · ':'')+String(r.eval||'').slice(0,24))||'–';return s==='TP1'?'✔ T1 '+v:s==='SL'?'✖ SL '+v:s==='TIDAK TERBELI'?'Tidak terbeli':'Tutup '+v}
+function tableSlide(title,rows){return g=>{bg(g,title,rows[0]?rows[0].date:'');if(!rows.length){empty(g);return}
+ const C=[['Kode',110,'l',r=>r.kode],['Beli (zona)',230,'l',r=>n0(r.lo)+' – '+n0(r.hi)],['Jual T1',140,'r',r=>n0(r.t1),'#4ade80'],['Jual T2',140,'r',r=>n0(r.t2),'#4ade80'],['Stop Loss',140,'r',r=>n0(r.sl),'#f87171'],['R/R',80,'r',r=>(+r.rr).toFixed(2)],['Skor',80,'r',r=>(+r.skor).toFixed(0)],['Status',290,'l',hasil]];
+ let x0=36;g.font='bold 19px system-ui';g.fillStyle='#8fa3c4';C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillText(c[0],c[2]==='r'?x0+c[1]-10:x0,128);c[5]=x0;x0+=c[1]});
+ rows.slice(0,7).forEach((r,i)=>{const y=146+i*72;g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,64);C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillStyle=c[4]||'#fff';const t=String(c[3](r)),b=c[0]==='Kode'?'bold ':'';let fs=c[0]==='Kode'?30:25;g.font=b+fs+'px system-ui';while(g.measureText(t).width>c[1]-16&&fs>13){fs--;g.font=b+fs+'px system-ui'}g.fillText(t,c[2]==='r'?c[5]+c[1]-10:c[5],y+42)})});
+ g.textAlign='left';g.fillStyle='#64748b';g.font='18px system-ui';g.fillText('BSJP: beli sore di zona beli · jual besok pagi di T1 (utama) / T2 · keluar bila menyentuh stop loss. Level berbasis ATR. Bukan nasihat investasi.',36,704)}}
+function chartBox(g,x,y,w,h,r){let ch={};try{ch=JSON.parse(r.chart||'{}')}catch(e){}const c=ch.c||[],m=ch.m||[];g.fillStyle='#0f1b33';g.fillRect(x,y,w,h);if(c.length<2)return;
+ const all=c.concat(m,[r.sl,r.t2,r.lo]),mn=Math.min.apply(0,all),mx=Math.max.apply(0,all),py=v=>y+h-8-(v-mn)/(mx-mn||1)*(h-16),px=i=>x+8+i/(c.length-1)*(w*.8);
+ g.fillStyle='rgba(59,130,246,.25)';g.fillRect(x,py(r.hi),w,Math.max(py(r.lo)-py(r.hi),3));
+ g.font='bold 18px system-ui';[['T2',r.t2,'#86efac'],['T1',r.t1,'#22c55e'],['SL',r.sl,'#ef4444']].forEach(l=>{g.strokeStyle=l[2];g.fillStyle=l[2];g.lineWidth=2;g.setLineDash([8,6]);g.beginPath();g.moveTo(x,py(l[1]));g.lineTo(x+w,py(l[1]));g.stroke();g.fillText(l[0]+' '+n0(l[1]),x+w*.82,py(l[1])-5)});g.setLineDash([]);
+ g.fillStyle='#93c5fd';g.fillText('Beli '+n0(r.lo)+'–'+n0(r.hi),x+w*.82,py((r.lo+r.hi)/2)+6);
+ [[m,'#fbbf24',2],[c,'#e2e8f0',3.5]].forEach(s=>{g.strokeStyle=s[1];g.lineWidth=s[2];g.beginPath();s[0].forEach((v,i)=>i?g.lineTo(px(i),py(v)):g.moveTo(px(i),py(v)));g.stroke()});
+ g.fillStyle='#fbbf24';g.font='16px system-ui';g.fillText('— MA20',x+10,y+22);g.fillStyle='#e2e8f0';g.fillText('— Harga 40 hari',x+90,y+22)}
+function bullets(t,sep){return String(t||'').split(sep).map(s=>s.trim().replace(/\.$/,'')).filter(Boolean)}
+function detail(r){return g=>{bg(g,r.kode+' · '+TIPE[r.tipe],r.date+' · skor '+(+r.skor).toFixed(0)+'/100');chartBox(g,36,110,640,360,r);
+ const L=[['Beli',n0(r.lo)+'–'+n0(r.hi),'#93c5fd'],['Jual T1',n0(r.t1),'#4ade80'],['Jual T2',n0(r.t2),'#86efac'],['Stop Loss',n0(r.sl),'#f87171'],['R/R',(+r.rr).toFixed(2),'#fff']];
+ L.forEach((l,i)=>{const x=36+i*130;g.fillStyle='#13203a';g.fillRect(x,490,122,76);g.fillStyle='#8fa3c4';g.font='16px system-ui';g.fillText(l[0],x+10,514);g.fillStyle=l[2];g.font='bold 21px system-ui';g.fillText(l[1],x+10,548)});
+ g.fillStyle='#8fa3c4';g.font='20px system-ui';g.fillText('Hasil: '+hasil(r),36,606);
+ let y=116;g.fillStyle='#fbbf24';g.font='bold 24px system-ui';g.fillText('Teknikal',710,y+16);y+=30;g.fillStyle='#dbe4f3';g.font='18px system-ui';
+ bullets(r.tek,'. ').forEach(t=>{y=tp(g,'• '+t,710,y,530,23)+5});
+ y+=14;g.fillStyle='#34d399';g.font='bold 24px system-ui';g.fillText('Fundamental',710,y+16);y+=30;g.fillStyle='#dbe4f3';g.font='18px system-ui';
+ bullets(r.fun,' · ').forEach(t=>{y=tp(g,'• '+t,710,y,530,23)+5});
+ g.fillStyle='#64748b';g.font='16px system-ui';g.fillText('Bukan nasihat investasi. Keputusan ada di tangan Anda.',36,700)}}
+function drawOv(g){const td=jk().date,b=latest('BTST'),rp=DATA.reports[0];bg(g,'Kantor AI · Beli Sore Jual Pagi',td+' · '+phase());
+ [['Sore: input & analisis','Tempel hasil screening Anda',b[0]&&b[0].date===td],['Pagi: jual','Leader memantau target & stop loss',false],['16:30 Laporan','Evaluasi & catatan',rp&&rp.date===td]].forEach((c,i)=>{const x=36+i*404;g.fillStyle='#13203a';g.fillRect(x,110,380,110);g.fillStyle='#fff';g.font='bold 25px system-ui';g.fillText(c[0],x+16,150);g.fillStyle='#8fa3c4';g.font='20px system-ui';g.fillText(c[1],x+16,180);g.fillStyle=c[2]?'#4ade80':'#fbbf24';g.fillText(c[2]?'✔ selesai hari ini':(i===1?'⏳ otomatis saat market buka':'⏳ menunggu'),x+16,208)});
+ g.fillStyle='#19b5b0';g.font='bold 26px system-ui';g.fillText('Rekomendasi BSJP · '+b.length+' saham'+(b[0]?' · data '+b[0].date:''),36,262);
+ b.slice(0,5).forEach((r,j)=>{const y=282+j*72;g.fillStyle=j%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,64);g.textAlign='left';g.fillStyle='#fff';g.font='bold 30px system-ui';g.fillText(r.kode,48,y+43);g.fillStyle='#93c5fd';g.font='22px system-ui';g.fillText('Beli '+n0(r.lo)+'–'+n0(r.hi),190,y+42);g.fillStyle='#4ade80';g.fillText('Jual '+n0(r.t1)+' / '+n0(r.t2),470,y+42);g.fillStyle='#f87171';g.fillText('SL '+n0(r.sl),790,y+42);g.fillStyle='#fff';g.font='bold 24px system-ui';g.textAlign='right';g.fillText((+r.skor).toFixed(0)+'/100',1230,y+42);g.textAlign='left'});
+ if(!b.length){g.fillStyle='#64748b';g.font='24px system-ui';g.fillText('Belum ada input. Klik “⌨ Input Saham” dan tempel hasil screening Anda.',36,330)}
+ g.fillStyle='#64748b';g.font='18px system-ui';g.fillText('Update: '+(DATA.updated||'-')+' · Alat bantu seleksi & edukasi, bukan nasihat investasi.',36,700)}
+const FEE={beli:.0015,jual:.0025},rpf=v=>(v>=0?'+':'−')+'Rp '+n0(Math.abs(v));
+function holdings(){const m={};(DATA.port||[]).forEach(r=>{if(+r.sisa<=0)return;const o=m[r.kode]=m[r.kode]||{kode:r.kode,lot:0,cost:0};o.lot+=+r.sisa;o.cost+=+r.sisa*100*(+r.hb);o.t1=r.t1;o.t2=r.t2;o.sl=r.sl;o.tipe=r.tipe});
+ return Object.keys(m).map(k=>{const o=m[k],p=(DATA.prices||{})[k];o.avg=o.cost/(o.lot*100);o.px=p||null;o.unrl=p?o.lot*100*(p-o.avg):null;o.pct=p?(p/o.avg-1)*100:null;return o})}
+function realisasi(date){const S=(DATA.sales||[]).filter(s=>s.tgl===date),o={s1:0,s2:0,total:0,n:S.length,rows:S};S.forEach(s=>{if(+s.sesi===1)o.s1+=+s.pl;else o.s2+=+s.pl;o.total+=+s.pl});return o}
+function cohortPrev(){const td=jk().date,B=(DATA.recs||[]).filter(r=>r.tipe==='BTST'&&r.date<td),d=B.map(r=>r.date).sort().pop();return{date:d||'',rows:B.filter(r=>r.date===d).sort((a,b)=>b.skor-a.skor)}}
+function cohortStats(cp){const td=jk().date,codes=cp.rows.map(r=>r.kode),o={tp:0,sl:0,tutup:0,tb:0,open:0,n:0,avg:0,real:0};let sum=0;cp.rows.forEach(r=>{if(r.status==='TP1')o.tp++;else if(r.status==='SL')o.sl++;else if(r.status==='TUTUP')o.tutup++;else if(r.status==='TIDAK TERBELI')o.tb++;else o.open++;if(['TP1','SL','TUTUP'].includes(r.status)&&r.ret!==''&&r.ret!=null){sum+=+r.ret;o.n++}});o.avg=o.n?sum/o.n:0;(DATA.sales||[]).filter(s=>s.tgl===td&&codes.includes(s.kode)).forEach(s=>o.real+=+s.pl);return o}
+function repBody(rp){return g=>{const X=50,W=1170,td=rp?rp.date:jk().date,z=realisasi(td);let y=30;
+ g.fillStyle='#8fa3c4';g.font='22px system-ui';g.fillText('Realisasi penjualan '+td+' · akumulasi Sesi 1 + Sesi 2',X,y+20);y+=40;
+ [['Sesi 1 (sebelum 12:00)',z.s1],['Sesi 2',z.s2],['TOTAL hari ini',z.total]].forEach((c,i)=>{const x=X+i*392;g.fillStyle='#13203a';g.fillRect(x,y,376,112);g.fillStyle='#8fa3c4';g.font='20px system-ui';g.fillText(c[0],x+16,y+34);g.fillStyle=c[1]>=0?'#4ade80':'#f87171';g.font='bold 36px system-ui';g.fillText(rpf(c[1]),x+16,y+84)});y+=136;
+ {const cp=cohortPrev(),cs=cohortStats(cp),TS=(DATA.sales||[]).filter(s=>s.tgl===td);
+  g.fillStyle='#fbbf24';g.font='bold 26px system-ui';g.fillText('Evaluasi BSJP kemarin'+(cp.date?' ('+cp.date+')':''),X,y+26);y+=44;
+  g.fillStyle='#8fa3c4';g.font='19px system-ui';y=tp(g,'Rekomendasi yang Anda input sore sebelumnya dan dijual pagi ini. Input sore ini baru dievaluasi besok pagi.',X,y,W,26)+8;
+  if(!cp.rows.length){g.fillStyle='#64748b';g.font='22px system-ui';g.fillText('Belum ada rekomendasi BSJP hari sebelumnya untuk dievaluasi.',X,y+22);y+=54}
+  else{cp.rows.forEach((r,i)=>{const st=r.status,res=st==='TP1'?['✔ Capai Target 1','#4ade80']:st==='SL'?['✖ Kena Stop Loss','#f87171']:st==='TUTUP'?['Ditutup tanpa target/SL','#cbd5e1']:st==='TIDAK TERBELI'?['Zona beli tidak tersentuh','#94a3b8']:['⏳ '+String(r.eval||'Menunggu data hari ini').slice(0,34),'#fbbf24'],sl=TS.filter(s=>s.kode===r.kode);
+    g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(X-10,y,W+20,sl.length?84:56);g.textAlign='left';g.fillStyle='#fff';g.font='bold 26px system-ui';g.fillText(r.kode,X,y+36);g.fillStyle='#94a3b8';g.font='19px system-ui';g.fillText('beli '+n0(r.lo)+'–'+n0(r.hi)+' · T1 '+n0(r.t1)+' · SL '+n0(r.sl),190,y+35);
+    g.textAlign='right';g.fillStyle=res[1];g.font='bold 22px system-ui';g.fillText(res[0]+((st==='TP1'||st==='SL'||st==='TUTUP')&&r.ret!==''&&r.ret!=null?'  ('+(+r.ret>=0?'+':'')+(+r.ret).toFixed(2)+'%)':''),X+W,y+36);g.textAlign='left';
+    if(sl.length){const q=sl.reduce((a,s)=>({lot:a.lot+ +s.lot,pl:a.pl+ +s.pl,hj:s.hj}),{lot:0,pl:0,hj:0});g.fillStyle=q.pl>=0?'#4ade80':'#f87171';g.font='20px system-ui';g.fillText('Anda jual '+n0(q.lot)+' lot @ '+n0(q.hj)+' → '+rpf(q.pl),190,y+68)}
+    y+=sl.length?92:62});
+   g.fillStyle='#dbe4f3';g.font='21px system-ui';y=tp(g,'Ringkasan: capai T1 '+cs.tp+' · kena SL '+cs.sl+' · ditutup '+cs.tutup+' · tidak terbeli '+cs.tb+' · berjalan '+cs.open+(cs.n?' · rata-rata '+(cs.avg>=0?'+':'')+cs.avg.toFixed(2)+'%':'')+' · realisasi Anda dari saham ini '+rpf(cs.real),X,y+4,W,30)+14}}
+ if(z.rows.length){g.fillStyle='#19b5b0';g.font='bold 26px system-ui';g.fillText('Transaksi jual hari ini ('+z.n+')',X,y+26);y+=46;
+  z.rows.slice().reverse().forEach((s,i)=>{g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(X-10,y,W+20,56);g.textAlign='left';g.fillStyle='#fff';g.font='bold 26px system-ui';g.fillText(s.kode,X,y+37);g.fillStyle='#94a3b8';g.font='20px system-ui';g.fillText('Sesi '+s.sesi+' · '+n0(s.lot)+' lot · beli '+n0(s.hb)+' → jual '+n0(s.hj),200,y+36);g.textAlign='right';g.fillStyle=+s.pl>=0?'#4ade80':'#f87171';g.font='bold 23px system-ui';g.fillText(rpf(+s.pl)+'  ('+(+s.pct>=0?'+':'')+(+s.pct).toFixed(2)+'%)',X+W,y+37);g.textAlign='left';y+=62});y+=16}
+ else{g.fillStyle='#64748b';g.font='22px system-ui';g.fillText('Belum ada penjualan yang dicatat hari ini.',X,y+20);y+=56}
+ const H=holdings();if(H.length){g.fillStyle='#fbbf24';g.font='bold 26px system-ui';g.fillText('Masih dipegang (termasuk input sore ini)',X,y+26);y+=46;H.forEach(o=>{g.fillStyle='#dbe4f3';g.font='22px system-ui';y=tp(g,o.kode+' · '+n0(o.lot)+' lot · rata-rata beli '+n0(o.avg)+' · T1 '+n0(o.t1)+' · SL '+n0(o.sl)+(o.unrl!==null?' · '+rpf(o.unrl)+' (belum terealisasi)':''),X,y,W,32)+6});y+=16}
+ if(rp){g.fillStyle='#34d399';g.font='bold 26px system-ui';g.fillText('Ringkasan sistem hari ini',X,y+26);y+=46;g.fillStyle='#dbe4f3';g.font='22px system-ui';y=tp(g,'Dievaluasi '+rp.total+' · win rate '+rp.wr+'% · rata-rata return '+rp.avg+'% · kena target '+rp.tp+' · kena SL '+rp.sl,X,y,W,32)+8;y=tp(g,rp.eval||'',X,y,W,32)+16}
+ return y+30}}
+function drawRep(rp){return g=>tall('Laporan & Evaluasi',rp?rp.date:jk().date,repBody(rp))(g)}
+function drawPort(g){const H=holdings(),z=realisasi(jk().date);bg(g,'Portofolio · Posisi Saya','Realisasi hari ini '+rpf(z.total));
+ if(!H.length){g.fillStyle='#94a3b8';g.font='28px system-ui';g.fillText('Belum ada posisi. Isi “Rencana Beli” untuk memasukkan saham ke portofolio.',40,200);return}
+ const sg=v=>v===null?'#e2e8f0':v>=0?'#4ade80':'#f87171';
+ const C=[['Kode',120,'l',o=>o.kode],['Lot',90,'r',o=>n0(o.lot)],['Rata2 beli',150,'r',o=>n0(o.avg)],['Harga kini',150,'r',o=>o.px?n0(o.px):'–'],['P/L belum real.',230,'r',o=>o.unrl===null?'–':rpf(o.unrl),o=>sg(o.unrl)],['%',100,'r',o=>o.pct===null?'–':(o.pct>=0?'+':'')+o.pct.toFixed(2)+'%',o=>sg(o.pct)],['Target 1',130,'r',o=>n0(o.t1),()=>'#4ade80'],['Stop Loss',130,'r',o=>n0(o.sl),()=>'#f87171']];
+ let x0=36;g.font='bold 19px system-ui';g.fillStyle='#8fa3c4';C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillText(c[0],c[2]==='r'?x0+c[1]-10:x0,128);c[5]=x0;x0+=c[1]});
+ H.slice(0,7).forEach((o,i)=>{const y=146+i*72;g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,64);C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillStyle=c[4]?c[4](o):'#fff';const t=String(c[3](o)),b=c[0]==='Kode'?'bold ':'';let fs=c[0]==='Kode'?30:25;g.font=b+fs+'px system-ui';while(g.measureText(t).width>c[1]-16&&fs>13){fs--;g.font=b+fs+'px system-ui'}g.fillText(t,c[2]==='r'?c[5]+c[1]-10:c[5],y+42)})});
+ g.textAlign='left';g.fillStyle='#64748b';g.font='18px system-ui';g.fillText('Harga kini dari Yahoo (bisa tertunda). Untung/rugi memakai fee '+(FEE.beli*100).toFixed(2)+'% beli / '+(FEE.jual*100).toFixed(2)+'% jual. Catat penjualan lewat tombol “Catat Jual”.',36,704)}
+function drawAna(g,s){bg(g,'Agen sedang menganalisis…',RUN.lbl);g.fillStyle='#e2e8f0';g.font='26px system-ui';g.fillText('Memindai watchlist, menghitung zona beli, target & stop loss',40,140);
+ g.fillStyle='#1e293b';rrect(g,40,170,1200,22,11);g.fill();g.fillStyle='#19b5b0';rrect(g,40+((s*.25)%1)*900,170,300,22,11);g.fill();
+ for(let i=0;i<8;i++){const k=Math.floor(s*2.2)-i,t=TICK[((k%TICK.length)+TICK.length)%TICK.length];g.globalAlpha=1-i*.1;g.fillStyle=i?'#94a3b8':'#fff';g.font=(i?'24':'bold 30')+'px system-ui';g.fillText((i?'✓ ':'▶ ')+t+(i?'':'  MA · RSI · MACD · Volume'),60,250+i*46)}g.globalAlpha=1;
+ const x0=760,y0=240,w=470,h=340,N=60,cut=Math.floor((s*18)%(N+20));g.fillStyle='#0f1b33';g.fillRect(x0,y0,w,h);g.strokeStyle='#19b5b0';g.lineWidth=3;g.beginPath();
+ for(let i=0;i<=Math.min(cut,N-1);i++){const y=y0+h/2-(Math.sin(i/6+s*.3)*60+Math.sin(i/2.3)*20+(i-30)*1.6);i?g.lineTo(x0+i/(N-1)*w,y):g.moveTo(x0+i/(N-1)*w,y)}g.stroke();
+ g.fillStyle='#64748b';g.font='18px system-ui';g.fillText('Animasi = indikator proses. Hasil asli muncul setelah server Google selesai (30–90 detik).',40,690)}
+/* ============ SLIDE TAMBAHAN ============ */
+function rankRows(){return latest('BTST').filter(r=>r.status!=='GUGUR').sort((a,b)=>b.skor-a.skor).slice(0,10)}
+function drawRank(g){const R=rankRows();bg(g,'Ranking Rekomendasi Harian','Skor /100 · tertinggi di atas');if(!R.length){empty(g);return}
+ R.forEach((r,i)=>{const y=104+i*58;g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,52);g.textAlign='left';
+  g.fillStyle=i<3?'#fbbf24':'#8fa3c4';g.font='bold 28px system-ui';g.fillText('#'+(i+1),44,y+36);
+  g.fillStyle='#fff';g.fillText(r.kode,125,y+36);g.fillStyle='#19b5b0';g.font='18px system-ui';g.fillText(TIPE[r.tipe],235,y+34);
+  g.fillStyle='#1e293b';rrect(g,370,y+14,300,24,12);g.fill();g.fillStyle=r.skor>=80?'#22c55e':r.skor>=65?'#19b5b0':'#f59e0b';rrect(g,370,y+14,Math.max(24,300*r.skor/100),24,12);g.fill();
+  g.fillStyle='#fff';g.font='bold 26px system-ui';g.fillText((+r.skor).toFixed(0)+'/100',690,y+36);
+  g.fillStyle='#94a3b8';g.font='19px system-ui';g.fillText((r.skor>=80?'Sangat direkomendasikan':r.skor>=65?'Direkomendasikan':'Pantau')+' · T1 '+n0(r.t1),850,y+34)});
+ g.fillStyle='#64748b';g.font='17px system-ui';g.fillText('Skor = 70% teknikal/screening + 30% fundamental. Bukan nasihat investasi.',36,704)}
+function drawDiv(g){const R=DATA.div;bg(g,'Dividend Hunter · Jadwal Dividen','Cum → Ex → Recording → Bayar');if(!R.length){empty(g);return}
+ const C=[['Kode',100,'l',r=>r.kode],['Yield',100,'r',r=>r.yld+'%'],['Dividen/lbr',150,'r',r=>n0(r.last)],['Cum Date',165,'l',r=>r.cum],['Ex Date',165,'l',r=>r.ex],['Recording',165,'l',r=>r.rec],['Bayar',150,'l',r=>r.pay],['Status',205,'l',r=>String(r.status).replace(/ \(.*\)/,'')]];
+ let x0=36;g.font='bold 20px system-ui';g.fillStyle='#8fa3c4';C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillText(c[0],c[2]==='r'?x0+c[1]-10:x0,128);c[4]=x0;x0+=c[1]});
+ R.slice(0,6).forEach((r,i)=>{const y=142+i*58;g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,52);C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillStyle=c[0]==='Yield'?'#4ade80':'#fff';g.font=(c[0]==='Kode'?'bold 28px':'23px')+' system-ui';g.fillText(String(c[3](r)),c[2]==='r'?c[4]+c[1]-10:c[4],y+35)})});
+ g.textAlign='left';g.fillStyle='#fbbf24';g.font='bold 22px system-ui';g.fillText('Ringkasan 16:30',36,520);g.fillStyle='#dbe4f3';g.font='21px system-ui';para(g,DATA.divSummary||'Menunggu laporan 16:30.',36,552,1200,29,4);
+ const sr=R.find(r=>r.src);g.fillStyle='#64748b';g.font='16px system-ui';g.fillText('Sumber: Yahoo Finance + Google News'+(sr?' · '+String(sr.src).slice(0,95):''),36,704)}
+function bul(g,arr,x,y,w,lh,ml){(arr||[]).slice(0,4).forEach(t=>{y=para(g,'• '+t,x,y,w,lh,ml)+4});return y}
+const bigc=document.createElement('canvas');bigc.width=1280;bigc.height=2600;const bg2=bigc.getContext('2d');
+function tp(g,t,x,y,w,lh){const L=lines(g,t,w);L.forEach((l,i)=>g.fillText(l,x,y+lh*.8+i*lh));return y+L.length*lh}
+function tall(title,sub,body){return g=>{bg2.fillStyle='#0b1324';bg2.fillRect(0,0,1280,2600);bg2.textAlign='left';const h=Math.min(2580,body(bg2)+30);
+ SC.max=Math.max(0,h-610);SC.y=clamp(SC.y,0,SC.max);bg(g,title,sub);g.drawImage(bigc,0,SC.y,1280,610,0,100,1280,610);
+ if(SC.max>0){g.fillStyle='#1e293b';g.fillRect(1262,104,8,602);g.fillStyle='#19b5b0';const th=Math.max(40,602*610/h);g.fillRect(1262,104+(602-th)*SC.y/SC.max,8,th)}g.textAlign='left'}}
+function askBody(q){return g=>{const X=50,W=1170;let y=30;
+ g.fillStyle='#8fa3c4';g.font='italic 22px system-ui';y=tp(g,'Tanya: '+(q.tanya||''),X,y,W,32)+16;
+ g.fillStyle='#fff';g.font='bold 34px system-ui';y=tp(g,q.judul||'',X,y,W,46)+22;
+ const sec=(t,c,arr)=>{if(!arr||!arr.length)return;g.fillStyle=c;g.font='bold 26px system-ui';g.fillText(t,X,y+28);y+=50;g.fillStyle='#dbe4f3';g.font='24px system-ui';arr.forEach(s=>{y=tp(g,s,X+4,y,W-10,36)+12});y+=24};
+ sec('Ringkasan','#19b5b0',q.poin&&q.poin.length?q.poin.map(x=>'• '+x):[q.ringkasan||q.jawaban||'']);
+ sec('Kesimpulan','#34d399',q.kesimpulan?[q.kesimpulan]:[]);
+ sec('Risiko','#f87171',(q.risiko||[]).map(x=>'• '+x));
+ sec('Berita terbaru','#60a5fa',(q.berita||[]).slice(0,4).map(b=>'• '+b.t));
+ g.fillStyle='#64748b';g.font='20px system-ui';g.fillText('Bukan nasihat investasi. Periksa sumber berita dan laporan keuangan emiten.',X,y+20);return y+44}}
+function verseBody(v){return g=>{const X=50,W=1170;let y=30;g.fillStyle='#fbbf24';g.font='bold 44px system-ui';g.fillText(v.ayat,X,y+40);y+=76;
+ if(v.teks){g.fillStyle='#94a3b8';g.font='italic 24px system-ui';y=tp(g,'“'+v.teks+'” (WEB, Inggris)',X,y,W,36)+22}
+ if(v.parafrase){g.fillStyle='#19b5b0';g.font='bold 26px system-ui';g.fillText('Parafrase (bukan kutipan resmi)',X,y+28);y+=50;g.fillStyle='#dbe4f3';g.font='25px system-ui';y=tp(g,v.parafrase,X,y,W,38)+26}
+ g.fillStyle='#34d399';g.font='bold 26px system-ui';g.fillText('Perenungan',X,y+28);y+=50;g.fillStyle='#e2e8f0';g.font='25px system-ui';y=tp(g,v.renung||'-',X,y,W,38);return y+30}}
+function drawAsk(g){const q=LASTQ;tall('Report Analis Pasar',q.ai?'Gemini AI':'Ringkasan otomatis',askBody(q))(g)}
+function drawRun(g){const w=wmode();bg(g,'Ibadah Mingguan · Rundown','Minggu 15:00');
+ [['15:00','Pujian & penyembahan','30 menit',w==='pujian'],['15:30','Sharing firman','setiap divisi membagikan ayat acak & perenungan',w==='sharing']].forEach((c,i)=>{const y=130+i*150;g.fillStyle=c[3]?'#164e63':'#13203a';g.fillRect(36,y,1208,130);g.fillStyle='#19b5b0';g.font='bold 54px system-ui';g.fillText(c[0],64,y+80);g.fillStyle='#fff';g.font='bold 36px system-ui';g.fillText(c[1],260,y+58);g.fillStyle='#94a3b8';g.font='24px system-ui';g.fillText(c[2],260,y+98);if(c[3]){g.fillStyle='#4ade80';g.font='bold 26px system-ui';g.textAlign='right';g.fillText('● sedang berlangsung',1220,y+50);g.textAlign='left'}});
+ g.fillStyle='#dbe4f3';g.font='24px system-ui';para(g,'Setiap divisi menyiapkan satu ayat acak beserta perenungannya. Laporan dibuat otomatis oleh server pukul 15:00 dan dibagikan satu per satu saat sharing firman.',36,470,1200,34,4)}
+function verse(v){return g=>tall('Sharing Firman · '+v.divisi,v.ayat,verseBody(v))(g)}
+function slides(){
+ if(wmode()){const o=[{id:'run',draw:drawRun}];AG.forEach((a,i)=>{const v=DATA.ibadah.find(x=>x.divisi===a.n)||{divisi:a.n,ayat:'(belum dibuat)',teks:'',parafrase:'',renung:'Laporan ibadah dibuat otomatis oleh server pada Minggu 15:00.'};o.push({id:'v'+i,draw:verse(v),ag:a,tall:true})});return o}
+ const b=latest('BTST'),o=[{id:'ov',draw:drawOv},{id:'rank',draw:drawRank},{id:'port',draw:drawPort},{id:'btst',draw:tableSlide('BSJP · Beli Sore, Jual Pagi',b)}];
+ b.slice(0,5).forEach((r,i)=>o.push({id:'d'+i,draw:detail(r)}));
+ o.push({id:'div',draw:drawDiv},{id:'rep',draw:drawRep(DATA.reports[0])});if(LASTQ)o.push({id:'ask',draw:drawAsk,tall:true});return o}
+function goSlide(i){SI=(i+SL.length)%SL.length;SPK=(SL[SI]&&SL[SI].ag)||null;SC.y=0;SC.man=false;dirty=true;lastSlide=performance.now()/1000}
+function slideId(id){const i=SL.findIndex(x=>x.id===id);if(i>=0)goSlide(i)}
+
+/* ============ PRESENTASI PENUH ============ */
+function openPres(){$('pres').insertBefore(sc,$('pbar'));$('pres').classList.add('on');$('pbar').innerHTML=['<button class="chip" onclick="goSlide(SI-1)">◀</button>','<button class="chip" onclick="togglePause()">⏯</button>','<button class="chip" onclick="goSlide(SI+1)">▶</button>','<button class="chip" onclick="scrollScr(-200)">▲</button>','<button class="chip" onclick="scrollScr(200)">▼</button>','<button class="chip pri" onclick="closePres()">✕ Tutup</button>'].join(' ');dirty=true}
+function closePres(){$('pres').classList.remove('on');sc.remove()}
+function togglePause(){PAUSE=!PAUSE;toast(PAUSE?'Slide dijeda':'Slide otomatis berjalan')}
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')goSlide(SI+1);else if(e.key==='ArrowLeft')goSlide(SI-1);else if(e.key==='Escape')closePres();else if(e.key===' '&&$('pres').classList.contains('on')){e.preventDefault();togglePause()}});
+
+/* ============ UI ============ */
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const BLN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+function clockText(){const j=jk(),h=Math.floor(j.min/60),m=j.min%60,d=j.date.split('-');return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' · '+(+d[2])+' '+BLN[+d[1]-1]+' '+d[0]}
+const ROOMS={home:{yaw:0,pitch:.95,dist:72,tx:0,ty:0,tz:2},desks:{yaw:0,pitch:.95,dist:40,tx:0,ty:0,tz:2},screen:{yaw:0,pitch:.5,dist:34,tx:0,ty:3,tz:-9},
+ meeting:{yaw:0,pitch:.95,dist:26,tx:-16,ty:0,tz:-9.5},direktur:{yaw:0,pitch:.95,dist:26,tx:16,ty:0,tz:-9},resepsionis:{yaw:0,pitch:.95,dist:24,tx:-16,ty:0,tz:.5},
+ lounge:{yaw:0,pitch:.95,dist:26,tx:-17,ty:0,tz:9.5},pantry:{yaw:0,pitch:.95,dist:24,tx:5,ty:0,tz:12.5},billiard:{yaw:0,pitch:.95,dist:24,tx:16,ty:0,tz:1.5},toilet:{yaw:0,pitch:.95,dist:24,tx:17,ty:0,tz:12}};
+let NAV='home';
+function goRoom(k){const r=ROOMS[k];if(!r)return;const f=(k==='home'||k==='desks')?1:Math.max(1,1.25/Math.max(.4,cam.aspect));GOAL=Object.assign({},r,{dist:r.dist*f})}
+function resetCam(){goRoom('home')}function focusScreen(){goRoom('screen')}
+function navTo(k){NAV=k;if(k==='home')goRoom('home');else if(k==='desks'){goRoom('desks');slideId('rank')}else if(k==='screen'){goRoom('screen');slideId(LASTQ?'ask':'ov')}else if(k==='rep'){goRoom('screen');slideId('rep')}else if(k==='port'){goRoom('screen');slideId('port');openPf()}renderChips()}
+function setMode(m){MODE=m;['zoom','pan','rot'].forEach(x=>$('m_'+x).classList.toggle('on',x===m))}
+function fullView(){goRoom('home');try{if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen()}catch(e){}}
+function renderChips(){
+ $('nav').innerHTML=[['home','Beranda','🏠'],['desks','Divisi Investasi','📈'],['screen','Analisis Pasar','🔍'],['rep','Laporan','📄'],['port','Portofolio','💼']].map(n=>'<button class="np'+(NAV===n[0]?' on':'')+'" onclick="navTo(\''+n[0]+'\')">'+n[2]+'<span class="tx"> '+n[1]+'</span></button>').join('');
+ $('stat').innerHTML='<span class="sc x"><i></i>'+AG.length+' Divisi</span><span class="sc x">👤 '+AG.filter(a=>a.done).length+' Selesai</span><span class="sc" id="clk">'+clockText()+'</span>';
+ const B=[['dividen','▶ Dividen'],['laporan','▶ Laporan'],['ibadah','🙏 Ibadah (tes)']],dis=RUN?'disabled':'';
+ $('actions').innerHTML='<button class="chip pri" onclick="openInp()">⌨ Input Saham</button><button class="chip" onclick="openOrd()">🛒 Rencana Beli</button><button class="chip" onclick="openPf()">💼 Portofolio</button><button class="chip" onclick="openSell()">💸 Catat Jual</button><button class="chip" onclick="startMeeting(true)">🗣 Rapat</button>'+B.map(p=>'<button class="chip pri" '+dis+' onclick="runPhase(\''+p[0]+'\')">'+p[1]+'</button>').join('')+'<button class="chip" onclick="openPres()">⛶ Presentasi</button><button class="chip" onclick="togglePause()">⏯</button><button class="chip" onclick="scrollScr(-200)">▲</button><button class="chip" onclick="scrollScr(200)">▼</button>';
+ const A=(fn,l)=>'<button onclick="closeSheet();'+fn+'">'+l+'</button>',M=document.body.classList;
+ $('sheet').innerHTML='<h4>Aksi</h4><div class="grid">'+A('openInp()','⌨ Input Saham')+A('openOrd()','🛒 Rencana Beli')+A('openPf()','💼 Portofolio')+A('openSell()','💸 Catat Jual')+A('startMeeting(true)','🗣 Rapat evaluasi')+A('openPres()','⛶ Presentasi')+A('togglePause()','⏯ Jeda slide')+'</div><h4>Jalankan</h4><div class="grid">'+B.map(p=>A("runPhase('"+p[0]+"')",p[1])).join('')+'</div><h4>Pindah ruang</h4><div class="grid">'+RT.map(r=>A("goRoom('"+r[0]+"')",r[1])).join('')+'</div><h4>Tampilan</h4><div class="grid">'+A('toggleMap()',M.contains('map')?'💬 Tampilkan chat':'🗺 Peta layar penuh')+A('toggleUI()',M.contains('hideui')?'👁 Tampilkan menu':'👁 Sembunyikan menu')+A('scrollScr(-200)','▲ Gulung layar')+A('scrollScr(200)','▼ Gulung layar')+'</div>'}
+function toggleSheet(){$('sheet').classList.toggle('on')}
+function closeSheet(){$('sheet').classList.remove('on')}
+function toggleMap(){document.body.classList.toggle('map');renderChips();resize()}
+function toggleUI(){document.body.classList.toggle('hideui');renderChips()}
+const RT=[['home','🏠 Beranda'],['meeting','Ruang Meeting'],['direktur','Ruang Direktur'],['resepsionis','Resepsionis'],['lounge','Lounge'],['pantry','Pantry'],['billiard','Billiard'],['toilet','Toilet']];
+$('roomtabs').innerHTML=RT.map(r=>'<button class="rt" onclick="goRoom(\''+r[0]+'\')">'+r[1]+'</button>').join('');
+const LBL=[{t:'Analisis Pasar',ic:'📊',x:0,y:10.6,z:-15,r:'screen'},{t:'Ruang Meeting',ic:'👥',x:-16,y:4.4,z:-6.5,r:'meeting'},{t:'Ruang Direktur',ic:'👑',x:16.5,y:4.6,z:-8.5,r:'direktur'},
+ {t:'Resepsionis',ic:'🛎',x:-17.5,y:3.2,z:1.4,r:'resepsionis'},{t:'Pintu Masuk',ic:'🏠',x:-15,y:3.4,z:15.8,r:'lounge'},{t:'Billiard & Relax',ic:'🎮',x:16,y:4.4,z:-1.5,r:'billiard'},
+ {t:'Pantry',ic:'☕',x:5,y:3.6,z:10.2,r:'pantry'},{t:'Toilet',ic:'🚻',x:17,y:4.4,z:9,r:'toilet'},{t:'Beli Sore Jual Pagi',ic:'🌇',x:-7,y:3.8,z:-3.4,r:'desks'},
+ {t:'Analis Teknikal & Fundamental',ic:'📊',x:7,y:3.8,z:-3.4,r:'desks'},{t:'Leader & Evaluator',ic:'🧭',x:-7,y:3.8,z:3.6,r:'desks'},{t:'Dividend Hunter',ic:'💰',x:7,y:3.8,z:3.6,r:'desks'}];
+$('rl').innerHTML=LBL.map((l,i)=>'<div class="rl" id="rl'+i+'" onclick="goRoom(\''+l.r+'\')">'+l.ic+' '+l.t+'</div>').join('');
+const LBLE=LBL.map((_,i)=>$('rl'+i)),V3=new THREE.Vector3();
+function updLabels(){const W=gl.clientWidth,H=gl.clientHeight,small=document.body.classList.contains('cmp')&&T.dist>46;LBL.forEach((l,i)=>{V3.set(l.x,l.y,l.z).project(cam);const vis=!small&&V3.z<1&&Math.abs(V3.x)<1.15&&Math.abs(V3.y)<1.15,e=LBLE[i];e.style.display=vis?'block':'none';if(vis)e.style.transform='translate('+Math.round((V3.x+1)/2*W)+'px,'+Math.round((1-V3.y)/2*H)+'px) translate(-50%,-50%)'})}
+const mm=$('mm'),mx=mm.getContext('2d');
+function drawMini(){const W=mm.width,H=mm.height,kx=W/44,kz=H/32,X=x=>(x+22)*kx,Z=z=>(z+16)*kz;mx.fillStyle='#06182f';mx.fillRect(0,0,W,H);mx.strokeStyle='#3b82f6';mx.lineWidth=1;
+ [[-22,-16,-11,-5],[11,-16,22,-4],[-22,-4,-11,5.5],[-22,5.5,-11,16],[0,10.5,11,16],[11,-4,22,7],[12,8,22,16]].forEach(r=>mx.strokeRect(X(r[0]),Z(r[1]),(r[2]-r[0])*kx,(r[3]-r[1])*kz));
+ mx.strokeRect(.5,.5,W-1,H-1);AG.forEach(a=>{mx.fillStyle='#'+a.c.toString(16).padStart(6,'0');mx.beginPath();mx.arc(X(a.px),Z(a.pz),4,0,7);mx.fill()});
+ mx.strokeStyle='#fff';mx.strokeRect(X(T.tx)-12,Z(T.tz)-8,24,16)}
+mm.addEventListener('click',e=>{const r=mm.getBoundingClientRect();GOAL={yaw:T.yaw,pitch:T.pitch,dist:Math.min(T.dist,32),tx:(e.clientX-r.left)/r.width*44-22,ty:0,tz:(e.clientY-r.top)/r.height*32-16}});
+function stLabel(a){return a.busy?'bekerja':({dir:'melapor ke Direktur',present:'presentasi hasil',drink:'minum air',pantry:'ngopi di pantry',sofa:'santai di sofa',play:'main billiard',toilet:'ke toilet',meet:'rapat evaluasi',pray:'ibadah'}[a.at])||(a.done?'selesai':'standby')}
+function renderSide(){$('agl').innerHTML='<h3>Divisi · '+esc(DATA.updated||'-')+'</h3>'+AG.map(a=>'<div class="ag'+(SEL===a?' on':'')+'" onclick="selectAgent(\''+a.k+'\')"><i style="background:#'+a.c.toString(16).padStart(6,'0')+'">'+a.ic+'</i><div><b>'+a.n+'</b><small>'+a.r+'</small><small class="'+(a.busy?'bekerja':a.done?'selesai':'')+'">'+stLabel(a)+'</small></div></div>').join('')+'<h3 style="margin-top:14px">Log terbaru</h3>'+(DATA.log.length?DATA.log.map(l=>'<div class="lg">'+esc(l[0])+' · '+esc(l[1])+' · '+esc(l[3])+' lolos</div>').join(''):'<div class="lg">Belum ada log.</div>')}
+function selectAgent(k){const a=AG.find(x=>x.k===k);SEL=SEL===a?null:a;AG.forEach(x=>paintLabel(x));
+ if(SEL){GOAL={yaw:0,pitch:.8,dist:18,tx:SEL.px,ty:0,tz:SEL.pz};slideId({lead:'rep',day:'btst',tech:'d0',fund:'d0',div:'div',ask:'ask'}[k])}else resetCam();sideSig='';if(k==='lead'&&SEL)openOrd()}
+function markDone(){const td=jk().date,has=t=>DATA.recs.some(r=>r.tipe===t&&r.date===td);
+ AG.forEach(a=>{a.done=a.k==='day'?has('BTST'):a.k==='lead'?!!(DATA.reports[0]&&DATA.reports[0].date===td):(a.k==='tech'||a.k==='fund')?has('BTST'):a.k==='div'?DATA.div.length>0:a.k==='ask'?!!LASTQ:false})}
+function apply(d){DATA=norm(d);SL=slides();if(SI>=SL.length)SI=0;SPK=(SL[SI]&&SL[SI].ag)||null;dirty=true;markDone();renderChips();sideSig=''}
+function startWorship(){WD=performance.now()/1000}
+function runPhase(k){if(RUN)return;const p=PH[k];RUN={k:k,lbl:p.lbl,set:new Set(p.ag)};sideSig='';if(k==='laporan')startMeeting(false);renderChips();
+ const ok=d=>{RUN=null;apply(d);p.ag.forEach(x=>{AG.find(a=>a.k===x).done=true});slideId({dividen:'div',laporan:'rep'}[k]);if(k==='ibadah')startWorship();if(k==='laporan'){if(MT)MT.ready=true;else startMeeting(true)}if(k==='dividen')errand('div','dir',10);renderChips();toast('Selesai: '+p.lbl)};
+ const bad=e=>{RUN=null;if(MT)MT.ready=true;renderChips();toast('Gagal: '+((e&&e.message)||e))};
+ if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(bad).runSessionFromWeb(k);else setTimeout(()=>ok(demo()),6000)}
+const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+function addMsg(t,cls){const d=document.createElement('div');d.className='m '+cls;if(cls==='a')d.innerHTML=fmt(t);else d.textContent=t;$('msgs').appendChild(d);$('msgs').scrollTop=1e9;return d}
+function initChat(){addMsg('Selamat datang, Bos. Saya Jarvis, asisten Kantor AI. Tanyakan apa saja, atau beri perintah seperti "buka ruang meeting", "tampilkan ranking", atau "analisis TMPO TRUK".','a');$('qr').innerHTML=['Rekomendasi hari ini','Buka ruang meeting','Berita IHSG hari ini','Analisis BBCA'].map(t=>'<button onclick="quick(this)">'+t+'</button>').join('')}
+function quick(b){$('q').value=b.textContent;ask()}
+const AL={room:'Memindahkan kamera',slide:'Menampilkan slide',fokus:'Menyorot divisi',analisis:'Menjalankan analisis',laporan:'Menjalankan laporan',dividen:'Menjalankan Dividend Hunter',order:'Membuka form rencana beli',portofolio:'Membuka portofolio',jual:'Membuka form catat penjualan'};
+function runActions(list){(list||[]).forEach((a,i)=>setTimeout(()=>{
+ if(a.t==='room'&&ROOMS[a.v])goRoom(a.v);
+ else if(a.t==='slide'){goRoom('screen');slideId(a.v)}
+ else if(a.t==='fokus'){const x=AG.find(g=>g.k===a.v);if(x&&SEL!==x)selectAgent(a.v)}
+ else if(a.t==='analisis'){$('i_t').value=a.v;runManualWeb()}
+ else if(a.t==='laporan')runPhase('laporan');
+ else if(a.t==='dividen')runPhase('dividen');
+ else if(a.t==='order')openOrd();
+ else if(a.t==='portofolio')openPf();
+ else if(a.t==='jual')openSell(a.v||'')},700*(i+1)))}
+let VOICE=false;
+function toggleVoice(){VOICE=!VOICE;$('vbtn').textContent=VOICE?'🔊':'🔇';if(!VOICE&&window.speechSynthesis)speechSynthesis.cancel();toast(VOICE?'Suara jawaban aktif':'Suara jawaban mati')}
+function speak(t){if(!VOICE||!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(String(t||'').replace(/[*_#`]/g,'').slice(0,700));u.lang='id-ID';speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function listen(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){toast('Browser ini tidak mendukung input suara. Ketik saja.');return}try{const r=new R();r.lang='id-ID';r.onresult=e=>{$('q').value=e.results[0][0].transcript;ask()};r.onerror=e=>toast('Mikrofon tidak bisa dipakai di halaman ini ('+e.error+'). Ketik saja.');r.start();toast('Mendengarkan… silakan bicara')}catch(e){toast('Mikrofon tidak tersedia. Ketik saja.')}}
+function ask(){const q=$('q').value.trim();if(!q||ASKING)return;$('q').value='';addMsg(q,'u');const th=addMsg('Jarvis sedang berpikir…','a t');ASKING=true;$('askb').disabled=true;const hist=CHAT.slice(-12);
+ const ok=r=>{ASKING=false;$('askb').disabled=false;th.remove();addMsg(r.jawaban||'(tidak ada jawaban)','a');speak(r.jawaban);CHAT.push({r:'u',t:q},{r:'a',t:String(r.jawaban||'').slice(0,700)});
+  if((r.poin&&r.poin.length)||r.kesimpulan){LASTQ=r;AG.find(a=>a.k==='ask').done=true;SL=slides();slideId('ask');errand('ask','present',14)}
+  sideSig='';if(r.aksi&&r.aksi.length){r.aksi.forEach(a=>addMsg('⚙ '+(AL[a.t]||a.t)+(a.v?': '+a.v:''),'a t'));runActions(r.aksi)}};
+ const bad=e=>{ASKING=false;$('askb').disabled=false;th.remove();addMsg('Maaf, gagal: '+((e&&e.message)||e),'a')};
+ if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(bad).askFromWeb(q,hist);else setTimeout(()=>ok(demoChat(q)),1400)}
+function demoChat(q){const m=/meeting/i.test(q);return{tanya:q,judul:'Jarvis (DEMO)',jawaban:m?'Siap, Bos. Saya arahkan kamera ke Ruang Meeting. (DEMO)':'(DEMO) Siap, Bos. Ini contoh jawaban Jarvis. Setelah Gemini aktif, saya bisa menjawab apa saja dengan pencarian web dan menjalankan perintah di kantor ini.',poin:m?[]:['Contoh poin inti pertama','Contoh poin inti kedua'],kesimpulan:m?'':'Contoh kesimpulan singkat.',risiko:[],berita:[],aksi:m?[{t:'room',v:'meeting'}]:[],ai:false}}
+function scrollScr(d){const c=SL[SI];if(!(c&&c.tall))return;SC.man=true;SC.y=clamp(SC.y+d,0,SC.max);lastSlide=performance.now()/1000;dirty=true}
+$('pres').addEventListener('wheel',e=>{const c=SL[SI];if(c&&c.tall){e.preventDefault();scrollScr(e.deltaY)}},{passive:false});
+let pdy=null;sc.addEventListener('pointerdown',e=>{pdy=e.clientY});sc.addEventListener('pointermove',e=>{if(pdy!==null&&(e.buttons||e.pointerType==='touch')){scrollScr(-(e.clientY-pdy)*720/sc.clientHeight);pdy=e.clientY}});sc.addEventListener('pointerup',()=>pdy=null);
+addEventListener('keydown',e=>{if($('pres').classList.contains('on')){if(e.key==='ArrowDown'){e.preventDefault();scrollScr(160)}else if(e.key==='ArrowUp'){e.preventDefault();scrollScr(-160)}}});
+/* --- Form Rencana Beli (Leader) --- */
+function openOrd(){const R=rankRows();if(!R.length){toast('Belum ada rekomendasi untuk dibeli.');return}ORD=R;$('o_s').innerHTML=R.map((r,i)=>'<option value="'+i+'">#'+(i+1)+' '+r.kode+' · '+TIPE[r.tipe]+' · skor '+(+r.skor).toFixed(0)+'/100</option>').join('');$('ord').classList.add('on');ordPick()}
+function closeOrd(){$('ord').classList.remove('on')}
+function ordPick(){const r=ORD[+$('o_s').value];$('o_p').value=Math.round((r.lo+r.hi)/2);$('o_l').value=1;$('o_b').value='';$('o_info').textContent='Zona beli '+n0(r.lo)+'–'+n0(r.hi)+' · Target 1 '+n0(r.t1)+' · Target 2 '+n0(r.t2)+' · Stop loss '+n0(r.sl);ordCalc('l')}
+function ordCalc(src){const r=ORD[+$('o_s').value],p=+$('o_p').value||0;let lot=+$('o_l').value||0;
+ if(src==='b'){const b=+$('o_b').value||0;lot=p>0?Math.floor(b/(p*100)):0;$('o_l').value=lot}else if(src==='l')$('o_b').value='';
+ const tot=lot*100*p,pl=x=>lot*100*(x-p),f=v=>(v>=0?'+':'−')+'Rp '+n0(Math.abs(v)),out=p<r.lo*.99||p>r.hi*1.01;
+ $('o_res').innerHTML='<table><tr><td>Jumlah lembar</td><td>'+n0(lot*100)+'</td></tr><tr><td><b>Total beli</b></td><td><b>Rp '+n0(tot)+'</b></td></tr><tr><td>Jika kena Target 1</td><td class="g">'+f(pl(r.t1))+'</td></tr><tr><td>Jika kena Target 2</td><td class="g">'+f(pl(r.t2))+'</td></tr><tr><td>Jika kena Stop Loss</td><td class="rr">'+f(pl(r.sl))+'</td></tr></table><small style="color:#8b9ab5">Belum termasuk fee broker dan pajak.'+(out?' <span class="rr">⚠ Harga di luar zona beli.</span>':'')+'</small>'}
+function saveOrd(){const r=ORD[+$('o_s').value],p=+$('o_p').value,l=+$('o_l').value;if(!(p>0&&l>0)){toast('Isi harga beli dan jumlah lot dulu.');return}
+ const o={kode:r.kode,tipe:r.tipe,harga:p,lot:l,total:l*100*p,t1:r.t1,t2:r.t2,sl:r.sl},ok=()=>{closeOrd();toast('Tersimpan: '+r.kode+' '+l+' lot @ '+n0(p)+' masuk ke Portofolio.');reload(true)};
+ if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(e=>toast('Gagal menyimpan: '+((e&&e.message)||e))).saveOrder(o);
+ else{DATA.port.push({id:'d'+Date.now(),waktu:'-',kode:o.kode,tipe:o.tipe,hb:p,lot:l,total:o.total,t1:o.t1,t2:o.t2,sl:o.sl,status:'DIBELI',sisa:l,pl:0});ok()}}
+function reload(open){const done=d=>{apply(d);if(open){pfTab('pos');openPf()}};if(HAS)google.script.run.withSuccessHandler(done).getDashboardData();else done(DATA)}
+/* --- Portofolio & penjualan --- */
+let PFT='pos';
+function openPf(){$('pf').classList.add('on');pfTab(PFT)}
+function closePf(){$('pf').classList.remove('on')}
+function pfTab(t){PFT=t;$('pt_pos').classList.toggle('on',t==='pos');$('pt_jual').classList.toggle('on',t==='jual');renderPf()}
+function renderPf(){const H=holdings(),z=realisasi(jk().date),all=(DATA.sales||[]).reduce((a,s)=>a+ +s.pl,0),modal=H.reduce((a,o)=>a+o.cost,0),unrl=H.reduce((a,o)=>a+(o.unrl||0),0),cl=v=>v>=0?'g':'rr';
+ $('pf_sum').innerHTML='<div class="cards"><div><small>Modal yang dipegang</small><b>Rp '+n0(modal)+'</b></div><div><small>P/L belum terealisasi</small><b class="'+cl(unrl)+'">'+rpf(unrl)+'</b></div><div><small>Realisasi hari ini (Sesi 1 + 2)</small><b class="'+cl(z.total)+'">'+rpf(z.total)+'</b></div><div><small>Realisasi 14 hari</small><b class="'+cl(all)+'">'+rpf(all)+'</b></div></div>';
+ if(PFT==='pos'){$('pf_body').innerHTML=H.length?'<table class="pft"><tr><th>Saham</th><th>Lot</th><th>Rata2 beli</th><th>Harga kini</th><th>P/L</th><th>Target 1</th><th>Stop loss</th><th></th></tr>'+H.map(o=>'<tr><td><b>'+esc(o.kode)+'</b></td><td>'+n0(o.lot)+'</td><td>'+n0(o.avg)+'</td><td>'+(o.px?n0(o.px):'–')+'</td><td class="'+(o.unrl===null?'':cl(o.unrl))+'">'+(o.unrl===null?'–':rpf(o.unrl)+' ('+(o.pct>=0?'+':'')+o.pct.toFixed(2)+'%)')+'</td><td class="g">'+n0(o.t1)+'</td><td class="rr">'+n0(o.sl)+'</td><td><button class="sm" onclick="openSell(\''+o.kode+'\')">Jual</button></td></tr>').join('')+'</table>':'<div style="padding:18px;color:#8b9ab5">Belum ada posisi. Isi <b>Rencana Beli</b> (klik Leader atau tombol 🛒) dan sahamnya otomatis masuk ke sini.</div>'}
+ else{const S=DATA.sales||[];$('pf_body').innerHTML=S.length?'<table class="pft"><tr><th>Tanggal</th><th>Sesi</th><th>Saham</th><th>Lot</th><th>Beli</th><th>Jual</th><th>P/L bersih</th><th>%</th></tr>'+S.map(s=>'<tr><td>'+esc(s.tgl)+' '+esc(s.waktu)+'</td><td>'+s.sesi+'</td><td><b>'+esc(s.kode)+'</b></td><td>'+n0(s.lot)+'</td><td>'+n0(s.hb)+'</td><td>'+n0(s.hj)+'</td><td class="'+cl(+s.pl)+'">'+rpf(+s.pl)+'</td><td class="'+cl(+s.pct)+'">'+(+s.pct>=0?'+':'')+(+s.pct).toFixed(2)+'%</td></tr>').join('')+'</table>':'<div style="padding:18px;color:#8b9ab5">Belum ada penjualan yang dicatat.</div>'}}
+function openSell(k){const H=holdings();if(!H.length){toast('Belum ada posisi di portofolio.');return}$('s_k').innerHTML=H.map(o=>'<option value="'+o.kode+'">'+o.kode+' · '+n0(o.lot)+' lot</option>').join('');if(k&&H.some(o=>o.kode===k))$('s_k').value=k;$('s_s').value='auto';$('sell').classList.add('on');sellPick()}
+function closeSell(){$('sell').classList.remove('on')}
+function sellPick(){const o=holdings().find(x=>x.kode===$('s_k').value);if(!o)return;$('s_p').value=Math.round(o.px||o.t1);$('s_l').value=o.lot;sellCalc()}
+function sellCalc(){const o=holdings().find(x=>x.kode===$('s_k').value);if(!o){$('s_res').innerHTML='';return}const p=+$('s_p').value||0,lot=Math.min(+$('s_l').value||0,o.lot),val=lot*100*p,cost=lot*100*o.avg,fee=cost*FEE.beli+val*FEE.jual,pl=val-cost-fee;
+ $('s_info').textContent='Posisi '+n0(o.lot)+' lot · rata-rata beli '+n0(o.avg)+' · Target 1 '+n0(o.t1)+' · Stop loss '+n0(o.sl);
+ $('s_res').innerHTML='<table class="pft"><tr><td>Nilai jual</td><td>Rp '+n0(val)+'</td></tr><tr><td>Modal (rata-rata beli)</td><td>Rp '+n0(cost)+'</td></tr><tr><td>Fee beli + jual</td><td>Rp '+n0(fee)+'</td></tr><tr><td><b>Untung / rugi bersih</b></td><td class="'+(pl>=0?'g':'rr')+'"><b>'+rpf(pl)+' ('+(cost?(pl/cost*100).toFixed(2):0)+'%)</b></td></tr></table>'+(+$('s_l').value>o.lot?'<small class="rr">Lot melebihi posisi ('+n0(o.lot)+' lot).</small>':'')}
+function saveSell(){const o={kode:$('s_k').value,harga:+$('s_p').value,lot:+$('s_l').value,sesi:$('s_s').value};if(!(o.harga>0&&o.lot>0)){toast('Isi harga jual dan lot.');return}
+ const done=(r,d)=>{apply(d);closeSell();pfTab('jual');openPf();slideId('port');toast('Terjual '+r.kode+' '+r.lot+' lot @ '+n0(r.hj)+' (Sesi '+r.sesi+'): '+(r.pl>=0?'untung ':'rugi ')+rpf(r.pl).replace('+','').replace('−','')+' ('+r.pct.toFixed(2)+'%)')};
+ if(HAS)google.script.run.withSuccessHandler(x=>done(x.hasil,x.data)).withFailureHandler(e=>toast('Gagal: '+((e&&e.message)||e))).recordSaleFromWeb(o);
+ else{const hh=holdings().find(x=>x.kode===o.kode);if(!hh||o.lot>hh.lot){toast('Lot melebihi posisi.');return}const val=o.lot*100*o.harga,cost=o.lot*100*hh.avg,fee=cost*FEE.beli+val*FEE.jual,pl=val-cost-fee,ses=o.sesi==='auto'?(jk().min<750?1:2):+o.sesi;let left=o.lot;DATA.port.forEach(r=>{if(r.kode===o.kode&&r.sisa>0&&left>0){const t=Math.min(r.sisa,left);r.sisa-=t;left-=t}});
+  DATA.sales.unshift({tgl:jk().date,waktu:'--:--',sesi:ses,kode:o.kode,lot:o.lot,hb:hh.avg,hj:o.harga,nilai:val,modal:cost,fee:fee,pl:pl,pct:pl/cost*100,ket:''});done({kode:o.kode,lot:o.lot,hj:o.harga,sesi:ses,pl:pl,pct:pl/cost*100},DATA)}}
+function demo(){const td=jk().date,recs=[];const mk=(t,k,b,sk)=>{const c=[];let p=b;for(let i=0;i<40;i++){p*=1+(Math.random()-.45)*.02;c.push(Math.round(p))}const m=c.map((_,i)=>Math.round(c.slice(Math.max(0,i-19),i+1).reduce((a,x)=>a+x)/Math.min(i+1,20))),cl=c[39],a=cl*.025;
+  recs.push({date:td,sesi:'PAGI',tipe:t,kode:k,skor:sk,acuan:cl,lo:Math.round(cl-a*.3),hi:cl,t1:Math.round(cl+a),t2:Math.round(cl+a*1.7),sl:Math.round(cl-a*.9),rr:1.3,tek:'(DEMO) Harga di atas MA5 dan MA20. RSI 58 (momentum sehat). MACD histogram positif. Volume 1.8x rata-rata 20 hari. Accum/Dist 35%.',fun:'(DEMO) PER 11.2 (murah) · PBV 1.8 · ROE 16.0% · Margin laba 21.0%. Penilaian: fundamental kuat.',chart:JSON.stringify({c:c,m:m}),status:'OPEN',ret:'',eval:'',cek:t==='DAY'?'LOLOS: IEP di zona beli':''})};
+ [['BTST','DMAS',207,93.2],['BTST','HMSP',642,77.4],['BTST','CARE',370,76.1],['BTST','ACES',365,71.8],['BTST','BREN',2100,55.0]].forEach(x=>mk(x[0],x[1],x[2],x[3]));
+ const ib=AG.map((a,i)=>({date:td,divisi:a.n,ayat:['Mazmur 23:1','Amsal 3:5-6','Yosua 1:9','Filipi 4:6-7','Roma 8:28','Yesaya 41:10','Kolose 3:23'][i],teks:'(DEMO) Contoh teks ayat.',parafrase:'(DEMO) Parafrase singkat ayat dalam bahasa Indonesia.',renung:'(DEMO) Perenungan: bekerja dengan jujur dan sabar, bukan serakah, adalah cara kita menghormati Tuhan dalam setiap analisis.'}));
+ return{recs:recs,reports:[{date:td,total:5,filled:4,tp:2,sl:1,wr:75,avg:1.4,eval:'(DEMO) Win rate 75% dari 4 posisi; rata-rata return 1.4%. DAY: 2/3 untung. Kriteria hari ini efektif, pertahankan.'}],log:[],port:[{id:'a1',waktu:'-',kode:'DMAS',tipe:'BTST',hb:207,lot:20,total:414000,t1:218,t2:226,sl:200,status:'DIBELI',sisa:20,pl:0},{id:'a2',waktu:'-',kode:'HMSP',tipe:'BTST',hb:640,lot:10,total:640000,t1:670,t2:685,sl:625,status:'SEBAGIAN TERJUAL',sisa:5,pl:12700}],sales:[{tgl:td,waktu:'10:05',sesi:1,kode:'HMSP',lot:5,hb:640,hj:668,nilai:334000,modal:320000,fee:1300,pl:12700,pct:3.97,ket:''}],prices:{DMAS:212,HMSP:655},
+  div:[{kode:'BBCA',yld:'2.7',last:'264',cum:'2026-11-12',ex:'2026-11-13',rec:'2026-11-16',pay:'2026-11-27',status:'Estimasi (pola tahun lalu)',src:'(demo)'},{kode:'BBRI',yld:'8.3',last:'352',cum:'2027-03-10',ex:'2027-03-11',rec:'2027-03-12',pay:'-',status:'Estimasi (pola tahun lalu)',src:'(demo)'}],divSummary:'(DEMO) BBCA mendekati jadwal dividen interim; BBRI diperkirakan mengikuti pola tahun lalu. Tanggal resmi menunggu pengumuman emiten.',ibadah:ib,updated:'(data demo)'}}
+function load(){if(HAS)google.script.run.withSuccessHandler(apply).withFailureHandler(e=>toast('Gagal memuat: '+((e&&e.message)||e))).getDashboardData();else{apply(demo());toast('Mode DEMO: dibuka di luar Apps Script.')}}
+
+/* --- Input manual hasil screening --- */
+function openInp(){$('inp').classList.add('on')}
+function closeInp(){$('inp').classList.remove('on')}
+function runManualWeb(){const t=$('i_t').value.trim();if(!t){toast('Isi kode saham dulu.');return}if(RUN)return;closeInp();
+ RUN={k:'manual',lbl:'Analisis input manual',set:new Set(['day','tech','fund'])};sideSig='';renderChips();
+ const ok=d=>{RUN=null;apply(d);['day','tech','fund'].forEach(x=>{AG.find(a=>a.k===x).done=true});slideId('rank');errand('day','dir',12);renderChips();toast(d.manualFail?'Selesai. Tidak terbaca/gagal: '+d.manualFail:'Analisis selesai: lihat ranking di layar.')};
+ const bad=e=>{RUN=null;renderChips();toast('Gagal: '+((e&&e.message)||e))};
+ if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(bad).runManualFromWeb(t);else setTimeout(()=>ok(demo()),4000)}
+
+/* --- Rapat evaluasi: Leader mengundang, diskusi bergiliran, lalu bubar --- */
+function paintBubble(a,t){const g=a.bc.getContext('2d');g.clearRect(0,0,420,150);g.fillStyle='#fff';rrect(g,6,6,408,110,22);g.fill();g.beginPath();g.moveTo(190,114);g.lineTo(210,144);g.lineTo(230,114);g.closePath();g.fill();g.strokeStyle='#cbd5e1';g.lineWidth=3;rrect(g,6,6,408,110,22);g.stroke();
+ g.fillStyle='#0f172a';g.font='25px system-ui';g.textAlign='center';let ln=[],l='';String(t).split(' ').forEach(x=>{const q=l?l+' '+x:x;if(g.measureText(q).width>380&&l){ln.push(l);l=x}else l=q});ln.push(l);if(ln.length>3){ln=ln.slice(0,3);ln[2]+='…'}
+ const lh=30,y0=61-(ln.length-1)*lh/2+8;ln.forEach((s,i)=>g.fillText(s,210,y0+i*lh));a.bt.needsUpdate=true}
+function say(a,t,secs){if(!a||!a.bs)return;a.say=t;a.sayT=secs;paintBubble(a,t);a.bs.visible=true}
+function startMeeting(ready){if(MT)return;MT={st:'undang',t0:NOW,ready:!!ready,i:-1,lines:null,rep:AG.filter(a=>a.k!=='lead').map((a,k)=>({a:a,at:1.4+k*.55,done:false}))};
+ say(AG.find(a=>a.k==='lead'),'Semua divisi, ke ruang meeting sekarang! Kita evaluasi hasilnya.',4.2);goRoom('desks')}
+function meetScript(){const rp=DATA.reports[0],b=latest('BTST'),z=realisasi(jk().date),lead=AG.find(a=>a.k==='lead'),g=k=>AG.find(a=>a.k===k),top=b[0];
+ const cut=(t,n)=>{t=String(t||'').replace(/\s+/g,' ').trim();return t.length>n?t.slice(0,n-1)+'…':t};
+ const dv=(DATA.div||[])[0],L=[],cp=cohortPrev(),cs=cohortStats(cp);
+ L.push({a:lead,t:'Selamat sore, tim. Mari kita evaluasi hasil hari ini.',d:4});
+ L.push({a:g('day'),t:b.length?'Ada '+b.length+' rekomendasi BSJP. Teratas '+top.kode+', skor '+Math.round(top.skor)+'/100, beli '+n0(top.lo)+'–'+n0(top.hi)+'.':'Belum ada input BSJP hari ini.',d:6});
+ L.push({a:g('day'),s:'rep',t:cp.rows.length?'BSJP kemarin ('+cp.date+'): capai T1 '+cs.tp+', kena SL '+cs.sl+', ditutup '+cs.tutup+(cs.n?', rata-rata '+(cs.avg>=0?'+':'')+cs.avg.toFixed(2)+'%':'')+'.':'Belum ada BSJP kemarin untuk dievaluasi.',d:6});
+ L.push({a:g('tech'),t:top?cut('Teknikal '+top.kode+': '+String(top.tek||'').split('. ')[0],95):'Belum ada data teknikal baru.',d:6});
+ L.push({a:g('fund'),t:top?cut('Fundamental '+top.kode+': '+String(top.fun||'').split(' · ').slice(0,3).join(', '),95):'Belum ada data fundamental baru.',d:6});
+ L.push({a:g('div'),t:dv?cut('Dividen terdekat '+dv.kode+': cum date '+dv.cum+', ex date '+dv.ex+'.',95):'Belum ada jadwal dividen baru.',d:5});
+ L.push({a:g('ask'),t:LASTQ?cut('Pertanyaan terakhir Bos: '+LASTQ.judul,90):'Tidak ada pertanyaan baru. Saya siap menjawab kapan saja.',d:5});
+ L.push({a:lead,t:(z.n?'Realisasi: Sesi 1 '+rpf(z.s1)+', Sesi 2 '+rpf(z.s2)+', total '+rpf(z.total)+'.':'Belum ada penjualan tercatat hari ini.')+(rp?' Win rate rekomendasi '+rp.wr+'%.':''),d:7});
+ L.push({a:lead,t:'Terima kasih semua. Kembali bekerja!',d:4});return L}
+function meetTick(s){NOW=s;if(!MT)return;const e=s-MT.t0,lead=AG.find(a=>a.k==='lead');
+ if(MT.st==='undang'){MT.rep.forEach(r=>{if(!r.done&&e>=r.at){r.done=true;say(r.a,'Siap!',1.8)}});if(e>4.6){MT.st='kumpul';MT.t0=s;goRoom('meeting');slideId('rep')}}
+ else if(MT.st==='kumpul'){const arrived=AG.every(a=>a.at==='meet'&&!a.q.length);
+  if((arrived&&MT.ready&&e>1.5)||(e>45&&MT.ready)){MT.st='diskusi';MT.t0=s;MT.lines=meetScript();MT.i=-1;MT.next=s}
+  else if(arrived&&!MT.ready&&!MT.wait){MT.wait=1;say(lead,'Sebentar, laporan sedang disiapkan…',6)}}
+ else if(MT.st==='diskusi'){if(s>=MT.next){MT.i++;
+  if(MT.i>=MT.lines.length){MT.st='bubar';MT.t0=s;SPK=null;AG.forEach(a=>{a.t=Math.random()*2.5})}
+  else{const L=MT.lines[MT.i];say(L.a,L.t,L.d);MT.next=s+L.d+.4;slideId(L.s||{day:'btst',tech:'d0',fund:'d0',div:'div',ask:LASTQ?'ask':'ov',lead:MT.i>=7?'rep':'ov'}[L.a.k]);SPK=L.a}}}
+ else if(MT.st==='bubar'){if(e>.5&&!MT.bye){MT.bye=1;goRoom('home')}if(e>4)MT=null}}
+
+/* ============ LOOP ============ */
+let miniT=0;
+function refreshState(){const w=wmode(),mt=meetMode(),jj=jk();if(jj.wd>=1&&jj.wd<=5&&jj.min>=990&&jj.min<1005&&!MT&&AUTO_MEET!==jj.date){AUTO_MEET=jj.date;startMeeting(true)}
+ if(w!==lastWm||mt!==lastMt){lastWm=w;lastMt=mt;SL=slides();goSlide(w==='sharing'?1:0);renderChips();if(mt&&!w)goRoom('meeting')}
+ const S=sched();AG.forEach(a=>{a.busy=!!(RUN?RUN.set.has(a.k):S.has(a.k))||(a.k==='ask'&&ASKING)});
+ const c=$('clk');if(c)c.textContent=clockText();
+ const sig=AG.map(a=>(a.busy?1:0)+''+(a.done?1:0)+a.at+(SEL===a?1:0)).join('|')+DATA.updated+DATA.log.length;if(sig!==sideSig){sideSig=sig;renderSide();renderChips()}}
+function loop(t){requestAnimationFrame(loop);const s=t/1000,dt=Math.min(.05,s-(loop.p||s));loop.p=s;
+ if(s-tSec>1){tSec=s;refreshState()}
+ meetTick(s);AG.forEach(a=>stepAgent(a,dt,s));notes(s);NPC.forEach((a,i)=>{a.head.rotation.y=Math.sin(s*.7+i*2)*.25});
+ if(GOAL){let d=0;for(const k in GOAL){T[k]+=(GOAL[k]-T[k])*.07;d+=Math.abs(GOAL[k]-T[k])}if(d<.02)GOAL=null}
+ const cur=SL[SI];let every=lastWm==='sharing'?(WD?7:240):9;
+ if(cur&&cur.tall&&!PAUSE&&!RUN){if(!SC.man){const y=clamp((s-lastSlide-3)*32,0,SC.max);if(Math.abs(y-SC.y)>.5){SC.y=y;dirty=true}}every=Math.max(every,9+SC.max/32)}
+ if(!PAUSE&&!RUN&&!(MT&&MT.st==='diskusi')&&SL.length&&s-lastSlide>every)goSlide(SI+1);
+ if(RUN){drawAna(sx,s);tex.needsUpdate=true}else if(dirty&&SL.length){SL[SI].draw(sx);tex.needsUpdate=true;dirty=false}
+ place();ren.render(scene,cam);updLabels();if(s-miniT>.2){miniT=s;drawMini()}}
+resize();renderChips();renderSide();initChat();load();requestAnimationFrame(loop);
+setInterval(()=>{if(HAS&&!RUN&&!ASKING)google.script.run.withSuccessHandler(apply).getDashboardData()},120000);
+</script>
+<script>
+/* ===== KERANGKA: login, menu, halaman data (tambahan) ===== */
+const KP={kantor:['Kantor AI Agent','Kantor 3D & Jarvis'],dash:['Dashboard Trading','Ringkasan kinerja & saldo'],log:['Trade Log','Riwayat transaksi']};
+const KNAV=[
+ {t:'Kantor AI Agent',ic:'🤖',open:true,it:[['Kantor 3D & Jarvis','pg:kantor'],['Input Saham','inp'],['Rencana Beli','ord'],['Portofolio','pf'],['Catat Jual','sell'],['Rapat Evaluasi','meet'],['Laporan 16:30','lap'],['Dividend Hunter','div'],['Daftar Divisi','dv'],['Chat Jarvis','ch']]},
+ {t:'Pusat Data',ic:'📊',open:true,it:[['Dashboard Trading','pg:dash'],['Trade Log','pg:log']]},
+ {t:'Akun & Saldo',ic:'💳',it:[['Setor / Tarik Dana','akun']]}
+];
+const KACT={inp:()=>openInp(),ord:()=>openOrd(),pf:()=>openPf(),sell:()=>openSell(),meet:()=>startMeeting(true),lap:()=>runPhase('laporan'),div:()=>runPhase('dividen'),akun:()=>openAkun(),dv:()=>togglePop('div'),ch:()=>togglePop('chat')};
+function togglePop(m){const b=document.body.classList,cur=b.contains('pop-'+m);b.remove('pop-chat','pop-div');if(!cur){b.add('pop-'+m);if(m==='chat')setTimeout(()=>{const q=$('q');if(q)q.focus()},200)}}
+let KPG='kantor',TD={sales:[],open:[],akun:[]},TF={st:'ALL',q:''};
+
+function kNav(){$('kn').innerHTML=KNAV.map(g=>'<div class="gp'+(g.open?' open':'')+'"><div class="gh" onclick="this.parentNode.classList.toggle(\'open\')"><em>'+g.ic+'</em>'+g.t+'<s>▼</s></div><div class="its"><div>'+g.it.map(x=>'<button class="it" data-pg="'+(x[1].indexOf('pg:')===0?x[1].slice(3):'')+'" onclick="kClick(\''+x[1]+'\')">'+x[0]+'</button>').join('')+'</div></div></div>').join('')}
+function kClick(k){if(k.indexOf('pg:')===0)showPg(k.slice(3));else{showPg('kantor');KACT[k]()}if(innerWidth<860)document.body.classList.add('sbc')}
+function showPg(k){KPG=k;document.querySelectorAll('.pg').forEach(p=>p.classList.toggle('on',p.id==='pg-'+k));$('tt_h').textContent=KP[k][0];$('tt_s').textContent=KP[k][1];document.querySelectorAll('.it').forEach(b=>b.classList.toggle('on',b.dataset.pg===k));if(k==='dash'||k==='log')loadTrade();if(innerWidth<860)document.body.classList.add('sbc')}
+
+/* --- Login --- */
+function lgMsg(t){$('lg_m').textContent=t||''}
+function lgEye(){const p=$('lg_p');p.type=p.type==='password'?'text':'password'}
+function doLogin(){const u=$('lg_u').value.trim(),p=$('lg_p').value;if(!u||!p){lgMsg('Isi username dan password.');return}lgMsg('');const b=$('lg_b');b.disabled=true;b.classList.add('ld');
+ const done=()=>{b.disabled=false;b.classList.remove('ld')};
+ const ok=r=>{done();if(r&&r.ok){try{if($('lg_r').checked)localStorage.setItem('kai_u',u);else localStorage.removeItem('kai_u');sessionStorage.setItem('kai_in',r.nama||u)}catch(e){}$('lg_p').value='';enterApp(r.nama||u)}else lgMsg((r&&r.msg)||'Login gagal.')};
+ const bad=e=>{done();lgMsg('Gagal menghubungi server: '+((e&&e.message)||e))};
+ if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(bad).loginWeb(u,p);else setTimeout(()=>ok({ok:true,nama:u}),600)}
+function enterApp(n){$('u_n').textContent=n;$('u_av').textContent=n.slice(0,2).toUpperCase();$('tb_d').textContent=clockText();$('app').classList.add('on');$('login').classList.add('out');setTimeout(()=>{$('login').style.display='none'},500);if(innerWidth<860)document.body.classList.add('sbc');showPg('kantor')}
+function doLogout(){try{sessionStorage.removeItem('kai_in');sessionStorage.removeItem('kai_tok')}catch(e){}$('app').classList.remove('on');const l=$('login');l.style.display='grid';void l.offsetWidth;l.classList.remove('out');$('lg_p').value='';$('lg_p').focus()}
+
+/* --- Data trading --- */
+function demoTrade(){const td=jk().date;return{demo:1,sales:[{tgl:td,waktu:'09:41',sesi:1,kode:'KJEN',lot:4,hb:126,hj:139,fee:215,pl:4985,pct:9.89,ket:'Mencapai Target 1'},{tgl:td,waktu:'10:05',sesi:1,kode:'HMSP',lot:5,hb:640,hj:668,fee:1300,pl:12700,pct:3.97,ket:''},{tgl:td,waktu:'11:20',sesi:1,kode:'ACES',lot:3,hb:365,hj:352,fee:430,pl:-4330,pct:-3.95,ket:'Di bawah Stop Loss'}],open:[{waktu:'-',kode:'SSMS',tipe:'BTST',hb:985,lot:2,t1:1055,sl:935}],akun:[{tgl:td,jenis:'Deposit',jml:3000000,cat:'Modal awal'}]}}
+function loadTrade(){const ok=d=>{TD={demo:d.demo,sales:d.sales||[],open:d.open||[],akun:d.akun||[]};kRender()};
+ if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(e=>toast('Gagal memuat data trading: '+((e&&e.message)||e))).getTradeData();else ok(TD.demo?TD:demoTrade())}
+function kRender(){if(KPG==='dash')tDash();else if(KPG==='log')tLog()}
+function tCalc(){const S=TD.sales,W=S.filter(s=>s.pl>0),Ls=S.filter(s=>s.pl<0),sm=a=>a.reduce((t,s)=>t+s.pl,0),gp=sm(W),gl=-sm(Ls),real=sm(S),pls=S.map(s=>s.pl),
+ dep=TD.akun.filter(a=>a.jenis!=='Withdraw').reduce((t,a)=>t+a.jml,0),wd=TD.akun.filter(a=>a.jenis==='Withdraw').reduce((t,a)=>t+a.jml,0);
+ return{n:S.length,w:W.length,l:Ls.length,wr:S.length?W.length/S.length*100:0,gp:gp,gl:gl,pf:gl?gp/gl:(gp?Infinity:0),exp:S.length?real/S.length:0,aw:W.length?gp/W.length:0,al:Ls.length?-gl/Ls.length:0,
+  bw:pls.length?Math.max(0,...pls):0,bl:pls.length?Math.min(0,...pls):0,real:real,dep:dep,wd:wd,saldo:dep-wd+real,open:TD.open.length}}
+const kcmp=v=>{const a=Math.abs(v),s=v<0?'-':'';return s+(a>=1e6?(a/1e6).toFixed(1)+'jt':a>=1e3?Math.round(a/1e3)+'rb':Math.round(a))};
+function kcv(id){const c=$(id),r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=Math.max(10,r.width*d);c.height=Math.max(10,r.height*d);const g=c.getContext('2d');g.scale(d,d);return{g:g,w:r.width,h:r.height}}
+function kanim(f){const t0=performance.now();(function s(t){const p=Math.min(1,(t-t0)/700);f(1-Math.pow(1-p,3));if(p<1)requestAnimationFrame(s)})(t0)}
+function tDash(){const s=tCalc(),c=x=>x>=0?'g2':'r2';
+ $('d_cards').innerHTML=[['Laba / Rugi (terealisasi)',rpf(s.real),c(s.real)],['Saldo akun','Rp '+n0(s.saldo),''],['Faktor laba',isFinite(s.pf)?s.pf.toFixed(2):'∞',s.pf>=1?'g2':'r2'],['Ekspektasi / transaksi',rpf(s.exp),c(s.exp)]].map((x,i)=>'<div class="kc" style="animation-delay:'+i*80+'ms"><small>'+x[0]+'</small><b class="'+x[2]+'">'+x[1]+'</b></div>').join('');
+ const L=[['Jumlah transaksi',s.n],['Menang / Kalah',s.w+' / '+s.l],['Sedang berjalan (posisi)',s.open],['Total setoran','Rp '+n0(s.dep)],['Total penarikan','Rp '+n0(s.wd)],['Rata-rata menang',rpf(s.aw)],['Rata-rata kalah',rpf(s.al)],['Menang terbesar',rpf(s.bw)],['Kalah terbesar',rpf(s.bl)]];
+ $('d_st').innerHTML=L.map(x=>'<div class="sl"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>').join('');
+ kanim(p=>{dEq(p);dWr(p);dBar(p)})}
+function eqPts(){const E=[];TD.akun.forEach(a=>E.push({d:a.tgl,t:'00:00',v:a.jenis==='Withdraw'?-a.jml:a.jml}));TD.sales.forEach(s=>E.push({d:s.tgl,t:s.waktu,v:s.pl}));E.sort((a,b)=>(a.d+a.t).localeCompare(b.d+b.t));let c=0;return E.map(e=>{c+=e.v;return{d:e.d,v:c}})}
+function dEq(p){const o=kcv('c_eq'),g=o.g,P=eqPts();g.font='12px system-ui';
+ if(P.length<2){g.fillStyle='#94a3b8';g.fillText('Belum cukup data. Catat setoran dan penjualan.',12,30);return}
+ const vs=P.map(q=>q.v),mn=Math.min(0,...vs),mx=Math.max(...vs)||1,L=52,B=22,T0=10,x=i=>L+i/(P.length-1)*(o.w-L-12),y=v=>T0+(1-(v-mn)/(mx-mn||1))*(o.h-T0-B);
+ g.strokeStyle='#e2e8f0';g.fillStyle='#64748b';g.lineWidth=1;g.textAlign='right';
+ for(let k=0;k<=4;k++){const v=mn+(mx-mn)*k/4,yy=y(v);g.beginPath();g.moveTo(L,yy);g.lineTo(o.w-8,yy);g.stroke();g.fillText(kcmp(v),L-6,yy+4)}
+ g.textAlign='left';g.fillText(P[0].d,L,o.h-6);g.textAlign='right';g.fillText(P[P.length-1].d,o.w-8,o.h-6);
+ g.save();g.beginPath();g.rect(0,0,o.w*p,o.h);g.clip();
+ g.beginPath();P.forEach((q,i)=>i?g.lineTo(x(i),y(q.v)):g.moveTo(x(i),y(q.v)));g.strokeStyle='#10b981';g.lineWidth=2.5;g.stroke();
+ g.lineTo(x(P.length-1),y(mn));g.lineTo(x(0),y(mn));g.closePath();g.fillStyle='#10b98122';g.fill();g.restore()}
+function dWr(p){const o=kcv('c_wr'),s=tCalc(),g=o.g,cx=o.w/2,cy=o.h/2,R=Math.min(cx,cy)-16,tot=s.w+s.l;g.lineWidth=26;
+ if(!tot){g.strokeStyle='#e2e8f0';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke()}
+ else{let a=-Math.PI/2;[[s.w,'#22c55e'],[s.l,'#f87171']].forEach(q=>{const sw=q[0]/tot*Math.PI*2*p;g.strokeStyle=q[1];g.beginPath();g.arc(cx,cy,R,a,a+sw);g.stroke();a+=sw})}
+ g.textAlign='center';g.fillStyle='#0f172a';g.font='bold 26px system-ui';g.fillText(s.wr.toFixed(1)+'%',cx,cy+6);g.font='11px system-ui';g.fillStyle='#64748b';g.fillText(s.w+' menang · '+s.l+' kalah',cx,cy+26)}
+function dBar(p){const o=kcv('c_bar'),g=o.g,S=TD.sales.slice(-10);g.font='11px system-ui';
+ if(!S.length){g.fillStyle='#94a3b8';g.fillText('Belum ada penjualan tercatat.',12,30);return}
+ const m=Math.max(...S.map(s=>Math.abs(s.pl)))||1,z=o.h/2,bw=(o.w-16)/S.length;
+ g.strokeStyle='#e2e8f0';g.beginPath();g.moveTo(0,z);g.lineTo(o.w,z);g.stroke();
+ S.forEach((s,i)=>{const h=Math.abs(s.pl)/m*(z-24)*p,x=8+i*bw+bw*.15;g.fillStyle=s.pl>=0?'#22c55e':'#f87171';g.fillRect(x,s.pl>=0?z-h:z,bw*.7,h);g.fillStyle='#64748b';g.textAlign='center';g.fillText(s.kode,x+bw*.35,o.h-4)})}
+function tLog(){const q=TF.q.trim().toUpperCase(),R=[];
+ TD.open.forEach(o=>R.push({w:o.waktu,k:o.kode,lot:o.lot,hb:o.hb,hj:null,fee:null,pl:null,pct:null,st:'OPEN',s:'',ket:'T1 '+n0(o.t1)+' · SL '+n0(o.sl)}));
+ TD.sales.slice().reverse().forEach(s=>R.push({w:s.tgl+' '+s.waktu,k:s.kode,lot:s.lot,hb:s.hb,hj:s.hj,fee:s.fee,pl:s.pl,pct:s.pct,st:s.pl>0?'WIN':s.pl<0?'LOSS':'BE',s:s.sesi,ket:s.ket}));
+ const F=R.filter(r=>(TF.st==='ALL'||r.st===TF.st)&&(!q||r.k.indexOf(q)>=0)),cl=v=>v==null?'':v>=0?'g2':'r2';
+ $('l_sub').textContent=F.length+' baris · '+TD.open.length+' posisi terbuka · data dari Portofolio & Penjualan (otomatis)';
+ $('l_tb').innerHTML=F.length?F.map((r,i)=>'<tr style="animation:pgin .35s '+Math.min(i*25,400)+'ms both"><td class="l">'+esc(r.w)+'</td><td class="l"><b>'+esc(r.k)+'</b></td><td>'+n0(r.lot)+'</td><td>'+n0(r.hb)+'</td><td>'+(r.hj==null?'–':n0(r.hj))+'</td><td>'+(r.fee==null?'–':n0(r.fee))+'</td><td class="'+cl(r.pl)+'">'+(r.pl==null?'–':rpf(r.pl))+'</td><td class="'+cl(r.pct)+'">'+(r.pct==null?'–':(r.pct>=0?'+':'')+(+r.pct).toFixed(2)+'%')+'</td><td><span class="bd '+r.st+'">'+r.st+'</span></td><td>'+(r.s||'–')+'</td><td class="l">'+esc(r.ket)+'</td></tr>').join(''):'<tr><td colspan="11" class="l" style="padding:20px;color:#64748b">Belum ada transaksi.</td></tr>'}
+
+/* --- Setor / Tarik --- */
+function openAkun(){$('a_t').value=jk().date;$('a_n').value='';$('a_c').value='';$('akn').classList.add('on')}
+function closeAkun(){$('akn').classList.remove('on')}
+function saveAkun(){const o={jenis:$('a_j').value,jumlah:+$('a_n').value,tgl:$('a_t').value,cat:$('a_c').value};if(!(o.jumlah>0)){toast('Isi jumlah dulu.');return}
+ const ok=()=>{closeAkun();toast('Tersimpan: '+(o.jenis==='Deposit'?'setoran':'penarikan')+' Rp '+n0(o.jumlah));showPg('dash')};
+ if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(e=>toast('Gagal: '+((e&&e.message)||e))).saveAkunFromWeb(o);
+ else{if(!TD.demo)TD=demoTrade();TD.akun.push({tgl:o.tgl,jenis:o.jenis,jml:o.jumlah,cat:o.cat});ok()}}
+
+/* --- Mulai --- */
+(function(){let u='',s=null;$('lg_bars').innerHTML=[55,80,45,95,65,100,70,85].map((h,i)=>'<i style="height:'+h+'%;animation-delay:'+i*.18+'s"></i>').join('');
+ try{u=localStorage.getItem('kai_u')||''}catch(e){}try{s=sessionStorage.getItem('kai_in')}catch(e){}
+ $('lg_u').value=u;kNav();setInterval(()=>{const e=$('tb_d');if(e)e.textContent=clockText()},20000);
+ if(s){$('login').style.display='none';enterApp(s)}else setTimeout(()=>$(u?'lg_p':'lg_u').focus(),300)})();
+</script>
+</body>
+</html>
