@@ -322,8 +322,10 @@ body.pop-chat #fabc{background:#0b1426}
         if(fn==='loginWeb'&&r&&r.ok&&r.token){try{sessionStorage.setItem(TK,r.token)}catch(e){}}
         if(ok)ok(r);
       }else if(d&&d.auth){
+        var was=false;try{was=!!sessionStorage.getItem('kai_in')}catch(e){}
         try{sessionStorage.removeItem(TK);sessionStorage.removeItem('kai_in')}catch(e){}
-        alert('Sesi login habis. Silakan masuk lagi.');location.reload();
+        if(was){alert('Sesi login habis. Silakan masuk lagi.');location.reload();}
+        else if(bad)bad(new Error('Belum login atau sesi tidak valid.'));
       }else if(bad)bad(new Error((d&&d.error)||'Server tidak merespons'));
     })
     .catch(function(e){if(bad)bad(e)});
@@ -926,8 +928,8 @@ function loop(t){requestAnimationFrame(loop);const s=t/1000,dt=Math.min(.05,s-(l
  if(!PAUSE&&!RUN&&!(MT&&MT.st==='diskusi')&&SL.length&&s-lastSlide>every)goSlide(SI+1);
  if(RUN){drawAna(sx,s);tex.needsUpdate=true}else if(dirty&&SL.length){SL[SI].draw(sx);tex.needsUpdate=true;dirty=false}
  place();ren.render(scene,cam);updLabels();if(s-miniT>.2){miniT=s;drawMini()}}
-resize();renderChips();renderSide();initChat();load();requestAnimationFrame(loop);
-setInterval(()=>{if(HAS&&!RUN&&!ASKING)google.script.run.withSuccessHandler(apply).getDashboardData()},120000);
+resize();renderChips();renderSide();initChat();requestAnimationFrame(loop);
+setInterval(()=>{if(HAS&&!RUN&&!ASKING&&$('app').classList.contains('on'))google.script.run.withSuccessHandler(apply).getDashboardData()},120000);
 </script>
 <script>
 /* ===== KERANGKA: login, menu, halaman data (tambahan) ===== */
@@ -953,7 +955,7 @@ function doLogin(){const u=$('lg_u').value.trim(),p=$('lg_p').value;if(!u||!p){l
  const ok=r=>{done();if(r&&r.ok){try{if($('lg_r').checked)localStorage.setItem('kai_u',u);else localStorage.removeItem('kai_u');sessionStorage.setItem('kai_in',r.nama||u)}catch(e){}$('lg_p').value='';enterApp(r.nama||u)}else lgMsg((r&&r.msg)||'Login gagal.')};
  const bad=e=>{done();lgMsg('Gagal menghubungi server: '+((e&&e.message)||e))};
  if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(bad).loginWeb(u,p);else setTimeout(()=>ok({ok:true,nama:u}),600)}
-function enterApp(n){$('u_n').textContent=n;$('u_av').textContent=n.slice(0,2).toUpperCase();$('tb_d').textContent=clockText();$('app').classList.add('on');$('login').classList.add('out');setTimeout(()=>{$('login').style.display='none'},500);if(innerWidth<860)document.body.classList.add('sbc');showPg('kantor')}
+function enterApp(n){load();$('u_n').textContent=n;$('u_av').textContent=n.slice(0,2).toUpperCase();$('tb_d').textContent=clockText();$('app').classList.add('on');$('login').classList.add('out');setTimeout(()=>{$('login').style.display='none'},500);if(innerWidth<860)document.body.classList.add('sbc');showPg('kantor')}
 function doLogout(){try{sessionStorage.removeItem('kai_in');sessionStorage.removeItem('kai_tok')}catch(e){}$('app').classList.remove('on');const l=$('login');l.style.display='grid';void l.offsetWidth;l.classList.remove('out');$('lg_p').value='';$('lg_p').focus()}
 
 /* --- Data trading --- */
