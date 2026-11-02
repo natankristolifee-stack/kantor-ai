@@ -215,6 +215,8 @@ body.pop-div #side{height:min(70%,540px)}
 #fabc{position:absolute;right:14px;bottom:14px;z-index:9;width:52px;height:52px;border-radius:50%;border:0;background:#10b981;color:#fff;font-size:23px;box-shadow:0 6px 18px #0009;cursor:pointer;transition:transform .2s}
 #fabc:hover{transform:scale(1.1) rotate(-6deg)}
 body.pop-chat #fabc{background:#0b1426}
+#sbx{display:none;margin-left:auto;background:#ffffff14;border:0;color:#fff;width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer}
+@media(max-width:860px){#sbx{display:block}}
 </style>
 </head>
 <body>
@@ -226,7 +228,7 @@ body.pop-chat #fabc{background:#0b1426}
 <button class="lg-b" id="lg_b" onclick="doLogin()">Masuk →</button>
 <small>Belum punya login? Di Google Sheets buka menu Kantor Virtual › Atur Login Web.</small></div></div></div>
 <div id="app">
-<aside id="sb"><div class="sb-h"><i>📊</i><div><b>Kantor AI</b><small>FINANCIAL ANALYST</small></div></div>
+<aside id="sb"><div class="sb-h"><i>📊</i><div><b>Kantor AI</b><small>FINANCIAL ANALYST</small></div><button id="sbx" onclick="document.body.classList.add('sbc')" title="Tutup menu">✕</button></div>
 <div id="kn"></div>
 <div class="sb-f"><div class="av" id="u_av">U</div><div><b id="u_n">User</b><small>Operator</small></div><button onclick="doLogout()" title="Keluar">⎋</button></div></aside>
 <section id="mn"><header id="tb"><button id="hb" onclick="document.body.classList.toggle('sbc')" title="Menu">☰</button><div><h1 id="tt_h">Kantor AI Agent</h1><small id="tt_s">Kantor 3D & Jarvis</small></div><span class="lv"><i></i>LIVE SYNC</span><span class="dp" id="tb_d">-</span></header>
@@ -1013,7 +1015,7 @@ function saveAkun(){const o={jenis:$('a_j').value,jumlah:+$('a_n').value,tgl:$('
 /* --- Mulai --- */
 (function(){let u='',s=null;$('lg_bars').innerHTML=[55,80,45,95,65,100,70,85].map((h,i)=>'<i style="height:'+h+'%;animation-delay:'+i*.18+'s"></i>').join('');
  try{u=localStorage.getItem('kai_u')||''}catch(e){}try{s=sessionStorage.getItem('kai_in')}catch(e){}
- $('lg_u').value=u;kNav();setInterval(()=>{const e=$('tb_d');if(e)e.textContent=clockText()},20000);
+ $('lg_u').value=u;kNav();document.addEventListener('click',function(e){if(innerWidth<860&&!document.body.classList.contains('sbc')&&!e.target.closest('#sb')&&!e.target.closest('#hb'))document.body.classList.add('sbc')});setInterval(()=>{const e=$('tb_d');if(e)e.textContent=clockText()},20000);
  if(s){$('login').style.display='none';enterApp(s)}else setTimeout(()=>$(u?'lg_p':'lg_u').focus(),300)})();
 </script>
 </body>
