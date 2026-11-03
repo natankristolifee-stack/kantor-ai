@@ -997,19 +997,14 @@ function dBar(p){const o=kcv('c_bar'),g=o.g,S=TD.sales.slice(-10);g.font='11px s
  const m=Math.max(...S.map(s=>Math.abs(s.pl)))||1,z=o.h/2,bw=(o.w-16)/S.length;
  g.strokeStyle='#e2e8f0';g.beginPath();g.moveTo(0,z);g.lineTo(o.w,z);g.stroke();
  S.forEach((s,i)=>{const h=Math.abs(s.pl)/m*(z-24)*p,x=8+i*bw+bw*.15;g.fillStyle=s.pl>=0?'#22c55e':'#f87171';g.fillRect(x,s.pl>=0?z-h:z,bw*.7,h);g.fillStyle='#64748b';g.textAlign='center';g.fillText(s.kode,x+bw*.35,o.h-4)})}
-function function tLog(){const q=TF.q.trim().toUpperCase(),R=[];
+function tLog(){const q=TF.q.trim().toUpperCase(),R=[];
  TD.open.forEach(o=>R.push({w:o.waktu,k:o.kode,lot:o.lot,hb:o.hb,hj:null,fee:null,pl:null,pct:null,modal:o.lot*100*o.hb,nilai:null,st:'OPEN',s:'',ket:'T1 '+n0(o.t1)+' · SL '+n0(o.sl)}));
  TD.sales.slice().reverse().forEach(s=>R.push({w:s.tgl+' '+s.waktu,k:s.kode,lot:s.lot,hb:s.hb,hj:s.hj,fee:s.fee,pl:s.pl,pct:s.pct,
    modal:s.modal!=null?s.modal:s.lot*100*s.hb,nilai:s.nilai!=null?s.nilai:s.lot*100*s.hj,
    st:s.pl>0?'WIN':s.pl<0?'LOSS':'BE',s:s.sesi,ket:s.ket}));
  const F=R.filter(r=>(TF.st==='ALL'||r.st===TF.st)&&(!q||r.k.indexOf(q)>=0)),cl=v=>v==null?'':v>=0?'g2':'r2';
  $('l_sub').textContent=F.length+' baris · '+TD.open.length+' posisi terbuka · data dari Portofolio & Penjualan (otomatis)';
- $('l_tb').innerHTML=F.length?F.map((r,i)=>'<tr style="animation:pgin .35s '+Math.min(i*25,400)+'ms both"><td class="l">'+esc(r.w)+'</td><td class="l"><b>'+esc(r.k)+'</b></td><td>'+n0(r.lot)+'</td><td>'+n0(r.hb)+'</td><td>'+(r.hj==null?'–':n0(r.hj))+'</td><td>'+(r.modal==null?'–':n0(r.modal))+'</td><td>'+(r.nilai==null?'–':n0(r.nilai))+'</td><td>'+(r.fee==null?'–':n0(r.fee))+'</td><td class="'+cl(r.pl)+'">'+(r.pl==null?'–':rpf(r.pl))+'</td><td class="'+cl(r.pct)+'">'+(r.pct==null?'–':(r.pct>=0?'+':'')+(+r.pct).toFixed(2)+'%')+'</td><td><span class="bd '+r.st+'">'+r.st+'</span></td><td>'+(r.s||'–')+'</td><td class="l">'+esc(r.ket)+'</td></tr>').join(''):'<tr><td colspan="13" class="l" style="padding:20px;color:#64748b">Belum ada transaksi.</td></tr>'}const q=TF.q.trim().toUpperCase(),R=[];
- TD.open.forEach(o=>R.push({w:o.waktu,k:o.kode,lot:o.lot,hb:o.hb,hj:null,fee:null,pl:null,pct:null,st:'OPEN',s:'',ket:'T1 '+n0(o.t1)+' · SL '+n0(o.sl)}));
- TD.sales.slice().reverse().forEach(s=>R.push({w:s.tgl+' '+s.waktu,k:s.kode,lot:s.lot,hb:s.hb,hj:s.hj,fee:s.fee,pl:s.pl,pct:s.pct,st:s.pl>0?'WIN':s.pl<0?'LOSS':'BE',s:s.sesi,ket:s.ket}));
- const F=R.filter(r=>(TF.st==='ALL'||r.st===TF.st)&&(!q||r.k.indexOf(q)>=0)),cl=v=>v==null?'':v>=0?'g2':'r2';
- $('l_sub').textContent=F.length+' baris · '+TD.open.length+' posisi terbuka · data dari Portofolio & Penjualan (otomatis)';
- $('l_tb').innerHTML=F.length?F.map((r,i)=>'<tr style="animation:pgin .35s '+Math.min(i*25,400)+'ms both"><td class="l">'+esc(r.w)+'</td><td class="l"><b>'+esc(r.k)+'</b></td><td>'+n0(r.lot)+'</td><td>'+n0(r.hb)+'</td><td>'+(r.hj==null?'–':n0(r.hj))+'</td><td>'+(r.fee==null?'–':n0(r.fee))+'</td><td class="'+cl(r.pl)+'">'+(r.pl==null?'–':rpf(r.pl))+'</td><td class="'+cl(r.pct)+'">'+(r.pct==null?'–':(r.pct>=0?'+':'')+(+r.pct).toFixed(2)+'%')+'</td><td><span class="bd '+r.st+'">'+r.st+'</span></td><td>'+(r.s||'–')+'</td><td class="l">'+esc(r.ket)+'</td></tr>').join(''):'<tr><td colspan="11" class="l" style="padding:20px;color:#64748b">Belum ada transaksi.</td></tr>'}
+ $('l_tb').innerHTML=F.length?F.map((r,i)=>'<tr style="animation:pgin .35s '+Math.min(i*25,400)+'ms both"><td class="l">'+esc(r.w)+'</td><td class="l"><b>'+esc(r.k)+'</b></td><td>'+n0(r.lot)+'</td><td>'+n0(r.hb)+'</td><td>'+(r.hj==null?'–':n0(r.hj))+'</td><td>'+(r.modal==null?'–':n0(r.modal))+'</td><td>'+(r.nilai==null?'–':n0(r.nilai))+'</td><td>'+(r.fee==null?'–':n0(r.fee))+'</td><td class="'+cl(r.pl)+'">'+(r.pl==null?'–':rpf(r.pl))+'</td><td class="'+cl(r.pct)+'">'+(r.pct==null?'–':(r.pct>=0?'+':'')+(+r.pct).toFixed(2)+'%')+'</td><td><span class="bd '+r.st+'">'+r.st+'</span></td><td>'+(r.s||'–')+'</td><td class="l">'+esc(r.ket)+'</td></tr>').join(''):'<tr><td colspan="13" class="l" style="padding:20px;color:#64748b">Belum ada transaksi.</td></tr>'}
 
 /* --- Setor / Tarik --- */
 function openAkun(){$('a_t').value=jk().date;$('a_n').value='';$('a_c').value='';$('akn').classList.add('on')}
