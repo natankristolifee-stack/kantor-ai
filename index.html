@@ -217,7 +217,7 @@ body.pop-div #side{height:min(70%,540px)}
 body.pop-chat #fabc{background:#0b1426}
 #sbx{display:none;margin-left:auto;background:#ffffff14;border:0;color:#fff;width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer}
 @media(max-width:860px){#sbx{display:block}}
-/* ===== FITUR BARU: tema gelap, kalender kinerja, filter tanggal, baris berwarna ===== */
+/* ===== FITUR: tema gelap, kalender kinerja, filter tanggal, baris berwarna ===== */
 body.dark #login{background:#0b1220;color:#e8edf7}
 body.dark .lg-c h3{color:#fff}
 body.dark .lg-c label{color:#cbd5e1}
@@ -256,6 +256,15 @@ body.dark .tt tr.rw-OPEN{background:rgba(59,130,246,.14)}
 .tt tr.rw-WIN{background:rgba(34,197,94,.10)}
 .tt tr.rw-LOSS{background:rgba(239,68,68,.10)}
 .tt tr.rw-OPEN{background:rgba(59,130,246,.08)}
+/* ===== FITUR BARU: kartu drawdown, benchmark IHSG, tab Trade Log ===== */
+.kc em{display:block;font-style:normal;font-size:11px;color:#64748b;margin-top:2px}
+body.dark .kc em{color:#8b9ab5}
+.tg2{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+.tg2 button{background:#fff;color:#334155;border:1px solid #e2e8f0;border-radius:999px;padding:7px 14px;font:inherit;font-weight:600;cursor:pointer;transition:transform .15s}
+.tg2 button:hover{transform:translateY(-1px)}
+.tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
+body.dark .tg2 button{background:#111a2e;color:#cbd5e1;border-color:#22304a}
+body.dark .tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
 </style>
 </head>
 <body>
@@ -301,6 +310,10 @@ body.dark .tt tr.rw-OPEN{background:rgba(59,130,246,.14)}
 <div class="kg" id="d_cards"></div>
 <div class="rw a"><div class="bx"><h4>Saldo akun (kumulatif)</h4><canvas id="c_eq"></canvas></div><div class="bx"><h4>Win rate</h4><canvas id="c_wr"></canvas></div></div>
 <div class="rw b"><div class="bx"><h4>Statistik</h4><div id="d_st"></div></div><div class="bx"><h4>Laba/rugi 10 transaksi terakhir</h4><canvas id="c_bar"></canvas></div></div>
+<div class="bx" style="margin-top:12px"><h4>Benchmark: L/R Anda vs IHSG (% sejak transaksi pertama)</h4>
+<div id="d_bmsum" style="font-size:12.5px;margin-bottom:8px"></div>
+<canvas id="c_bm"></canvas>
+<div id="d_bmnote" style="font-size:11px;color:#64748b;margin-top:6px"></div></div>
 <div class="bx" style="margin-top:12px"><h4>Kalender kinerja harian (hijau = untung, merah = rugi)</h4>
 <div class="fl" style="justify-content:center;align-items:center"><button class="sec" onclick="calShift(-1)">◀</button><b id="d_calt" style="min-width:170px;text-align:center"></b><button class="sec" onclick="calShift(1)">▶</button></div>
 <div id="d_calsum" style="font-size:12px;color:#64748b;margin-bottom:10px;text-align:center"></div>
@@ -308,7 +321,8 @@ body.dark .tt tr.rw-OPEN{background:rgba(59,130,246,.14)}
 <div class="cal-g" id="d_cal"></div></div>
 </div></div>
 <div id="pg-log" class="pg"><div class="pw"><h2>Trade Log</h2><div class="sub" id="l_sub">-</div>
-<div class="fl"><input type="date" id="l_d1" title="Dari tanggal" onchange="TF.d1=this.value;tLog()"><input type="date" id="l_d2" title="Sampai tanggal" onchange="TF.d2=this.value;tLog()"><button class="sec" onclick="resetTgl()">Reset tanggal</button><input id="l_q" placeholder="Cari kode saham…" oninput="TF.q=this.value;tLog()"><select onchange="TF.st=this.value;tLog()"><option value="ALL">Semua status</option><option value="OPEN">OPEN</option><option value="WIN">WIN</option><option value="LOSS">LOSS</option></select><button onclick="loadTrade()">⟳ Muat ulang</button></div>
+<div class="tg2"><button id="tg_open" onclick="tgTab('open')">📌 Posisi Aktif (OPEN)</button><button id="tg_done" onclick="tgTab('done')">✅ Riwayat Selesai (WIN/LOSS)</button></div>
+<div class="fl"><input type="date" id="l_d1" title="Dari tanggal" onchange="TF.d1=this.value;tLog()"><input type="date" id="l_d2" title="Sampai tanggal" onchange="TF.d2=this.value;tLog()"><button class="sec" onclick="resetTgl()">Reset tanggal</button><input id="l_q" placeholder="Cari kode saham…" oninput="TF.q=this.value;tLog()"><select id="l_st" onchange="TF.st=this.value;tLog()"><option value="ALL">Semua hasil</option><option value="WIN">WIN</option><option value="LOSS">LOSS</option></select><button onclick="loadTrade()">⟳ Muat ulang</button></div>
 <div class="bx tw" style="padding:0"><table class="tt"><thead><tr><th class="l">Waktu</th><th class="l">Saham</th><th>Lot</th><th>Harga beli</th><th>Harga jual</th><th>Modal (Rp)</th><th>Nilai Jual (Rp)</th><th>Fee</th><th>L/R (Rp)</th><th>L/R %</th><th>Status</th><th>Sesi</th><th class="l">Catatan</th></tr></thead><tbody id="l_tb"></tbody></table></div>
 </div></div>
 </div></section></div>
@@ -987,7 +1001,7 @@ const KNAV=[
 ];
 const KACT={inp:()=>openInp(),ord:()=>openOrd(),pf:()=>openPf(),sell:()=>openSell(),meet:()=>startMeeting(true),lap:()=>runPhase('laporan'),div:()=>runPhase('dividen'),akun:()=>openAkun(),dv:()=>togglePop('div'),ch:()=>togglePop('chat')};
 function togglePop(m){const b=document.body.classList,cur=b.contains('pop-'+m);b.remove('pop-chat','pop-div');if(!cur){b.add('pop-'+m);if(m==='chat')setTimeout(()=>{const q=$('q');if(q)q.focus()},200)}}
-let KPG='kantor',TD={sales:[],open:[],akun:[]},TF={st:'ALL',q:'',d1:'',d2:''};
+let KPG='kantor',TD={sales:[],open:[],akun:[]},TF={st:'ALL',q:'',d1:'',d2:'',tab:'open'};
 
 function kNav(){$('kn').innerHTML=KNAV.map(g=>'<div class="gp'+(g.open?' open':'')+'"><div class="gh" onclick="this.parentNode.classList.toggle(\'open\')"><em>'+g.ic+'</em>'+g.t+'<s>▼</s></div><div class="its"><div>'+g.it.map(x=>'<button class="it" data-pg="'+(x[1].indexOf('pg:')===0?x[1].slice(3):'')+'" onclick="kClick(\''+x[1]+'\')">'+x[0]+'</button>').join('')+'</div></div></div>').join('')}
 function kClick(k){if(k.indexOf('pg:')===0)showPg(k.slice(3));else{showPg('kantor');KACT[k]()}if(innerWidth<860)document.body.classList.add('sbc')}
@@ -1009,49 +1023,101 @@ function demoTrade(){const td=jk().date;return{demo:1,sales:[{tgl:td,waktu:'09:4
 function loadTrade(){const ok=d=>{TD={demo:d.demo,sales:d.sales||[],open:d.open||[],akun:d.akun||[]};kRender()};
  if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(e=>toast('Gagal memuat data trading: '+((e&&e.message)||e))).getTradeData();else ok(TD.demo?TD:demoTrade())}
 function kRender(){if(KPG==='dash')tDash();else if(KPG==='log')tLog()}
+const DK=()=>document.body.classList.contains('dark');
+
+/* --- Equity, Max Drawdown --- */
+function eqEvents(){const E=[];TD.akun.forEach(a=>E.push({d:a.tgl,t:'00:00',v:a.jenis==='Withdraw'?-a.jml:a.jml,f:1}));TD.sales.forEach(s=>E.push({d:s.tgl,t:s.waktu,v:s.pl,f:0}));E.sort((a,b)=>(a.d+a.t).localeCompare(b.d+b.t));return E}
+function eqPts(){let c=0;return eqEvents().map(e=>{c+=e.v;return{d:e.d,v:c}})}
+/* Max Drawdown: penurunan terdalam dari puncak saldo. Setoran/penarikan ikut menggeser puncak agar tidak dihitung sebagai untung/rugi. */
+function mddCalc(){let eq=0,pk=0,mdd=0,mddRp=0,have=false;
+ eqEvents().forEach(e=>{eq+=e.v;if(e.f){pk+=e.v;if(pk<eq)pk=eq}else if(eq>pk)pk=eq;
+  if(pk>0){have=true;const dd=pk-eq,p=dd/pk*100;if(p>mdd)mdd=p;if(dd>mddRp)mddRp=dd}});
+ return{pct:mdd,rp:mddRp,ok:have}}
 function tCalc(){const S=TD.sales,W=S.filter(s=>s.pl>0),Ls=S.filter(s=>s.pl<0),sm=a=>a.reduce((t,s)=>t+s.pl,0),gp=sm(W),gl=-sm(Ls),real=sm(S),pls=S.map(s=>s.pl),
  dep=TD.akun.filter(a=>a.jenis!=='Withdraw').reduce((t,a)=>t+a.jml,0),wd=TD.akun.filter(a=>a.jenis==='Withdraw').reduce((t,a)=>t+a.jml,0);
  return{n:S.length,w:W.length,l:Ls.length,wr:S.length?W.length/S.length*100:0,gp:gp,gl:gl,pf:gl?gp/gl:(gp?Infinity:0),exp:S.length?real/S.length:0,aw:W.length?gp/W.length:0,al:Ls.length?-gl/Ls.length:0,
-  bw:pls.length?Math.max(0,...pls):0,bl:pls.length?Math.min(0,...pls):0,real:real,dep:dep,wd:wd,saldo:dep-wd+real,open:TD.open.length}}
+  bw:pls.length?Math.max(0,...pls):0,bl:pls.length?Math.min(0,...pls):0,real:real,dep:dep,wd:wd,saldo:dep-wd+real,open:TD.open.length,mdd:mddCalc()}}
 const kcmp=v=>{const a=Math.abs(v),s=v<0?'-':'';return s+(a>=1e6?(a/1e6).toFixed(1)+'jt':a>=1e3?Math.round(a/1e3)+'rb':Math.round(a))};
 function kcv(id){const c=$(id),r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=Math.max(10,r.width*d);c.height=Math.max(10,r.height*d);const g=c.getContext('2d');g.scale(d,d);return{g:g,w:r.width,h:r.height}}
 function kanim(f){const t0=performance.now();(function s(t){const p=Math.min(1,(t-t0)/700);f(1-Math.pow(1-p,3));if(p<1)requestAnimationFrame(s)})(t0)}
-function tDash(){const s=tCalc(),c=x=>x>=0?'g2':'r2';
- $('d_cards').innerHTML=[['Laba / Rugi (terealisasi)',rpf(s.real),c(s.real)],['Saldo akun','Rp '+n0(s.saldo),''],['Faktor laba',isFinite(s.pf)?s.pf.toFixed(2):'∞',s.pf>=1?'g2':'r2'],['Ekspektasi / transaksi',rpf(s.exp),c(s.exp)]].map((x,i)=>'<div class="kc" style="animation-delay:'+i*80+'ms"><small>'+x[0]+'</small><b class="'+x[2]+'">'+x[1]+'</b></div>').join('');
+function tDash(){const s=tCalc(),c=x=>x>=0?'g2':'r2',md=s.mdd;
+ $('d_cards').innerHTML=[['Laba / Rugi (terealisasi)',rpf(s.real),c(s.real)],['Saldo akun','Rp '+n0(s.saldo),''],['Faktor laba',isFinite(s.pf)?s.pf.toFixed(2):'∞',s.pf>=1?'g2':'r2'],['Max Drawdown',md.ok?(md.pct>0?'−':'')+md.pct.toFixed(2)+'%':'–',md.ok&&md.pct>0?'r2':'',md.ok?'Penurunan modal terdalam: Rp '+n0(md.rp):'Catat setoran dana dulu'],['Ekspektasi / transaksi',rpf(s.exp),c(s.exp)]].map((x,i)=>'<div class="kc" style="animation-delay:'+i*80+'ms"><small>'+x[0]+'</small><b class="'+x[2]+'">'+x[1]+'</b>'+(x[3]?'<em>'+x[3]+'</em>':'')+'</div>').join('');
  const L=[['Jumlah transaksi',s.n],['Menang / Kalah',s.w+' / '+s.l],['Sedang berjalan (posisi)',s.open],['Total setoran','Rp '+n0(s.dep)],['Total penarikan','Rp '+n0(s.wd)],['Rata-rata menang',rpf(s.aw)],['Rata-rata kalah',rpf(s.al)],['Menang terbesar',rpf(s.bw)],['Kalah terbesar',rpf(s.bl)]];
  $('d_st').innerHTML=L.map(x=>'<div class="sl"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>').join('');
- tCal();kanim(p=>{dEq(p);dWr(p);dBar(p)})}
-function eqPts(){const E=[];TD.akun.forEach(a=>E.push({d:a.tgl,t:'00:00',v:a.jenis==='Withdraw'?-a.jml:a.jml}));TD.sales.forEach(s=>E.push({d:s.tgl,t:s.waktu,v:s.pl}));E.sort((a,b)=>(a.d+a.t).localeCompare(b.d+b.t));let c=0;return E.map(e=>{c+=e.v;return{d:e.d,v:c}})}
+ tCal();kanim(p=>{dEq(p);dWr(p);dBar(p)});dBm(1);loadIhsg(()=>{if(KPG==='dash')kanim(dBm)})}
 function dEq(p){const o=kcv('c_eq'),g=o.g,P=eqPts();g.font='12px system-ui';
  if(P.length<2){g.fillStyle='#94a3b8';g.fillText('Belum cukup data. Catat setoran dan penjualan.',12,30);return}
  const vs=P.map(q=>q.v),mn=Math.min(0,...vs),mx=Math.max(...vs)||1,L=52,B=22,T0=10,x=i=>L+i/(P.length-1)*(o.w-L-12),y=v=>T0+(1-(v-mn)/(mx-mn||1))*(o.h-T0-B);
- g.strokeStyle='#e2e8f0';g.fillStyle='#64748b';g.lineWidth=1;g.textAlign='right';
+ g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.fillStyle=DK()?'#8b9ab5':'#64748b';g.lineWidth=1;g.textAlign='right';
  for(let k=0;k<=4;k++){const v=mn+(mx-mn)*k/4,yy=y(v);g.beginPath();g.moveTo(L,yy);g.lineTo(o.w-8,yy);g.stroke();g.fillText(kcmp(v),L-6,yy+4)}
  g.textAlign='left';g.fillText(P[0].d,L,o.h-6);g.textAlign='right';g.fillText(P[P.length-1].d,o.w-8,o.h-6);
  g.save();g.beginPath();g.rect(0,0,o.w*p,o.h);g.clip();
  g.beginPath();P.forEach((q,i)=>i?g.lineTo(x(i),y(q.v)):g.moveTo(x(i),y(q.v)));g.strokeStyle='#10b981';g.lineWidth=2.5;g.stroke();
  g.lineTo(x(P.length-1),y(mn));g.lineTo(x(0),y(mn));g.closePath();g.fillStyle='#10b98122';g.fill();g.restore()}
 function dWr(p){const o=kcv('c_wr'),s=tCalc(),g=o.g,cx=o.w/2,cy=o.h/2,R=Math.min(cx,cy)-16,tot=s.w+s.l;g.lineWidth=26;
- if(!tot){g.strokeStyle='#e2e8f0';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke()}
+ if(!tot){g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke()}
  else{let a=-Math.PI/2;[[s.w,'#22c55e'],[s.l,'#f87171']].forEach(q=>{const sw=q[0]/tot*Math.PI*2*p;g.strokeStyle=q[1];g.beginPath();g.arc(cx,cy,R,a,a+sw);g.stroke();a+=sw})}
- g.textAlign='center';g.fillStyle='#0f172a';g.font='bold 26px system-ui';g.fillText(s.wr.toFixed(1)+'%',cx,cy+6);g.font='11px system-ui';g.fillStyle='#64748b';g.fillText(s.w+' menang · '+s.l+' kalah',cx,cy+26)}
+ g.textAlign='center';g.fillStyle=DK()?'#e8edf7':'#0f172a';g.font='bold 26px system-ui';g.fillText(s.wr.toFixed(1)+'%',cx,cy+6);g.font='11px system-ui';g.fillStyle=DK()?'#8b9ab5':'#64748b';g.fillText(s.w+' menang · '+s.l+' kalah',cx,cy+26)}
 function dBar(p){const o=kcv('c_bar'),g=o.g,S=TD.sales.slice(-10);g.font='11px system-ui';
  if(!S.length){g.fillStyle='#94a3b8';g.fillText('Belum ada penjualan tercatat.',12,30);return}
  const m=Math.max(...S.map(s=>Math.abs(s.pl)))||1,z=o.h/2,bw=(o.w-16)/S.length;
- g.strokeStyle='#e2e8f0';g.beginPath();g.moveTo(0,z);g.lineTo(o.w,z);g.stroke();
- S.forEach((s,i)=>{const h=Math.abs(s.pl)/m*(z-24)*p,x=8+i*bw+bw*.15;g.fillStyle=s.pl>=0?'#22c55e':'#f87171';g.fillRect(x,s.pl>=0?z-h:z,bw*.7,h);g.fillStyle='#64748b';g.textAlign='center';g.fillText(s.kode,x+bw*.35,o.h-4)})}
+ g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.moveTo(0,z);g.lineTo(o.w,z);g.stroke();
+ S.forEach((s,i)=>{const h=Math.abs(s.pl)/m*(z-24)*p,x=8+i*bw+bw*.15;g.fillStyle=s.pl>=0?'#22c55e':'#f87171';g.fillRect(x,s.pl>=0?z-h:z,bw*.7,h);g.fillStyle=DK()?'#8b9ab5':'#64748b';g.textAlign='center';g.fillText(s.kode,x+bw*.35,o.h-4)})}
+
+/* --- Benchmark: L/R Anda vs IHSG --- */
+let IH=null,IHKEY='';
+function firstDate(){return TD.sales.map(s=>String(s.tgl)).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)).sort()[0]||''}
+function demoIhsg(first){const pts=[];let c=7000,d=new Date(first+'T00:00:00Z');const end=new Date(jk().date+'T00:00:00Z');
+ while(d<=end){const w=d.getUTCDay();if(w>0&&w<6){c*=1+(Math.random()-.47)*.012;pts.push({d:d.toISOString().slice(0,10),c:Math.round(c*100)/100})}d=new Date(d.getTime()+864e5)}
+ return{ok:true,pts:pts}}
+function loadIhsg(cb){const first=firstDate();if(!first){cb();return}
+ if(IH&&IH.ok&&IHKEY===first){cb();return}
+ const done=r=>{IH=(r&&r.ok)?r:{ok:false,pts:[],msg:(r&&r.msg)||'Data IHSG belum tersedia.'};if(IH.ok)IHKEY=first;cb()};
+ if(HAS)google.script.run.withSuccessHandler(done).withFailureHandler(e=>done({ok:false,msg:'Gagal memuat IHSG: '+((e&&e.message)||e)})).getIhsgData(first);
+ else done(demoIhsg(first))}
+function dBm(p){const o=kcv('c_bm'),g=o.g,tx=DK()?'#8b9ab5':'#64748b',gr=DK()?'#22304a':'#e2e8f0',sum=$('d_bmsum'),nt=$('d_bmnote');g.font='12px system-ui';
+ const msg=t=>{g.fillStyle=tx;g.textAlign='left';g.fillText(t,12,30);sum.textContent='';nt.textContent=''};
+ const first=firstDate();
+ if(!first){msg('Belum ada penjualan tercatat.');return}
+ const pts=(IH&&IH.pts)||[];
+ if(!pts.length){msg((IH&&IH.msg)||'Memuat data IHSG…');return}
+ let i0=0;pts.forEach((q,i)=>{if(q.d<=first)i0=i});
+ const P=pts.slice(i0);
+ if(P.length<2){msg('Data IHSG belum cukup (butuh minimal 2 hari bursa sejak transaksi pertama).');return}
+ const S=TD.sales.slice().sort((a,b)=>String(a.tgl).localeCompare(String(b.tgl)));
+ const dep=TD.akun.filter(a=>a.jenis!=='Withdraw').reduce((t,a)=>t+a.jml,0);
+ const base=dep>0?dep:Math.max(1,...S.map(s=>+s.modal||s.lot*100*s.hb));
+ let k=0,cum=0;const A=[],B=[],c0=P[0].c;
+ P.forEach(q=>{while(k<S.length&&String(S[k].tgl)<=q.d){cum+=+S[k].pl;k++}A.push(cum/base*100);B.push((q.c/c0-1)*100)});
+ const all=A.concat(B,[0]),mn=Math.min(...all),mx=Math.max(...all),L=46,Bm=22,T0=10,x=i=>L+i/(P.length-1)*(o.w-L-12),y=v=>T0+(1-(v-mn)/(mx-mn||1))*(o.h-T0-Bm);
+ g.strokeStyle=gr;g.fillStyle=tx;g.lineWidth=1;g.textAlign='right';
+ for(let q=0;q<=4;q++){const v=mn+(mx-mn)*q/4,yy=y(v);g.beginPath();g.moveTo(L,yy);g.lineTo(o.w-8,yy);g.stroke();g.fillText(v.toFixed(1)+'%',L-6,yy+4)}
+ g.textAlign='left';g.fillText(P[0].d,L,o.h-6);g.textAlign='right';g.fillText(P[P.length-1].d,o.w-8,o.h-6);
+ g.strokeStyle=DK()?'#64748b':'#94a3b8';g.setLineDash([4,4]);g.beginPath();g.moveTo(L,y(0));g.lineTo(o.w-8,y(0));g.stroke();g.setLineDash([]);
+ g.save();g.beginPath();g.rect(0,0,o.w*p,o.h);g.clip();
+ [[B,'#f59e0b'],[A,'#10b981']].forEach(z=>{g.beginPath();z[0].forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.strokeStyle=z[1];g.lineWidth=2.5;g.stroke()});g.restore();
+ g.textAlign='left';g.fillStyle='#10b981';g.fillText('— L/R Anda',L+8,T0+12);g.fillStyle='#f59e0b';g.fillText('— IHSG',L+92,T0+12);
+ const a=A[A.length-1],b=B[B.length-1],dv=a-b,sg=v=>(v>=0?'+':'−')+Math.abs(v).toFixed(2)+'%',cc=v=>v>=0?'g2':'r2';
+ sum.innerHTML='Anda <b class="'+cc(a)+'">'+sg(a)+'</b> · IHSG <b class="'+cc(b)+'">'+sg(b)+'</b> · <b class="'+cc(dv)+'">'+(dv>=0?'Mengungguli pasar ':'Tertinggal dari pasar ')+Math.abs(dv).toFixed(2)+' poin persen</b>';
+ nt.textContent='L/R Anda = laba/rugi terealisasi kumulatif dibagi '+(dep>0?'total setoran (Rp '+n0(dep)+')':'modal transaksi terbesar (belum ada setoran tercatat)')+'. IHSG = indeks ^JKSE, harga penutupan harian, dimulai dari tanggal transaksi pertama ('+first+').'}
+
+/* --- Trade Log: tab OPEN vs selesai --- */
 function dkOf_(w){const s=String(w||''),m=s.match(/^(\d{2})-(\d{2})-(\d{4})/);return m?m[3]+'-'+m[2]+'-'+m[1]:((s.match(/^\d{4}-\d{2}-\d{2}/)||[''])[0])}
 function resetTgl(){TF.d1='';TF.d2='';$('l_d1').value='';$('l_d2').value='';tLog()}
-function tLog(){const q=TF.q.trim().toUpperCase(),R=[];
+function tgTab(t){TF.tab=t;tLog()}
+function tLog(){const q=TF.q.trim().toUpperCase(),R=[],op=TF.tab==='open';
  TD.open.forEach(o=>R.push({w:o.waktu,dk:dkOf_(o.waktu),k:o.kode,lot:o.lot,hb:o.hb,hj:null,fee:null,pl:null,pct:null,modal:o.lot*100*o.hb,nilai:null,st:'OPEN',s:'',ket:'T1 '+n0(o.t1)+' · SL '+n0(o.sl)}));
  TD.sales.slice().reverse().forEach(s=>R.push({w:s.tgl+' '+s.waktu,dk:String(s.tgl||''),k:s.kode,lot:s.lot,hb:s.hb,hj:s.hj,fee:s.fee,pl:s.pl,pct:s.pct,
    modal:s.modal!=null?s.modal:s.lot*100*s.hb,nilai:s.nilai!=null?s.nilai:s.lot*100*s.hj,
    st:s.pl>0?'WIN':s.pl<0?'LOSS':'BE',s:s.sesi,ket:s.ket}));
- const F=R.filter(r=>(TF.st==='ALL'||r.st===TF.st)&&(!q||r.k.indexOf(q)>=0)&&(!TF.d1||(r.dk&&r.dk>=TF.d1))&&(!TF.d2||(r.dk&&r.dk<=TF.d2))),
+ const nO=R.filter(r=>r.st==='OPEN').length,nD=R.length-nO;
+ $('tg_open').textContent='📌 Posisi Aktif (OPEN) · '+nO;$('tg_done').textContent='✅ Riwayat Selesai (WIN/LOSS) · '+nD;
+ $('tg_open').classList.toggle('on',op);$('tg_done').classList.toggle('on',!op);$('l_st').style.display=op?'none':'';
+ const F=R.filter(r=>(op?r.st==='OPEN':(r.st!=='OPEN'&&(TF.st==='ALL'||r.st===TF.st)))&&(!q||r.k.indexOf(q)>=0)&&(!TF.d1||(r.dk&&r.dk>=TF.d1))&&(!TF.d2||(r.dk&&r.dk<=TF.d2))),
        cl=v=>v==null?'':v>=0?'g2':'r2';
- const tot=F.reduce((a,r)=>a+(r.pl==null?0:+r.pl),0),rng=(TF.d1||TF.d2)?' · periode '+(TF.d1||'awal')+' s/d '+(TF.d2||'sekarang'):'';
- $('l_sub').textContent=F.length+' baris'+rng+' · '+TD.open.length+' posisi terbuka · total L/R: '+rpf(tot)+' · data otomatis dari Portofolio & Penjualan';
- $('l_tb').innerHTML=F.length?F.map((r,i)=>'<tr class="rw-'+r.st+'" style="animation:pgin .35s '+Math.min(i*25,400)+'ms both"><td class="l">'+esc(r.w)+'</td><td class="l"><b>'+esc(r.k)+'</b></td><td>'+n0(r.lot)+'</td><td>'+n0(r.hb)+'</td><td>'+(r.hj==null?'–':n0(r.hj))+'</td><td>'+(r.modal==null?'–':n0(r.modal))+'</td><td>'+(r.nilai==null?'–':n0(r.nilai))+'</td><td>'+(r.fee==null?'–':n0(r.fee))+'</td><td class="'+cl(r.pl)+'">'+(r.pl==null?'–':rpf(r.pl))+'</td><td class="'+cl(r.pct)+'">'+(r.pct==null?'–':(r.pct>=0?'+':'')+(+r.pct).toFixed(2)+'%')+'</td><td><span class="bd '+r.st+'">'+r.st+'</span></td><td>'+(r.s||'–')+'</td><td class="l">'+esc(r.ket)+'</td></tr>').join(''):'<tr><td colspan="13" class="l" style="padding:20px;color:#64748b">Belum ada transaksi pada filter ini.</td></tr>'}
+ const tot=F.reduce((a,r)=>a+(r.pl==null?0:+r.pl),0),mod=F.reduce((a,r)=>a+(+r.modal||0),0),rng=(TF.d1||TF.d2)?' · periode '+(TF.d1||'awal')+' s/d '+(TF.d2||'sekarang'):'';
+ $('l_sub').textContent=op?F.length+' posisi aktif'+rng+' · modal terpakai: Rp '+n0(mod)+' · pantau Target 1 dan Stop Loss di kolom catatan':F.length+' transaksi selesai'+rng+' · total L/R: '+rpf(tot)+' · data otomatis dari Portofolio & Penjualan';
+ $('l_tb').innerHTML=F.length?F.map((r,i)=>'<tr class="rw-'+r.st+'" style="animation:pgin .35s '+Math.min(i*25,400)+'ms both"><td class="l">'+esc(r.w)+'</td><td class="l"><b>'+esc(r.k)+'</b></td><td>'+n0(r.lot)+'</td><td>'+n0(r.hb)+'</td><td>'+(r.hj==null?'–':n0(r.hj))+'</td><td>'+(r.modal==null?'–':n0(r.modal))+'</td><td>'+(r.nilai==null?'–':n0(r.nilai))+'</td><td>'+(r.fee==null?'–':n0(r.fee))+'</td><td class="'+cl(r.pl)+'">'+(r.pl==null?'–':rpf(r.pl))+'</td><td class="'+cl(r.pct)+'">'+(r.pct==null?'–':(r.pct>=0?'+':'')+(+r.pct).toFixed(2)+'%')+'</td><td><span class="bd '+r.st+'">'+r.st+'</span></td><td>'+(r.s||'–')+'</td><td class="l">'+esc(r.ket)+'</td></tr>').join(''):'<tr><td colspan="13" class="l" style="padding:20px;color:#64748b">'+(op?'Tidak ada posisi aktif pada filter ini.':'Belum ada transaksi selesai pada filter ini.')+'</td></tr>'}
 
 /* --- Kalender kinerja (heatmap L/R harian) --- */
 let CALM=null;
@@ -1079,7 +1145,7 @@ function tCal(){
 }
 
 /* --- Tema gelap / terang --- */
-function setTheme(on){document.body.classList.toggle('dark',!!on);$('thb').textContent=on?'☀️':'🌙';try{localStorage.setItem('kai_theme',on?'dark':'light')}catch(e){}}
+function setTheme(on){document.body.classList.toggle('dark',!!on);$('thb').textContent=on?'☀️':'🌙';try{localStorage.setItem('kai_theme',on?'dark':'light')}catch(e){}try{kRender()}catch(e){}}
 function toggleTheme(){setTheme(!document.body.classList.contains('dark'))}
 
 /* --- Setor / Tarik --- */
