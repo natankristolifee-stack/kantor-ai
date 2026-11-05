@@ -266,6 +266,26 @@ body.dark .kc em{color:#8b9ab5}
 body.dark .tg2 button{background:#111a2e;color:#cbd5e1;border-color:#22304a}
 body.dark .tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
 /* ===== KALKULATOR SAHAM ===== */
+.cc-h,.cc-c{border-radius:999px;padding:13px 20px;font:inherit;font-weight:700;cursor:pointer;border:1px solid #e2e8f0}
+.cc-b{display:flex;gap:12px;margin-top:6px}
+.cc-h{flex:1;border:0;color:#fff;background:linear-gradient(90deg,#2b8df0,#5cf01a);transition:transform .15s,filter .15s}
+.cc-h:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.cc-c{background:#fff;color:#334155;min-width:110px}
+.cc-ah,.cc-ar{display:grid;grid-template-columns:1fr 1fr 1.15fr 22px;gap:10px;align-items:center;margin-bottom:10px}
+.cc-ah{font-size:10.5px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px}
+.cc-ar input,.cc-kd input{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:11px 12px;font:inherit;background:#fff;color:#0f172a}
+.cc-ar input:focus,.cc-kd input:focus{outline:0;border-color:#10b981;box-shadow:0 0 0 3px #10b98133}
+.cc-bi{font-size:12.5px;font-weight:600}
+.cc-x{border:0;background:none;color:#ef4444;font-size:18px;cursor:pointer;line-height:1}
+.cc-add{border:0;background:none;color:#1d7bff;font:inherit;font-size:12.5px;cursor:pointer;padding:4px 0;margin:2px 0 14px}
+.cc-kd{margin-bottom:14px}.cc-kd label{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px}
+.cc-res{border:1px solid #e2e8f0;border-radius:10px;margin-top:18px;overflow:hidden}
+.cc-res .sl{padding:12px 14px;border-bottom:1px solid #e2e8f0}.cc-res .sl:last-child{border-bottom:0}
+.cc-res .cc-v{margin:0;border-radius:0}.cc-res .cc-t{margin:0}.cc-res .cc-n{margin:0;padding:10px 14px}
+body.dark .cc-c{background:#111a2e;color:#e8edf7;border-color:#22304a}
+body.dark .cc-ar input,body.dark .cc-kd input{background:#0b1626;color:#e8edf7;border-color:#22304a}
+body.dark .cc-ah{color:#8b9ab5}
+body.dark .cc-res,body.dark .cc-res .sl{border-color:#22304a}
 .cc-g{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin:10px 0 14px}
 .cc-g label{display:block;font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px}
 .cc-g input{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:9px 10px;font:inherit;background:#fff;color:#0f172a}
@@ -1184,11 +1204,7 @@ const ccCl=v=>v>=0?'g2':'r2';
 const ccTick=p=>{const t=p<200?1:p<500?2:p<2000?5:p<5000?10:25;return Math.ceil(p/t-1e-9)*t};
 const ccVerdict=(t,bad)=>'<div class="cc-v'+(bad?' bad':'')+'">'+t+'</div>';
 const CALC=[
-{t:'Average Up & Down',d:'Menghitung harga rata-rata pembelian, total modal, dan jumlah lot setelah Anda menambah pembelian saham.',
- f:[['lot1','Lot yang sudah dimiliki'],['h1','Harga beli rata-rata saat ini (Rp)'],['lot2','Lot tambahan yang akan dibeli'],['h2','Harga beli tambahan (Rp)']],
- run:v=>{if(!(v.lot2>0&&v.h2>0&&(v.lot1===0||v.h1>0)))return null;
-  const tot=v.lot1+v.lot2,avg=(v.lot1*v.h1+v.lot2*v.h2)/tot,m1=v.lot1*100*v.h1,m2=v.lot2*100*v.h2,mt=m1+m2,bep=ccTick(avg*(1+FEE.beli)/(1-FEE.jual)),jenis=v.lot1>0?(v.h2<v.h1?'Average Down':v.h2>v.h1?'Average Up':'Harga sama'):'Pembelian pertama';
-  return ccVerdict('Jenis: '+jenis)+ccR('Total lot',n0(tot)+' lot ('+n0(tot*100)+' lembar)')+ccR('Harga rata-rata baru','Rp '+n0(avg))+(v.lot1>0?ccR('Perubahan rata-rata dari sebelumnya',ccPct((avg/v.h1-1)*100),ccCl(v.h1-avg)):'')+ccR('Modal lama','Rp '+n0(m1))+ccR('Modal tambahan','Rp '+n0(m2))+ccR('Total modal','Rp '+n0(mt))+ccR('Harga impas (balik modal + fee)','Rp '+n0(bep))}},
+{t:'Average Up & Down',d:'Menghitung harga rata-rata pembelian saham, total modal yang dikeluarkan, dan jumlah lot setelah menambah pembelian.',avg:true,f:[]},
 {t:'Stock Price Target',d:'Menentukan target harga saham berdasarkan persentase keuntungan bersih (setelah fee) yang Anda inginkan.',
  f:[['h','Harga beli per lembar (Rp)'],['p','Target untung bersih (%)'],['lot','Jumlah lot (opsional)']],
  run:v=>{if(!(v.h>0&&v.p>0))return null;
@@ -1224,15 +1240,30 @@ const CALC=[
   if(v.lot>0){const up=v.lot*100*(v.t*(1-FEE.jual)-v.e*(1+FEE.beli)),dn=v.lot*100*(v.sl*(1-FEE.jual)-v.e*(1+FEE.beli));o+=ccR('Untung bersih jika kena target (setelah fee)',rpf(up),ccCl(up))+ccR('Rugi bersih jika kena stop loss (setelah fee)',rpf(dn),ccCl(dn))}
   return o}}
 ];
+CC.rows=[{h:'',l:''},{h:'',l:''}];CC.kode='';
+const ccDec=v=>v.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
 function ccTab(i){CC.i=i;ccDraw()}
-function ccDraw(){const c=CALC[CC.i],sv=CC.v[CC.i];
+function ccDraw(){const c=CALC[CC.i],sv=CC.v[CC.i];let h='<h4 style="text-transform:none;font-size:15px;color:inherit;letter-spacing:0;margin:0 0 4px">'+c.t+'</h4><div style="font-size:12.5px;color:#64748b;margin-bottom:14px">'+c.d+'</div>';
  $('cc_tabs').innerHTML=CALC.map((x,i)=>'<button class="'+(i===CC.i?'on':'')+'" onclick="ccTab('+i+')">'+(i+1)+'. '+x.t+'</button>').join('');
- $('cc_body').innerHTML='<h4 style="text-transform:none;font-size:15px;color:inherit;letter-spacing:0">'+c.t+'</h4><div style="font-size:12.5px;color:#64748b">'+c.d+'</div><div class="cc-g">'+c.f.map(f=>'<div><label>'+f[1]+'</label><input id="cc_'+f[0]+'" '+(f[2]==='text'?'type="text" maxlength="4" placeholder="BBCA"':'type="number" min="0" step="any" inputmode="decimal"')+' value="'+esc(sv[f[0]]==null?'':sv[f[0]])+'" oninput="ccCalc()"></div>').join('')+'</div><div id="cc_out"></div><div class="cc-n">Fee memakai pengaturan '+(FEE.beli*100).toFixed(2)+'% beli / '+(FEE.jual*100).toFixed(2)+'% jual, 1 lot = 100 lembar. Hasil hanya alat bantu hitung, bukan nasihat investasi.</div>';
- ccCalc()}
-function ccCalc(){const c=CALC[CC.i],sv=CC.v[CC.i],v={};
- c.f.forEach(f=>{const e=$('cc_'+f[0]);if(!e)return;sv[f[0]]=e.value;v[f[0]]=f[2]==='text'?e.value.trim():(parseFloat(e.value)||0)});
- let h=null;try{h=c.run(v)}catch(e){h=null}
- $('cc_out').innerHTML=h||'<div class="cc-n">Isi kolom di atas untuk melihat hasilnya.</div>'}
+ if(c.avg){
+  h+='<div class="cc-kd"><label>Kode Saham (opsional)</label><input id="cc_kode" type="text" maxlength="4" placeholder="Contoh: BUMI" value="'+esc(CC.kode)+'" oninput="CC.kode=this.value"></div>'+
+   '<div class="cc-ah"><span>Harga Beli</span><span>Lot</span><span>Biaya (Harga × Lot × 100)</span><span></span></div>'+
+   CC.rows.map((r,i)=>{const bi=(+r.h||0)*(+r.l||0)*100;return '<div class="cc-ar"><input type="number" min="0" step="any" inputmode="decimal" value="'+esc(r.h)+'" oninput="ccAvIn('+i+')" id="ca_h'+i+'"><input type="number" min="0" step="any" inputmode="numeric" value="'+esc(r.l)+'" oninput="ccAvIn('+i+')" id="ca_l'+i+'"><span class="cc-bi" id="ca_b'+i+'">'+(bi?n0(bi):'')+'</span><button class="cc-x" onclick="ccAvDel('+i+')" title="Hapus baris">×</button></div>'}).join('')+
+   '<button class="cc-add" onclick="ccAvAdd()">+ Tambah Pembelian</button>';
+ }else{
+  h+='<div class="cc-g">'+c.f.map(f=>'<div><label>'+f[1]+'</label><input id="cc_'+f[0]+'" '+(f[2]==='text'?'type="text" maxlength="4" placeholder="BBCA"':'type="number" min="0" step="any" inputmode="decimal"')+' value="'+esc(sv[f[0]]==null?'':sv[f[0]])+'"></div>').join('')+'</div>';
+ }
+ h+='<div class="cc-b"><button class="cc-h" onclick="ccHit()">Hitung</button><button class="cc-c" onclick="ccClear()">Hapus</button></div><div id="cc_out"></div><div class="cc-n">Hasil hanya alat bantu hitung, bukan nasihat investasi. 1 lot = 100 lembar'+(c.avg?'.':'. Fee memakai pengaturan '+(FEE.beli*100).toFixed(2)+'% beli / '+(FEE.jual*100).toFixed(2)+'% jual.')+'</div>';
+ $('cc_body').innerHTML=h}
+function ccAvIn(i){const r=CC.rows[i];r.h=$('ca_h'+i).value;r.l=$('ca_l'+i).value;const b=(+r.h||0)*(+r.l||0)*100;$('ca_b'+i).textContent=b?n0(b):''}
+function ccAvAdd(){CC.rows.push({h:'',l:''});ccDraw();const o=$('cc_out');if(o)o.innerHTML=''}
+function ccAvDel(i){if(CC.rows.length>1)CC.rows.splice(i,1);else CC.rows[0]={h:'',l:''};ccDraw()}
+function ccClear(){if(CALC[CC.i].avg){CC.rows=[{h:'',l:''},{h:'',l:''}];CC.kode=''}else CC.v[CC.i]={};ccDraw()}
+function ccHit(){const c=CALC[CC.i];let h=null;
+ if(c.avg){let lot=0,biaya=0;CC.rows.forEach(r=>{const hg=+r.h||0,l=+r.l||0;if(hg>0&&l>0){lot+=l;biaya+=hg*l*100}});
+  if(lot>0){const k=String(CC.kode||'').trim().toUpperCase();h=(k?'<div class="sl"><span>Saham</span><b>'+esc(k)+'</b></div>':'')+ccR('Average Harga',ccDec(biaya/(lot*100)))+ccR('Jumlah Lot',n0(lot))+ccR('Total Biaya',n0(biaya))}}
+ else{const sv=CC.v[CC.i],v={};c.f.forEach(f=>{const e=$('cc_'+f[0]);if(!e)return;sv[f[0]]=e.value;v[f[0]]=f[2]==='text'?e.value.trim():(parseFloat(e.value)||0)});try{h=c.run(v)}catch(e){h=null}}
+ $('cc_out').innerHTML='<div class="cc-res">'+(h||'<div class="cc-n">Isi kolom di atas dengan lengkap, lalu tekan Hitung.</div>')+'</div>'}
 
 /* --- Mulai --- */
 (function(){let u='',s=null;$('lg_bars').innerHTML=[55,80,45,95,65,100,70,85].map((h,i)=>'<i style="height:'+h+'%;animation-delay:'+i*.18+'s"></i>').join('');
