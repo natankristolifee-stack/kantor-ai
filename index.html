@@ -265,6 +265,22 @@ body.dark .kc em{color:#8b9ab5}
 .tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
 body.dark .tg2 button{background:#111a2e;color:#cbd5e1;border-color:#22304a}
 body.dark .tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
+/* ===== KALKULATOR SAHAM ===== */
+.cc-g{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin:10px 0 14px}
+.cc-g label{display:block;font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px}
+.cc-g input{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:9px 10px;font:inherit;background:#fff;color:#0f172a}
+.cc-g input:focus{outline:0;border-color:#10b981;box-shadow:0 0 0 3px #10b98133}
+.cc-n{font-size:11.5px;color:#64748b;margin-top:12px;line-height:1.5}
+.cc-v{margin-top:10px;padding:9px 12px;border-radius:10px;background:#ecfdf5;color:#047857;font-weight:600;font-size:12.5px}
+.cc-v.bad{background:#fee2e2;color:#b91c1c}
+.cc-t{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+.cc-t th,.cc-t td{padding:7px 8px;border-bottom:1px solid #e2e8f0;text-align:right;white-space:nowrap}
+.cc-t th:first-child,.cc-t td:first-child{text-align:left}
+body.dark .cc-g label,body.dark .cc-n{color:#8b9ab5}
+body.dark .cc-g input{background:#0b1626;color:#e8edf7;border-color:#22304a}
+body.dark .cc-v{background:rgba(16,185,129,.16);color:#6ee7b7}
+body.dark .cc-v.bad{background:rgba(239,68,68,.18);color:#fca5a5}
+body.dark .cc-t th,body.dark .cc-t td{border-bottom-color:#22304a}
 </style>
 </head>
 <body>
@@ -320,6 +336,9 @@ body.dark .tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
 <div class="cal-h"><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div></div>
 <div class="cal-g" id="d_cal"></div></div>
 </div></div>
+<div id="pg-calc" class="pg"><div class="pw"><h2>Kalkulator Saham</h2><div class="sub">7 kalkulator untuk membantu menghitung sebelum Anda beli atau jual. Hasil langsung berubah saat Anda mengetik.</div>
+<div class="tg2" id="cc_tabs"></div>
+<div class="bx" id="cc_body"></div></div></div>
 <div id="pg-log" class="pg"><div class="pw"><h2>Trade Log</h2><div class="sub" id="l_sub">-</div>
 <div class="tg2"><button id="tg_open" onclick="tgTab('open')">📌 Posisi Aktif (OPEN)</button><button id="tg_done" onclick="tgTab('done')">✅ Riwayat Selesai (WIN/LOSS)</button></div>
 <div class="fl"><input type="date" id="l_d1" title="Dari tanggal" onchange="TF.d1=this.value;tLog()"><input type="date" id="l_d2" title="Sampai tanggal" onchange="TF.d2=this.value;tLog()"><button class="sec" onclick="resetTgl()">Reset tanggal</button><input id="l_q" placeholder="Cari kode saham…" oninput="TF.q=this.value;tLog()"><select id="l_st" onchange="TF.st=this.value;tLog()"><option value="ALL">Semua hasil</option><option value="WIN">WIN</option><option value="LOSS">LOSS</option></select><button onclick="loadTrade()">⟳ Muat ulang</button></div>
@@ -993,10 +1012,11 @@ setInterval(()=>{if(HAS&&!RUN&&!ASKING)google.script.run.withSuccessHandler(appl
 </script>
 <script>
 /* ===== KERANGKA: login, menu, halaman data (tambahan) ===== */
-const KP={kantor:['Kantor AI Agent','Kantor 3D & Jarvis'],dash:['Dashboard Trading','Ringkasan kinerja & saldo'],log:['Trade Log','Riwayat transaksi']};
+const KP={kantor:['Kantor AI Agent','Kantor 3D & Jarvis'],dash:['Dashboard Trading','Ringkasan kinerja & saldo'],log:['Trade Log','Riwayat transaksi'],calc:['Kalkulator Saham','7 kalkulator trading']};
 const KNAV=[
  {t:'Kantor AI Agent',ic:'🤖',open:true,it:[['Kantor 3D & Jarvis','pg:kantor'],['Input Saham','inp'],['Rencana Beli','ord'],['Portofolio','pf'],['Catat Jual','sell'],['Rapat Evaluasi','meet'],['Laporan 16:30','lap'],['Dividend Hunter','div'],['Daftar Divisi','dv'],['Chat Jarvis','ch']]},
  {t:'Pusat Data',ic:'📊',open:true,it:[['Dashboard Trading','pg:dash'],['Trade Log','pg:log']]},
+ {t:'Kalkulator Saham',ic:'🧮',open:true,it:[['Average Up & Down','calc:0'],['Stock Price Target','calc:1'],['Cut Loss & Recovery','calc:2'],['Position Size','calc:3'],['Cash Allocation','calc:4'],['Graham Number & MOS','calc:5'],['Risk-Reward Ratio','calc:6']]},
  {t:'Akun & Saldo',ic:'💳',it:[['Setor / Tarik Dana','akun']]}
 ];
 const KACT={inp:()=>openInp(),ord:()=>openOrd(),pf:()=>openPf(),sell:()=>openSell(),meet:()=>startMeeting(true),lap:()=>runPhase('laporan'),div:()=>runPhase('dividen'),akun:()=>openAkun(),dv:()=>togglePop('div'),ch:()=>togglePop('chat')};
@@ -1004,7 +1024,7 @@ function togglePop(m){const b=document.body.classList,cur=b.contains('pop-'+m);b
 let KPG='kantor',TD={sales:[],open:[],akun:[]},TF={st:'ALL',q:'',d1:'',d2:'',tab:'open'};
 
 function kNav(){$('kn').innerHTML=KNAV.map(g=>'<div class="gp'+(g.open?' open':'')+'"><div class="gh" onclick="this.parentNode.classList.toggle(\'open\')"><em>'+g.ic+'</em>'+g.t+'<s>▼</s></div><div class="its"><div>'+g.it.map(x=>'<button class="it" data-pg="'+(x[1].indexOf('pg:')===0?x[1].slice(3):'')+'" onclick="kClick(\''+x[1]+'\')">'+x[0]+'</button>').join('')+'</div></div></div>').join('')}
-function kClick(k){if(k.indexOf('pg:')===0)showPg(k.slice(3));else{showPg('kantor');KACT[k]()}if(innerWidth<860)document.body.classList.add('sbc')}
+function kClick(k){if(k.indexOf('pg:')===0)showPg(k.slice(3));else if(k.indexOf('calc:')===0){showPg('calc');ccTab(+k.slice(5))}else{showPg('kantor');KACT[k]()}if(innerWidth<860)document.body.classList.add('sbc')}
 function showPg(k){KPG=k;document.querySelectorAll('.pg').forEach(p=>p.classList.toggle('on',p.id==='pg-'+k));$('tt_h').textContent=KP[k][0];$('tt_s').textContent=KP[k][1];document.querySelectorAll('.it').forEach(b=>b.classList.toggle('on',b.dataset.pg===k));if(k==='dash'||k==='log')loadTrade();if(innerWidth<860)document.body.classList.add('sbc')}
 
 /* --- Login --- */
@@ -1155,6 +1175,64 @@ function saveAkun(){const o={jenis:$('a_j').value,jumlah:+$('a_n').value,tgl:$('
  const ok=()=>{closeAkun();toast('Tersimpan: '+(o.jenis==='Deposit'?'setoran':'penarikan')+' Rp '+n0(o.jumlah));showPg('dash')};
  if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(e=>toast('Gagal: '+((e&&e.message)||e))).saveAkunFromWeb(o);
  else{if(!TD.demo)TD=demoTrade();TD.akun.push({tgl:o.tgl,jenis:o.jenis,jml:o.jumlah,cat:o.cat});ok()}}
+
+/* --- Kalkulator Saham --- */
+const CC={i:0,v:[{},{},{},{},{},{},{}]};
+const ccR=(l,v,c)=>'<div class="sl"><span>'+l+'</span><b class="'+(c||'')+'">'+v+'</b></div>';
+const ccPct=v=>(v>=0?'+':'−')+Math.abs(v).toFixed(2)+'%';
+const ccCl=v=>v>=0?'g2':'r2';
+const ccTick=p=>{const t=p<200?1:p<500?2:p<2000?5:p<5000?10:25;return Math.ceil(p/t-1e-9)*t};
+const ccVerdict=(t,bad)=>'<div class="cc-v'+(bad?' bad':'')+'">'+t+'</div>';
+const CALC=[
+{t:'Average Up & Down',d:'Menghitung harga rata-rata pembelian, total modal, dan jumlah lot setelah Anda menambah pembelian saham.',
+ f:[['lot1','Lot yang sudah dimiliki'],['h1','Harga beli rata-rata saat ini (Rp)'],['lot2','Lot tambahan yang akan dibeli'],['h2','Harga beli tambahan (Rp)']],
+ run:v=>{if(!(v.lot2>0&&v.h2>0&&(v.lot1===0||v.h1>0)))return null;
+  const tot=v.lot1+v.lot2,avg=(v.lot1*v.h1+v.lot2*v.h2)/tot,m1=v.lot1*100*v.h1,m2=v.lot2*100*v.h2,mt=m1+m2,bep=ccTick(avg*(1+FEE.beli)/(1-FEE.jual)),jenis=v.lot1>0?(v.h2<v.h1?'Average Down':v.h2>v.h1?'Average Up':'Harga sama'):'Pembelian pertama';
+  return ccVerdict('Jenis: '+jenis)+ccR('Total lot',n0(tot)+' lot ('+n0(tot*100)+' lembar)')+ccR('Harga rata-rata baru','Rp '+n0(avg))+(v.lot1>0?ccR('Perubahan rata-rata dari sebelumnya',ccPct((avg/v.h1-1)*100),ccCl(v.h1-avg)):'')+ccR('Modal lama','Rp '+n0(m1))+ccR('Modal tambahan','Rp '+n0(m2))+ccR('Total modal','Rp '+n0(mt))+ccR('Harga impas (balik modal + fee)','Rp '+n0(bep))}},
+{t:'Stock Price Target',d:'Menentukan target harga saham berdasarkan persentase keuntungan bersih (setelah fee) yang Anda inginkan.',
+ f:[['h','Harga beli per lembar (Rp)'],['p','Target untung bersih (%)'],['lot','Jumlah lot (opsional)']],
+ run:v=>{if(!(v.h>0&&v.p>0))return null;
+  const naif=v.h*(1+v.p/100),sell=ccTick(v.h*(1+FEE.beli)*(1+v.p/100)/(1-FEE.jual)),net=v.lot>0?v.lot*100*(sell*(1-FEE.jual)-v.h*(1+FEE.beli)):null;
+  return ccR('Target tanpa memperhitungkan fee','Rp '+n0(naif))+ccR('Target harga jual (sudah termasuk fee, dibulatkan fraksi harga)','Rp '+n0(sell),'g2')+ccR('Kenaikan harga yang dibutuhkan',ccPct((sell/v.h-1)*100))+(net!==null?ccR('Estimasi laba bersih '+n0(v.lot)+' lot',rpf(net),ccCl(net)):'')}},
+{t:'Cut Loss & Recovery',d:'Menghitung kerugian akibat cut loss dan berapa persen harga harus naik untuk memulihkan kerugian.',
+ f:[['h','Harga beli per lembar (Rp)'],['k','Harga sekarang / harga cut loss (Rp)'],['lot','Jumlah lot']],
+ run:v=>{if(!(v.h>0&&v.k>0&&v.lot>0))return null;
+  const net=v.lot*100*(v.k*(1-FEE.jual)-v.h*(1+FEE.beli)),bep=ccTick(v.h*(1+FEE.beli)/(1-FEE.jual)),rec=(v.h/v.k-1)*100;
+  return (v.k>=v.h?ccVerdict('Posisi belum rugi dari harga beli (fee tetap dihitung di bawah).'):'')+ccR('Selisih harga',ccPct((v.k/v.h-1)*100),ccCl(v.k-v.h))+ccR('Untung / rugi bersih setelah fee',rpf(net),ccCl(net))+(v.k<v.h?ccR('Kenaikan yang dibutuhkan untuk kembali ke harga beli',ccPct(rec),'r2'):'')+ccR('Harga impas (balik modal + fee)','Rp '+n0(bep))+(bep>v.k?ccR('Kenaikan dari harga sekarang agar impas',ccPct((bep/v.k-1)*100),'r2'):'')}},
+{t:'Position Size',d:'Menghitung ukuran posisi (jumlah lot) dan kebutuhan modal berdasarkan risiko yang siap Anda tanggung.',
+ f:[['modal','Total modal trading (Rp)'],['r','Risiko maksimal per transaksi (% dari modal)'],['e','Harga entry (Rp)'],['sl','Harga stop loss (Rp)'],['mx','Maks. alokasi per saham (% modal, opsional)']],
+ run:v=>{if(!(v.modal>0&&v.r>0&&v.e>0&&v.sl>0&&v.e>v.sl))return v.e>0&&v.sl>=v.e?ccVerdict('Stop loss harus lebih rendah dari harga entry.',1):null;
+  const rpl=100*(v.e-v.sl),lr=Math.floor(v.modal*v.r/100/rpl),mxp=v.mx>0?v.mx:100,lc=Math.floor(v.modal*mxp/100/(100*v.e*(1+FEE.beli))),lot=Math.max(0,Math.min(lr,lc)),nil=lot*100*v.e,rs=lot*rpl;
+  return ccVerdict(lot>0?'Lot yang disarankan: '+n0(lot)+' lot (dibatasi oleh '+(lc<lr?'batas alokasi modal':'batas risiko')+')':'Modal/risiko terlalu kecil untuk 1 lot.',lot<=0)+ccR('Nilai posisi (kebutuhan modal)','Rp '+n0(nil))+ccR('Porsi dari modal',(nil/v.modal*100).toFixed(1)+'%')+ccR('Risiko jika kena stop loss (sebelum fee)','Rp '+n0(rs)+' ('+(rs/v.modal*100).toFixed(2)+'% modal)','r2')+ccR('Jarak stop loss dari entry',((v.e-v.sl)/v.e*100).toFixed(2)+'%')}},
+{t:'Cash Allocation',d:'Merencanakan pembagian dana untuk beberapa saham agar penggunaan modal lebih terarah. Isi bobot dalam persen (total maksimal 100).',
+ f:[['dana','Total dana (Rp)'],['cad','Cadangan kas yang disisihkan (%)'],['k1','Saham 1 (kode)','text'],['p1','Harga saham 1 (Rp)'],['w1','Bobot saham 1 (%)'],['k2','Saham 2 (kode)','text'],['p2','Harga saham 2 (Rp)'],['w2','Bobot saham 2 (%)'],['k3','Saham 3 (kode)','text'],['p3','Harga saham 3 (Rp)'],['w3','Bobot saham 3 (%)'],['k4','Saham 4 (kode)','text'],['p4','Harga saham 4 (Rp)'],['w4','Bobot saham 4 (%)'],['k5','Saham 5 (kode)','text'],['p5','Harga saham 5 (Rp)'],['w5','Bobot saham 5 (%)']],
+ run:v=>{if(!(v.dana>0))return null;
+  const av=v.dana*(1-Math.min(v.cad,100)/100);let tot=0,sw=0,rows='';
+  for(let i=1;i<=5;i++){const p=v['p'+i],w=v['w'+i];if(!(p>0&&w>0))continue;sw+=w;const lot=Math.floor(av*w/100/(100*p*(1+FEE.beli))),nil=lot*100*p*(1+FEE.beli);tot+=nil;rows+='<tr><td><b>'+esc(String(v['k'+i]||'Saham '+i).toUpperCase())+'</b></td><td>'+w+'%</td><td>'+n0(p)+'</td><td>'+n0(lot)+'</td><td>'+n0(nil)+'</td></tr>'}
+  if(!rows)return null;
+  return (sw>100?ccVerdict('Total bobot '+sw+'% melebihi 100%. Kurangi bobot.',1):'')+'<table class="cc-t"><tr><th>Saham</th><th>Bobot</th><th>Harga</th><th>Lot</th><th>Dana terpakai (+fee beli)</th></tr>'+rows+'</table>'+ccR('Dana yang dialokasikan','Rp '+n0(av))+ccR('Dana terpakai','Rp '+n0(tot))+ccR('Sisa kas (termasuk cadangan)','Rp '+n0(v.dana-tot),'g2')+ccR('Total bobot terisi',sw+'%')}},
+{t:'Graham Number & MOS',d:'Estimasi nilai wajar saham dengan rumus Benjamin Graham, lalu bandingkan dengan harga pasar (Margin of Safety).',
+ f:[['eps','EPS (laba per saham, Rp)'],['bv','Nilai buku per saham / BVPS (Rp)'],['hg','Harga saham sekarang (Rp)']],
+ run:v=>{if(!(v.eps>0&&v.bv>0))return v.eps<0||v.bv<0?ccVerdict('EPS dan nilai buku harus positif agar Graham Number bisa dihitung.',1):null;
+  const gn=Math.sqrt(22.5*v.eps*v.bv);let o=ccR('Graham Number (estimasi nilai wajar)','Rp '+n0(gn),'g2');
+  if(v.hg>0){const m=(gn-v.hg)/gn*100;o+=ccR('Harga sekarang','Rp '+n0(v.hg))+ccR('Margin of Safety (MOS)',m.toFixed(1)+'%',ccCl(m))+ccVerdict(m>=30?'MOS ≥ 30%: harga jauh di bawah nilai wajar menurut Graham.':m>0?'Harga di bawah Graham Number, tetapi MOS masih tipis (< 30%).':'Harga di atas Graham Number: tidak ada margin pengaman.',m<=0)}
+  return o+'<div class="cc-n">Rumus: √(22,5 × EPS × BVPS). Cocok untuk perusahaan yang labanya stabil; kurang pas untuk saham yang rugi atau sangat bertumbuh.</div>'}},
+{t:'Risk-Reward Ratio',d:'Membandingkan potensi keuntungan dan risiko kerugian berdasarkan harga entry, target, dan stop loss.',
+ f:[['e','Harga entry (Rp)'],['t','Harga target (Rp)'],['sl','Harga stop loss (Rp)'],['lot','Jumlah lot (opsional)']],
+ run:v=>{if(!(v.e>0&&v.t>0&&v.sl>0))return null;if(!(v.t>v.e&&v.e>v.sl))return ccVerdict('Syarat: target > entry > stop loss.',1);
+  const rr=(v.t-v.e)/(v.e-v.sl),be=1/(1+rr)*100;let o=ccVerdict('Risk : Reward = 1 : '+rr.toFixed(2)+(rr>=1.5?' (baik)':rr>=1.2?' (cukup)':' (kurang menarik)'),rr<1.2)+ccR('Potensi untung',ccPct((v.t/v.e-1)*100),'g2')+ccR('Potensi rugi',ccPct((v.sl/v.e-1)*100),'r2')+ccR('Win rate minimal agar impas',be.toFixed(1)+'%');
+  if(v.lot>0){const up=v.lot*100*(v.t*(1-FEE.jual)-v.e*(1+FEE.beli)),dn=v.lot*100*(v.sl*(1-FEE.jual)-v.e*(1+FEE.beli));o+=ccR('Untung bersih jika kena target (setelah fee)',rpf(up),ccCl(up))+ccR('Rugi bersih jika kena stop loss (setelah fee)',rpf(dn),ccCl(dn))}
+  return o}}
+];
+function ccTab(i){CC.i=i;ccDraw()}
+function ccDraw(){const c=CALC[CC.i],sv=CC.v[CC.i];
+ $('cc_tabs').innerHTML=CALC.map((x,i)=>'<button class="'+(i===CC.i?'on':'')+'" onclick="ccTab('+i+')">'+(i+1)+'. '+x.t+'</button>').join('');
+ $('cc_body').innerHTML='<h4 style="text-transform:none;font-size:15px;color:inherit;letter-spacing:0">'+c.t+'</h4><div style="font-size:12.5px;color:#64748b">'+c.d+'</div><div class="cc-g">'+c.f.map(f=>'<div><label>'+f[1]+'</label><input id="cc_'+f[0]+'" '+(f[2]==='text'?'type="text" maxlength="4" placeholder="BBCA"':'type="number" min="0" step="any" inputmode="decimal"')+' value="'+esc(sv[f[0]]==null?'':sv[f[0]])+'" oninput="ccCalc()"></div>').join('')+'</div><div id="cc_out"></div><div class="cc-n">Fee memakai pengaturan '+(FEE.beli*100).toFixed(2)+'% beli / '+(FEE.jual*100).toFixed(2)+'% jual, 1 lot = 100 lembar. Hasil hanya alat bantu hitung, bukan nasihat investasi.</div>';
+ ccCalc()}
+function ccCalc(){const c=CALC[CC.i],sv=CC.v[CC.i],v={};
+ c.f.forEach(f=>{const e=$('cc_'+f[0]);if(!e)return;sv[f[0]]=e.value;v[f[0]]=f[2]==='text'?e.value.trim():(parseFloat(e.value)||0)});
+ let h=null;try{h=c.run(v)}catch(e){h=null}
+ $('cc_out').innerHTML=h||'<div class="cc-n">Isi kolom di atas untuk melihat hasilnya.</div>'}
 
 /* --- Mulai --- */
 (function(){let u='',s=null;$('lg_bars').innerHTML=[55,80,45,95,65,100,70,85].map((h,i)=>'<i style="height:'+h+'%;animation-delay:'+i*.18+'s"></i>').join('');
