@@ -265,6 +265,18 @@ body.dark .kc em{color:#8b9ab5}
 .tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
 body.dark .tg2 button{background:#111a2e;color:#cbd5e1;border-color:#22304a}
 body.dark .tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
+/* ===== PERFORMA TRADE ala Stockbit ===== */
+.tr-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.tr-k{border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+.tr-k small{display:flex;align-items:center;gap:8px;color:#64748b;font-size:12.5px}
+.tr-k b{display:block;margin-top:8px;font-size:15px}
+.tr-i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px}
+.tr-i.g{background:rgba(16,185,129,.15)}.tr-i.r{background:rgba(239,68,68,.15)}
+.tr-big{font-size:26px;font-weight:800;margin:2px 0 4px}.tr-big small{font-size:12.5px;font-weight:500;color:#64748b;margin-left:6px}
+.tr-s{border-top:1px solid #e2e8f0;margin-top:12px;padding-top:6px}
+.tr-s .sl{padding:9px 2px}.tr-s .sub2{padding-left:14px;border-left:3px solid #e2e8f0;margin-left:2px}
+body.dark .tr-k,body.dark .tr-s,body.dark .tr-s .sub2{border-color:#22304a}
+body.dark .tr-k small,body.dark .tr-big small{color:#8b9ab5}
 /* ===== BENCHMARK ala Stockbit + ALOKASI ===== */
 #c_bm{height:250px}
 .bm-chips{display:flex;gap:10px;margin:6px 0 8px}
@@ -378,6 +390,9 @@ body.dark .cc-t th,body.dark .cc-t td{border-bottom-color:#22304a}
 <div class="cal-g" id="d_cal"></div></div></div>
 <div class="bx" style="margin-top:12px"><h4>Alokasi Portofolio</h4>
 <div class="al-w"><canvas id="c_al" style="width:230px;height:230px;max-width:100%"></canvas><div id="d_allist"></div></div></div>
+<div class="bx" style="margin-top:12px"><h4>Performa Trade</h4><div class="bm-per" id="d_trper"><button data-p="MTD" class="on" onclick="trPer('MTD')">Bulan ini</button><button data-p="1W" onclick="trPer('1W')">1W</button><button data-p="1M" onclick="trPer('1M')">1M</button><button data-p="3M" onclick="trPer('3M')">3M</button><button data-p="YTD" onclick="trPer('YTD')">YTD</button><button data-p="1Y" onclick="trPer('1Y')">1Y</button><button data-p="ALL" onclick="trPer('ALL')">All</button></div></div>
+<div class="rw b" style="margin-top:12px"><div class="bx"><h4 id="d_trh">Total Realized</h4><div id="d_trbig" class="tr-big"></div><canvas id="c_tr"></canvas><div class="tr-s" id="d_trsum"></div></div>
+<div class="bx"><div class="tr-g" id="d_trcards"></div><div class="fl" style="margin:8px 0 6px"><select id="d_trsel" onchange="trMode(this.value)"><option value="gain">Top Gainer (Rp)</option><option value="loss">Top Loser (Rp)</option></select></div><div class="tw"><table class="cc-t"><thead><tr><th>Kode</th><th>Trades</th><th>P&amp;L</th></tr></thead><tbody id="d_trtb"></tbody></table></div></div></div>
 </div></div>
 <div id="pg-calc" class="pg"><div class="pw"><h2>Kalkulator Saham</h2><div class="sub">7 kalkulator untuk membantu menghitung sebelum Anda beli atau jual. Hasil langsung berubah saat Anda mengetik.</div>
 <div class="tg2" id="cc_tabs"></div>
@@ -1107,7 +1122,7 @@ function tDash(){const s=tCalc(),c=x=>x>=0?'g2':'r2',md=s.mdd;
  $('d_cards').innerHTML=[['Laba / Rugi (terealisasi)',rpf(s.real),c(s.real)],['Saldo akun','Rp '+n0(s.saldo),''],['Faktor laba',isFinite(s.pf)?s.pf.toFixed(2):'∞',s.pf>=1?'g2':'r2'],['Max Drawdown',md.ok?(md.pct>0?'−':'')+md.pct.toFixed(2)+'%':'–',md.ok&&md.pct>0?'r2':'',md.ok?'Penurunan modal terdalam: Rp '+n0(md.rp):'Catat setoran dana dulu'],['Ekspektasi / transaksi',rpf(s.exp),c(s.exp)]].map((x,i)=>'<div class="kc" style="animation-delay:'+i*80+'ms"><small>'+x[0]+'</small><b class="'+x[2]+'">'+x[1]+'</b>'+(x[3]?'<em>'+x[3]+'</em>':'')+'</div>').join('');
  const L=[['Jumlah transaksi',s.n],['Menang / Kalah',s.w+' / '+s.l],['Sedang berjalan (posisi)',s.open],['Total setoran','Rp '+n0(s.dep)],['Total penarikan','Rp '+n0(s.wd)],['Rata-rata menang',rpf(s.aw)],['Rata-rata kalah',rpf(s.al)],['Menang terbesar',rpf(s.bw)],['Kalah terbesar',rpf(s.bl)]];
  $('d_st').innerHTML=L.map(x=>'<div class="sl"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>').join('');
- tCal();alList();kanim(p=>{dEq(p);dWr(p);dBar(p);dAl(p)});dBm(1);loadIhsg(()=>{if(KPG==='dash')kanim(dBm)})}
+ tCal();alList();trRender();kanim(p=>{dEq(p);dWr(p);dBar(p);dAl(p);dTr(p)});dBm(1);loadIhsg(()=>{if(KPG==='dash')kanim(dBm)})}
 function dEq(p){const o=kcv('c_eq'),g=o.g,P=eqPts();g.font='12px system-ui';
  if(P.length<2){g.fillStyle='#94a3b8';g.fillText('Belum cukup data. Catat setoran dan penjualan.',12,30);return}
  const vs=P.map(q=>q.v),mn=Math.min(0,...vs),mx=Math.max(...vs)||1,L=52,B=22,T0=10,x=i=>L+i/(P.length-1)*(o.w-L-12),y=v=>T0+(1-(v-mn)/(mx-mn||1))*(o.h-T0-B);
@@ -1186,6 +1201,46 @@ function dAl(p){const o=kcv('c_al'),g=o.g,L=alData(),tot=L.reduce((t,x)=>t+x.v,0
  g.font='12px system-ui';g.fillStyle=DK()?'#8b9ab5':'#64748b';g.fillText(st.length?st.length+' Saham':'Belum ada posisi',cx,cy+22)}
 function alList(){const L=alData(),tot=L.reduce((t,x)=>t+x.v,0),el=$('d_allist');if(!el)return;
  el.innerHTML=L.length?L.map((x,i)=>{const pc=tot?x.v/tot*100:0,c=x.cash?'#64748b':ALC[i%ALC.length];return '<div class="al-i"><div class="al-h"><span class="al-d" style="background:'+c+'"></span><b>'+esc(x.k)+'</b><span class="al-v">Rp '+n0(x.v)+'</span><em>'+pc.toFixed(2)+'%</em></div><div class="al-bar"><i style="width:'+pc.toFixed(2)+'%;background:'+c+'"></i></div></div>'}).join('')+'<div class="cc-n">Nilai saham memakai harga terakhir bila tersedia, jika tidak memakai harga beli. Kas = setoran − penarikan + L/R terealisasi − modal yang sedang tertanam.</div>':'<div style="color:#64748b">Belum ada posisi aktif atau saldo.</div>'}
+
+/* --- Performa Trade (ala Stockbit) --- */
+let TRP='MTD',TRM='gain';
+const TRL={MTD:'Bulan ini','1W':'1 Minggu','1M':'1 Bulan','3M':'3 Bulan',YTD:'Tahun ini','1Y':'1 Tahun',ALL:'Semua'};
+function trStart(){const td=jk().date;if(TRP==='ALL')return'';if(TRP==='MTD')return td.slice(0,8)+'01';if(TRP==='YTD')return td.slice(0,4)+'-01-01';const n={'1W':7,'1M':30,'3M':90,'1Y':365}[TRP];return new Date(new Date(td+'T00:00:00Z').getTime()-n*864e5).toISOString().slice(0,10)}
+function trSales(){const st=trStart();return TD.sales.filter(s=>!st||String(s.tgl)>=st)}
+const trAr=v=>v>=0?'↗':'↘',trPc=v=>(v>=0?'+':'−')+Math.abs(v).toFixed(2)+'%',trCl=v=>v>=0?'g2':'r2';
+const trK=v=>{const a=Math.abs(v),sg=v<0?'-':'';return a>=1e6?sg+(a/1e6).toFixed(2)+' jt':a>=1e3?sg+(a/1e3).toFixed(2)+' rb':sg+Math.round(a)};
+function trPer(p){TRP=p;document.querySelectorAll('#d_trper button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));trRender();kanim(dTr)}
+function trMode(v){TRM=v;trTable()}
+function trRender(){const S=trSales(),W=S.filter(s=>+s.pl>0),L=S.filter(s=>+s.pl<0),gain=W.reduce((t,s)=>t+ +s.pl,0),loss=-L.reduce((t,s)=>t+ +s.pl,0),net=gain-loss;
+ const best=S.length?S.reduce((a,s)=>+s.pct>+a.pct?s:a):null,worst=S.length?S.reduce((a,s)=>+s.pct<+a.pct?s:a):null;
+ const k=(ic,cls,lab,val,vc)=>'<div class="tr-k"><small>'+(ic?'<span class="tr-i '+cls+'">'+ic+'</span>':'')+lab+'</small><b class="'+vc+'">'+val+'</b></div>';
+ $('d_trcards').innerHTML=k('','','Trade Terbaik'+(best?' · '+esc(best.kode):''),best?trPc(+best.pct):'–',best?trCl(+best.pct):'')+k('','','Trade Terburuk'+(worst?' · '+esc(worst.kode):''),worst?trPc(+worst.pct):'–',worst?trCl(+worst.pct):'')+
+  k('📈','g','Rata-rata Untung',W.length?trAr(1)+' Rp '+n0(gain/W.length):'–',W.length?'g2':'')+k('📉','r','Rata-rata Rugi',L.length?trAr(-1)+' Rp '+n0(loss/L.length):'–',L.length?'r2':'');
+ $('d_trh').textContent='Total Realized '+(net>=0?'Gain':'Loss');
+ $('d_trbig').innerHTML='<span class="'+trCl(net)+'">'+(net>=0?'+':'−')+n0(Math.abs(net))+'</span><small>'+TRL[TRP]+'</small>';
+ $('d_trsum').innerHTML='<div class="sl"><span>Total Saham Realized '+(net>=0?'Gain':'Loss')+'</span><b class="'+trCl(net)+'">'+trAr(net)+' Rp '+n0(Math.abs(net))+'</b></div>'+
+  '<div class="sl sub2"><span>Realized Gain</span><b class="g2">↗ Rp '+n0(gain)+'</b></div><div class="sl sub2"><span>Realized Loss</span><b class="r2">↘ Rp '+n0(loss)+'</b></div>'+
+  '<div class="sl"><span>Total Dividen Diterima</span><b style="color:#64748b">belum dicatat</b></div><div class="cc-n" style="margin-top:4px">L/R sudah dikurangi fee. Sistem belum punya pencatatan dividen.</div>';
+ trTable()}
+function trTable(){const S=trSales(),m={};S.forEach(s=>{const o=m[s.kode]=m[s.kode]||{k:s.kode,n:0,pl:0,md:0};o.n++;o.pl+=+s.pl;o.md+=(s.modal!=null?+s.modal:s.lot*100*s.hb)});
+ const L=Object.keys(m).map(x=>m[x]).sort((a,b)=>TRM==='gain'?b.pl-a.pl:a.pl-b.pl).slice(0,10);
+ $('d_trtb').innerHTML=L.length?L.map(o=>{const pc=o.md?o.pl/o.md*100:0;return '<tr><td><b>'+esc(o.k)+'</b></td><td>'+o.n+'</td><td class="'+trCl(o.pl)+'">'+trAr(o.pl)+' '+n0(Math.abs(o.pl))+' ('+trPc(pc)+')</td></tr>'}).join(''):'<tr><td colspan="3" style="color:#64748b;text-align:left">Belum ada penjualan pada periode ini.</td></tr>'}
+function dTr(p){const o=kcv('c_tr'),g=o.g,tx=DK()?'#8b9ab5':'#64748b';g.font='11px system-ui';
+ const S=trSales().slice().sort((a,b)=>String(a.tgl).localeCompare(String(b.tgl)));
+ if(!S.length){g.fillStyle=tx;g.textAlign='left';g.fillText('Belum ada penjualan pada periode ini.',12,30);return}
+ const td=jk().date,f0=String(S[0].tgl),st=trStart(),sd=(TRP==='MTD'||TRP==='1W')?st:((!st||st<f0)?f0:st),set={};S.forEach(s=>set[String(s.tgl)]=1);
+ const days=[];for(let t=new Date(sd+'T00:00:00Z'),e=new Date(td+'T00:00:00Z'),n=0;t<=e&&n<800;t=new Date(t.getTime()+864e5),n++){const d=t.toISOString().slice(0,10),w=t.getUTCDay();if((w>0&&w<6)||set[d])days.push(d)}
+ let k=0,c=0;const Dt=[],V=[];days.forEach(d=>{while(k<S.length&&String(S[k].tgl)<=d){c+=+S[k].pl;k++}Dt.push(d);V.push(c)});
+ if(Dt.length<2){Dt.unshift(new Date(new Date((Dt[0]||td)+'T00:00:00Z').getTime()-864e5).toISOString().slice(0,10));V.unshift(0)}
+ const n=Dt.length;let mn=Math.min(0,...V),mx=Math.max(0,...V);if(mx===mn)mx=mn+1;
+ const R=62,T0=10,Bm=22,W=o.w-R,x=i=>6+i/(n-1)*(W-12),y=v=>T0+(mx-v)/(mx-mn)*(o.h-T0-Bm),col=V[n-1]<0?'#ef4444':'#22c55e';
+ g.fillStyle=tx;g.textAlign='left';for(let q=0;q<=4;q++){const v=mx-(mx-mn)*q/4;g.fillText(q===0&&mx===0?'0':trK(v),W+8,y(v)+4)}
+ const lb=d=>(+d.slice(8))+' '+BLN[+d.slice(5,7)-1],ix=[];for(let j=0;j<5;j++){const i=Math.round(j*(n-1)/4);if(ix.indexOf(i)<0)ix.push(i)}
+ ix.forEach((i,j)=>{g.textAlign=i===0?'left':i===n-1?'right':'center';g.fillText(lb(Dt[i]),i===0?4:i===n-1?W-4:x(i),o.h-6)});
+ g.strokeStyle=DK()?'#cbd5e1':'#64748b';g.setLineDash([4,4]);g.lineWidth=1;g.beginPath();g.moveTo(0,y(0));g.lineTo(W,y(0));g.stroke();g.setLineDash([]);
+ g.save();g.beginPath();g.rect(0,0,W*p+2,o.h);g.clip();
+ g.beginPath();V.forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.lineTo(x(n-1),y(0));g.lineTo(x(0),y(0));g.closePath();g.globalAlpha=.16;g.fillStyle=col;g.fill();g.globalAlpha=1;
+ g.beginPath();V.forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.strokeStyle=col;g.lineWidth=2.2;g.lineJoin='round';g.stroke();g.restore()}
 
 /* --- Trade Log: tab OPEN vs selesai --- */
 function dkOf_(w){const s=String(w||''),m=s.match(/^(\d{2})-(\d{2})-(\d{4})/);return m?m[3]+'-'+m[2]+'-'+m[1]:((s.match(/^\d{4}-\d{2}-\d{2}/)||[''])[0])}
