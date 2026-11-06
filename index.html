@@ -265,6 +265,26 @@ body.dark .kc em{color:#8b9ab5}
 .tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
 body.dark .tg2 button{background:#111a2e;color:#cbd5e1;border-color:#22304a}
 body.dark .tg2 button.on{background:#10b981;border-color:#10b981;color:#fff}
+/* ===== BENCHMARK ala Stockbit + ALOKASI ===== */
+#c_bm{height:250px}
+.bm-chips{display:flex;gap:10px;margin:6px 0 8px}
+.bm-chip{flex:1;display:flex;justify-content:space-between;align-items:center;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;position:relative;font-size:13px}
+.bm-chip:before{content:"";position:absolute;left:8px;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--c)}
+.bm-chip span{padding-left:10px}.bm-chip b{font-size:14px}
+.bm-per{display:flex;justify-content:space-around;margin-top:6px}
+.bm-per button{background:none;border:0;border-bottom:2px solid transparent;padding:8px 10px;font:inherit;font-weight:600;color:#64748b;cursor:pointer}
+.bm-per button.on{color:#10b981;border-color:#10b981}
+.al-w{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.al-w canvas{flex:none}
+#d_allist{flex:1;min-width:240px}
+.al-i{margin-bottom:14px}
+.al-h{display:flex;align-items:center;gap:8px;font-size:13px}
+.al-d{width:9px;height:9px;border-radius:50%;display:inline-block}
+.al-v{color:#64748b}.al-h em{margin-left:auto;font-style:normal;font-weight:700}
+.al-bar{height:5px;border-radius:3px;background:#e2e8f0;margin-top:6px;overflow:hidden}.al-bar i{display:block;height:100%;border-radius:3px}
+body.dark .bm-chip{border-color:#22304a}
+body.dark .al-bar{background:#22304a}
+body.dark .al-v{color:#8b9ab5}
 /* ===== KALKULATOR SAHAM ===== */
 .cc-h,.cc-c{border-radius:999px;padding:13px 20px;font:inherit;font-weight:700;cursor:pointer;border:1px solid #e2e8f0}
 .cc-b{display:flex;gap:12px;margin-top:6px}
@@ -346,15 +366,18 @@ body.dark .cc-t th,body.dark .cc-t td{border-bottom-color:#22304a}
 <div class="kg" id="d_cards"></div>
 <div class="rw a"><div class="bx"><h4>Saldo akun (kumulatif)</h4><canvas id="c_eq"></canvas></div><div class="bx"><h4>Win rate</h4><canvas id="c_wr"></canvas></div></div>
 <div class="rw b"><div class="bx"><h4>Statistik</h4><div id="d_st"></div></div><div class="bx"><h4>Laba/rugi 10 transaksi terakhir</h4><canvas id="c_bar"></canvas></div></div>
-<div class="bx" style="margin-top:12px"><h4>Benchmark: L/R Anda vs IHSG (% sejak transaksi pertama)</h4>
-<div id="d_bmsum" style="font-size:12.5px;margin-bottom:8px"></div>
+<div class="rw b" style="margin-top:12px"><div class="bx"><h4>Return Kumulatif: Portofolio vs IHSG</h4>
+<div id="d_bmsum"></div>
 <canvas id="c_bm"></canvas>
+<div class="bm-per" id="d_bmper"><button data-p="1W" onclick="bmPer('1W')">1W</button><button data-p="1M" onclick="bmPer('1M')">1M</button><button data-p="3M" onclick="bmPer('3M')">3M</button><button data-p="YTD" onclick="bmPer('YTD')">YTD</button><button data-p="1Y" onclick="bmPer('1Y')">1Y</button><button data-p="ALL" class="on" onclick="bmPer('ALL')">All</button></div>
 <div id="d_bmnote" style="font-size:11px;color:#64748b;margin-top:6px"></div></div>
-<div class="bx" style="margin-top:12px"><h4>Kalender kinerja harian (hijau = untung, merah = rugi)</h4>
+<div class="bx"><h4>Kalender kinerja harian (hijau = untung, merah = rugi)</h4>
 <div class="fl" style="justify-content:center;align-items:center"><button class="sec" onclick="calShift(-1)">◀</button><b id="d_calt" style="min-width:170px;text-align:center"></b><button class="sec" onclick="calShift(1)">▶</button></div>
 <div id="d_calsum" style="font-size:12px;color:#64748b;margin-bottom:10px;text-align:center"></div>
 <div class="cal-h"><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div></div>
-<div class="cal-g" id="d_cal"></div></div>
+<div class="cal-g" id="d_cal"></div></div></div>
+<div class="bx" style="margin-top:12px"><h4>Alokasi Portofolio</h4>
+<div class="al-w"><canvas id="c_al" style="width:230px;height:230px;max-width:100%"></canvas><div id="d_allist"></div></div></div>
 </div></div>
 <div id="pg-calc" class="pg"><div class="pw"><h2>Kalkulator Saham</h2><div class="sub">7 kalkulator untuk membantu menghitung sebelum Anda beli atau jual. Hasil langsung berubah saat Anda mengetik.</div>
 <div class="tg2" id="cc_tabs"></div>
@@ -1084,7 +1107,7 @@ function tDash(){const s=tCalc(),c=x=>x>=0?'g2':'r2',md=s.mdd;
  $('d_cards').innerHTML=[['Laba / Rugi (terealisasi)',rpf(s.real),c(s.real)],['Saldo akun','Rp '+n0(s.saldo),''],['Faktor laba',isFinite(s.pf)?s.pf.toFixed(2):'∞',s.pf>=1?'g2':'r2'],['Max Drawdown',md.ok?(md.pct>0?'−':'')+md.pct.toFixed(2)+'%':'–',md.ok&&md.pct>0?'r2':'',md.ok?'Penurunan modal terdalam: Rp '+n0(md.rp):'Catat setoran dana dulu'],['Ekspektasi / transaksi',rpf(s.exp),c(s.exp)]].map((x,i)=>'<div class="kc" style="animation-delay:'+i*80+'ms"><small>'+x[0]+'</small><b class="'+x[2]+'">'+x[1]+'</b>'+(x[3]?'<em>'+x[3]+'</em>':'')+'</div>').join('');
  const L=[['Jumlah transaksi',s.n],['Menang / Kalah',s.w+' / '+s.l],['Sedang berjalan (posisi)',s.open],['Total setoran','Rp '+n0(s.dep)],['Total penarikan','Rp '+n0(s.wd)],['Rata-rata menang',rpf(s.aw)],['Rata-rata kalah',rpf(s.al)],['Menang terbesar',rpf(s.bw)],['Kalah terbesar',rpf(s.bl)]];
  $('d_st').innerHTML=L.map(x=>'<div class="sl"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>').join('');
- tCal();kanim(p=>{dEq(p);dWr(p);dBar(p)});dBm(1);loadIhsg(()=>{if(KPG==='dash')kanim(dBm)})}
+ tCal();alList();kanim(p=>{dEq(p);dWr(p);dBar(p);dAl(p)});dBm(1);loadIhsg(()=>{if(KPG==='dash')kanim(dBm)})}
 function dEq(p){const o=kcv('c_eq'),g=o.g,P=eqPts();g.font='12px system-ui';
  if(P.length<2){g.fillStyle='#94a3b8';g.fillText('Belum cukup data. Catat setoran dan penjualan.',12,30);return}
  const vs=P.map(q=>q.v),mn=Math.min(0,...vs),mx=Math.max(...vs)||1,L=52,B=22,T0=10,x=i=>L+i/(P.length-1)*(o.w-L-12),y=v=>T0+(1-(v-mn)/(mx-mn||1))*(o.h-T0-B);
@@ -1115,31 +1138,54 @@ function loadIhsg(cb){const first=firstDate();if(!first){cb();return}
  const done=r=>{IH=(r&&r.ok)?r:{ok:false,pts:[],msg:(r&&r.msg)||'Data IHSG belum tersedia.'};if(IH.ok)IHKEY=first;cb()};
  if(HAS)google.script.run.withSuccessHandler(done).withFailureHandler(e=>done({ok:false,msg:'Gagal memuat IHSG: '+((e&&e.message)||e)})).getIhsgData(first);
  else done(demoIhsg(first))}
-function dBm(p){const o=kcv('c_bm'),g=o.g,tx=DK()?'#8b9ab5':'#64748b',gr=DK()?'#22304a':'#e2e8f0',sum=$('d_bmsum'),nt=$('d_bmnote');g.font='12px system-ui';
- const msg=t=>{g.fillStyle=tx;g.textAlign='left';g.fillText(t,12,30);sum.textContent='';nt.textContent=''};
+let BMP='ALL';
+function bmStart(){const td=jk().date;if(BMP==='ALL')return'';if(BMP==='YTD')return td.slice(0,4)+'-01-01';const n={'1W':7,'1M':30,'3M':90,'1Y':365}[BMP];return new Date(new Date(td+'T00:00:00Z').getTime()-n*864e5).toISOString().slice(0,10)}
+function bmPer(p){BMP=p;document.querySelectorAll('#d_bmper button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));kanim(dBm)}
+function dBm(p){const o=kcv('c_bm'),g=o.g,tx=DK()?'#8b9ab5':'#64748b',gr=DK()?'#22304a':'#e2e8f0',sum=$('d_bmsum'),nt=$('d_bmnote');g.font='11px system-ui';
+ const msg=t=>{g.fillStyle=tx;g.textAlign='left';g.fillText(t,12,30);sum.innerHTML='';nt.textContent=''};
  const first=firstDate();
  if(!first){msg('Belum ada penjualan tercatat.');return}
  const pts=(IH&&IH.pts)||[];
  if(!pts.length){msg((IH&&IH.msg)||'Memuat data IHSG…');return}
- let i0=0;pts.forEach((q,i)=>{if(q.d<=first)i0=i});
+ const st=bmStart(),sd=(st&&st>first)?st:first;
+ let i0=0;pts.forEach((q,i)=>{if(q.d<=sd)i0=i});
  const P=pts.slice(i0);
- if(P.length<2){msg('Data IHSG belum cukup (butuh minimal 2 hari bursa sejak transaksi pertama).');return}
+ if(P.length<2){msg('Data belum cukup untuk periode ini.');return}
  const S=TD.sales.slice().sort((a,b)=>String(a.tgl).localeCompare(String(b.tgl)));
  const dep=TD.akun.filter(a=>a.jenis!=='Withdraw').reduce((t,a)=>t+a.jml,0);
  const base=dep>0?dep:Math.max(1,...S.map(s=>+s.modal||s.lot*100*s.hb));
- let k=0,cum=0;const A=[],B=[],c0=P[0].c;
- P.forEach(q=>{while(k<S.length&&String(S[k].tgl)<=q.d){cum+=+S[k].pl;k++}A.push(cum/base*100);B.push((q.c/c0-1)*100)});
- const all=A.concat(B,[0]),mn=Math.min(...all),mx=Math.max(...all),L=46,Bm=22,T0=10,x=i=>L+i/(P.length-1)*(o.w-L-12),y=v=>T0+(1-(v-mn)/(mx-mn||1))*(o.h-T0-Bm);
+ let k=0,cum=0;while(k<S.length&&String(S[k].tgl)<P[0].d){cum+=+S[k].pl;k++}
+ const cum0=cum,A=[],B=[],c0=P[0].c;
+ P.forEach(q=>{while(k<S.length&&String(S[k].tgl)<=q.d){cum+=+S[k].pl;k++}A.push((cum-cum0)/base*100);B.push((q.c/c0-1)*100)});
+ const all=A.concat(B,[0]);let mn=Math.min(...all),mx=Math.max(...all);if(mx-mn<.5){mx+=.25;mn-=.25}
+ const R=44,Bm=22,T0=10,W=o.w-R,x=i=>4+i/(P.length-1)*(W-8),y=v=>T0+(1-(v-mn)/(mx-mn))*(o.h-T0-Bm),dec=(mx-mn)<10?1:0;
  g.strokeStyle=gr;g.fillStyle=tx;g.lineWidth=1;g.textAlign='right';
- for(let q=0;q<=4;q++){const v=mn+(mx-mn)*q/4,yy=y(v);g.beginPath();g.moveTo(L,yy);g.lineTo(o.w-8,yy);g.stroke();g.fillText(v.toFixed(1)+'%',L-6,yy+4)}
- g.textAlign='left';g.fillText(P[0].d,L,o.h-6);g.textAlign='right';g.fillText(P[P.length-1].d,o.w-8,o.h-6);
- g.strokeStyle=DK()?'#64748b':'#94a3b8';g.setLineDash([4,4]);g.beginPath();g.moveTo(L,y(0));g.lineTo(o.w-8,y(0));g.stroke();g.setLineDash([]);
- g.save();g.beginPath();g.rect(0,0,o.w*p,o.h);g.clip();
- [[B,'#f59e0b'],[A,'#10b981']].forEach(z=>{g.beginPath();z[0].forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.strokeStyle=z[1];g.lineWidth=2.5;g.stroke()});g.restore();
- g.textAlign='left';g.fillStyle='#10b981';g.fillText('— L/R Anda',L+8,T0+12);g.fillStyle='#f59e0b';g.fillText('— IHSG',L+92,T0+12);
+ for(let q=0;q<=4;q++){const v=mn+(mx-mn)*q/4,yy=y(v);g.beginPath();g.moveTo(0,yy);g.lineTo(W,yy);g.stroke();g.fillText(v.toFixed(dec)+'%',o.w-4,yy+4)}
+ const lb=d=>(+d.slice(8))+' '+BLN[+d.slice(5,7)-1];
+ for(let j=0;j<4;j++){const ix=Math.round(j*(P.length-1)/3);g.textAlign=j===0?'left':j===3?'right':'center';g.fillText(lb(P[ix].d),j===0?4:j===3?W-4:x(ix),o.h-6)}
+ g.strokeStyle=DK()?'#cbd5e1':'#64748b';g.setLineDash([4,4]);g.beginPath();g.moveTo(0,y(0));g.lineTo(W,y(0));g.stroke();g.setLineDash([]);
+ g.save();g.beginPath();g.rect(0,0,W*p+2,o.h);g.clip();
+ [[B,'#a855f7'],[A,'#10b981']].forEach(z=>{g.beginPath();z[0].forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.strokeStyle=z[1];g.lineWidth=1.8;g.lineJoin='round';g.stroke()});g.restore();
  const a=A[A.length-1],b=B[B.length-1],dv=a-b,sg=v=>(v>=0?'+':'−')+Math.abs(v).toFixed(2)+'%',cc=v=>v>=0?'g2':'r2';
- sum.innerHTML='Anda <b class="'+cc(a)+'">'+sg(a)+'</b> · IHSG <b class="'+cc(b)+'">'+sg(b)+'</b> · <b class="'+cc(dv)+'">'+(dv>=0?'Mengungguli pasar ':'Tertinggal dari pasar ')+Math.abs(dv).toFixed(2)+' poin persen</b>';
- nt.textContent='L/R Anda = laba/rugi terealisasi kumulatif dibagi '+(dep>0?'total setoran (Rp '+n0(dep)+')':'modal transaksi terbesar (belum ada setoran tercatat)')+'. IHSG = indeks ^JKSE, harga penutupan harian, dimulai dari tanggal transaksi pertama ('+first+').'}
+ sum.innerHTML='<div class="bm-chips"><div class="bm-chip" style="--c:#10b981"><span>Portofolio</span><b class="'+cc(a)+'">'+sg(a)+'</b></div><div class="bm-chip" style="--c:#a855f7"><span>IHSG</span><b class="'+cc(b)+'">'+sg(b)+'</b></div></div>';
+ nt.textContent=(dv>=0?'Mengungguli pasar ':'Tertinggal dari pasar ')+Math.abs(dv).toFixed(2)+' poin persen. Return portofolio = L/R terealisasi kumulatif dibagi '+(dep>0?'total setoran (Rp '+n0(dep)+')':'modal transaksi terbesar')+'; IHSG = indeks ^JKSE (penutupan harian). Periode dimulai paling awal dari transaksi pertama ('+first+').'}
+
+/* --- Alokasi portofolio --- */
+const ALC=['#10b981','#34d3b4','#f59e0b','#a855f7','#3b82f6','#ef4444','#ec4899','#84cc16'];
+function alData(){const m={};(TD.open||[]).forEach(r=>{const o=m[r.kode]=m[r.kode]||{k:r.kode,lot:0,cost:0};o.lot+=+r.lot;o.cost+=+r.lot*100*(+r.hb)});
+ const px=(typeof DATA!=='undefined'&&DATA.prices)||{};
+ const L=Object.keys(m).map(k=>{const o=m[k],q=px[k];o.v=q>0?o.lot*100*q:o.cost;return o}).sort((a,b)=>b.v-a.v);
+ const s=tCalc(),inv=L.reduce((t,o)=>t+o.cost,0),cash=Math.max(0,s.saldo-inv);
+ if(cash>0&&s.dep>0)L.push({k:'Kas',v:cash,cash:1});
+ return L}
+function dAl(p){const o=kcv('c_al'),g=o.g,L=alData(),tot=L.reduce((t,x)=>t+x.v,0),st=L.filter(x=>!x.cash),sv=st.reduce((t,x)=>t+x.v,0),cx=o.w/2,cy=o.h/2,R=Math.min(cx,cy)-14;
+ g.lineWidth=16;g.lineCap='butt';
+ if(!tot){g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke()}
+ else{let a=-Math.PI/2;const gap=L.length>1?.04:0;L.forEach((x,i)=>{const sw=x.v/tot*Math.PI*2*p;g.strokeStyle=x.cash?'#64748b':ALC[i%ALC.length];g.beginPath();g.arc(cx,cy,R,a+gap/2,Math.max(a+gap/2,a+sw-gap/2));g.stroke();a+=sw})}
+ g.textAlign='center';g.fillStyle=DK()?'#e8edf7':'#0f172a';g.font='bold 18px system-ui';g.fillText(st.length?'Rp '+n0(sv):'–',cx,cy+2);
+ g.font='12px system-ui';g.fillStyle=DK()?'#8b9ab5':'#64748b';g.fillText(st.length?st.length+' Saham':'Belum ada posisi',cx,cy+22)}
+function alList(){const L=alData(),tot=L.reduce((t,x)=>t+x.v,0),el=$('d_allist');if(!el)return;
+ el.innerHTML=L.length?L.map((x,i)=>{const pc=tot?x.v/tot*100:0,c=x.cash?'#64748b':ALC[i%ALC.length];return '<div class="al-i"><div class="al-h"><span class="al-d" style="background:'+c+'"></span><b>'+esc(x.k)+'</b><span class="al-v">Rp '+n0(x.v)+'</span><em>'+pc.toFixed(2)+'%</em></div><div class="al-bar"><i style="width:'+pc.toFixed(2)+'%;background:'+c+'"></i></div></div>'}).join('')+'<div class="cc-n">Nilai saham memakai harga terakhir bila tersedia, jika tidak memakai harga beli. Kas = setoran − penarikan + L/R terealisasi − modal yang sedang tertanam.</div>':'<div style="color:#64748b">Belum ada posisi aktif atau saldo.</div>'}
 
 /* --- Trade Log: tab OPEN vs selesai --- */
 function dkOf_(w){const s=String(w||''),m=s.match(/^(\d{2})-(\d{2})-(\d{4})/);return m?m[3]+'-'+m[2]+'-'+m[1]:((s.match(/^\d{4}-\d{2}-\d{2}/)||[''])[0])}
