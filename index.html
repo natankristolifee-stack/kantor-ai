@@ -375,6 +375,7 @@ body.dark .cc-t th,body.dark .cc-t td{border-bottom-color:#22304a}
 </div>
 <div id="pg-dash" class="pg"><div class="pw"><h2>Dashboard Trading</h2><div class="sub">Saldo = setoran − penarikan + laba/rugi terealisasi (dari Catat Penjualan).</div>
 <div class="fl"><button onclick="loadTrade()">⟳ Muat ulang</button><button class="sec" onclick="openAkun()">💳 Setor / Tarik</button></div>
+<div class="fl" style="align-items:center"><select id="d_per" onchange="dPer(this.value)"><option value="ALL">Semua waktu</option><option value="MTD">Bulan ini</option><option value="1M">1 bulan terakhir</option><option value="3M">3 bulan terakhir</option><option value="YTD">Tahun ini (YTD)</option><option value="1Y">1 tahun terakhir</option><option value="3Y">3 tahun terakhir</option><option value="CUS">Kustom (pilih tanggal)</option></select><input type="date" id="d_c1" style="display:none" title="Dari tanggal" onchange="DC1=this.value;tDash()"><input type="date" id="d_c2" style="display:none" title="Sampai tanggal" onchange="DC2=this.value;tDash()"><span id="d_pertxt" style="font-size:12px;color:#64748b"></span></div>
 <div class="kg" id="d_cards"></div>
 <div class="rw a"><div class="bx"><h4>Saldo akun (kumulatif)</h4><canvas id="c_eq"></canvas></div><div class="bx"><h4>Win rate</h4><canvas id="c_wr"></canvas></div></div>
 <div class="rw b"><div class="bx"><h4>Statistik</h4><div id="d_st"></div></div><div class="bx"><h4>Laba/rugi 10 transaksi terakhir</h4><canvas id="c_bar"></canvas></div></div>
@@ -1105,22 +1106,41 @@ const DK=()=>document.body.classList.contains('dark');
 
 /* --- Equity, Max Drawdown --- */
 function eqEvents(){const E=[];TD.akun.forEach(a=>E.push({d:a.tgl,t:'00:00',v:a.jenis==='Withdraw'?-a.jml:a.jml,f:1}));TD.sales.forEach(s=>E.push({d:s.tgl,t:s.waktu,v:s.pl,f:0}));E.sort((a,b)=>(a.d+a.t).localeCompare(b.d+b.t));return E}
-function eqPts(){let c=0;return eqEvents().map(e=>{c+=e.v;return{d:e.d,v:c}})}
+function eqPts(){const R=dRange();let c=0,c0=0;const P=[];eqEvents().forEach(e=>{if(R.b&&e.d>R.b)return;c+=e.v;if(R.a&&e.d<R.a){c0=c;return}P.push({d:e.d,v:c})});if(R.a&&P.length)P.unshift({d:R.a,v:c0});return P}
 /* Max Drawdown: penurunan terdalam dari puncak saldo. Setoran/penarikan ikut menggeser puncak agar tidak dihitung sebagai untung/rugi. */
-function mddCalc(){let eq=0,pk=0,mdd=0,mddRp=0,have=false;
- eqEvents().forEach(e=>{eq+=e.v;if(e.f){pk+=e.v;if(pk<eq)pk=eq}else if(eq>pk)pk=eq;
+/* ===== Filter periode Dashboard (seperti Stockbit) ===== */
+let DP='ALL',DC1='',DC2='';
+const DPL={ALL:'Semua waktu',MTD:'Bulan ini','1M':'1 bulan terakhir','3M':'3 bulan terakhir',YTD:'Tahun ini','1Y':'1 tahun terakhir','3Y':'3 tahun terakhir',CUS:'Kustom'};
+function dRange(){const td=jk().date;let a='',b='';
+ if(DP==='MTD')a=td.slice(0,8)+'01';
+ else if(DP==='YTD')a=td.slice(0,4)+'-01-01';
+ else if(DP==='CUS'){a=DC1;b=DC2}
+ else if(DP!=='ALL'){const n={'1M':30,'3M':90,'1Y':365,'3Y':1095}[DP];a=new Date(new Date(td+'T00:00:00Z').getTime()-n*864e5).toISOString().slice(0,10)}
+ return{a:a,b:b}}
+function dIn(d){const R=dRange(),x=String(d||'');return(!R.a||x>=R.a)&&(!R.b||x<=R.b)}
+function dSales(){return TD.sales.filter(s=>dIn(s.tgl))}
+function dAkun(){return TD.akun.filter(a=>dIn(a.tgl))}
+function dPer(v){DP=v;const c=v==='CUS';$('d_c1').style.display=c?'':'none';$('d_c2').style.display=c?'':'none';tDash()}
+function dLbl(){const e=$('d_pertxt');if(!e)return;const R=dRange();e.textContent=DP==='ALL'?'Menampilkan seluruh data sejak awal':'Periode '+(R.a||'awal')+' s/d '+(R.b||'sekarang')+' · '+dSales().length+' transaksi'}
+/* Max Drawdown: penurunan terdalam dari puncak saldo. Dihitung mulai setoran pertama dan, bila ada periode, mulai awal periode. */
+function mddCalc(a,b){let eq=0,pk=0,mdd=0,mddRp=0,on=false,have=false;
+ eqEvents().forEach(e=>{if(b&&e.d>b)return;eq+=e.v;
+  if(!on){if(e.f&&e.v>0){on=true;pk=eq}return}
+  if(a&&e.d<a){pk=eq;return}
+  if(e.f){pk+=e.v;if(pk<eq)pk=eq}else if(eq>pk)pk=eq;
   if(pk>0){have=true;const dd=pk-eq,p=dd/pk*100;if(p>mdd)mdd=p;if(dd>mddRp)mddRp=dd}});
  return{pct:mdd,rp:mddRp,ok:have}}
-function tCalc(){const S=TD.sales,W=S.filter(s=>s.pl>0),Ls=S.filter(s=>s.pl<0),sm=a=>a.reduce((t,s)=>t+s.pl,0),gp=sm(W),gl=-sm(Ls),real=sm(S),pls=S.map(s=>s.pl),
- dep=TD.akun.filter(a=>a.jenis!=='Withdraw').reduce((t,a)=>t+a.jml,0),wd=TD.akun.filter(a=>a.jenis==='Withdraw').reduce((t,a)=>t+a.jml,0);
+function tCalc(full){const R=full?{a:'',b:''}:dRange(),S=full?TD.sales:dSales(),A=full?TD.akun:dAkun(),W=S.filter(s=>s.pl>0),Ls=S.filter(s=>s.pl<0),sm=a=>a.reduce((t,s)=>t+s.pl,0),gp=sm(W),gl=-sm(Ls),real=sm(S),pls=S.map(s=>s.pl),
+ dep=A.filter(a=>a.jenis!=='Withdraw').reduce((t,a)=>t+a.jml,0),wd=A.filter(a=>a.jenis==='Withdraw').reduce((t,a)=>t+a.jml,0),
+ dA=TD.akun.filter(a=>a.jenis!=='Withdraw').reduce((t,a)=>t+a.jml,0),wA=TD.akun.filter(a=>a.jenis==='Withdraw').reduce((t,a)=>t+a.jml,0),rA=TD.sales.reduce((t,s)=>t+s.pl,0);
  return{n:S.length,w:W.length,l:Ls.length,wr:S.length?W.length/S.length*100:0,gp:gp,gl:gl,pf:gl?gp/gl:(gp?Infinity:0),exp:S.length?real/S.length:0,aw:W.length?gp/W.length:0,al:Ls.length?-gl/Ls.length:0,
-  bw:pls.length?Math.max(0,...pls):0,bl:pls.length?Math.min(0,...pls):0,real:real,dep:dep,wd:wd,saldo:dep-wd+real,open:TD.open.length,mdd:mddCalc()}}
+  bw:pls.length?Math.max(0,...pls):0,bl:pls.length?Math.min(0,...pls):0,real:real,dep:dep,wd:wd,saldo:dA-wA+rA,open:TD.open.length,mdd:mddCalc(R.a,R.b)}}
 const kcmp=v=>{const a=Math.abs(v),s=v<0?'-':'';return s+(a>=1e6?(a/1e6).toFixed(1)+'jt':a>=1e3?Math.round(a/1e3)+'rb':Math.round(a))};
 function kcv(id){const c=$(id),r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=Math.max(10,r.width*d);c.height=Math.max(10,r.height*d);const g=c.getContext('2d');g.scale(d,d);return{g:g,w:r.width,h:r.height}}
 function kanim(f){const t0=performance.now();(function s(t){const p=Math.min(1,(t-t0)/700);f(1-Math.pow(1-p,3));if(p<1)requestAnimationFrame(s)})(t0)}
-function tDash(){const s=tCalc(),c=x=>x>=0?'g2':'r2',md=s.mdd;
- $('d_cards').innerHTML=[['Laba / Rugi (terealisasi)',rpf(s.real),c(s.real)],['Saldo akun','Rp '+n0(s.saldo),''],['Faktor laba',isFinite(s.pf)?s.pf.toFixed(2):'∞',s.pf>=1?'g2':'r2'],['Max Drawdown',md.ok?(md.pct>0?'−':'')+md.pct.toFixed(2)+'%':'–',md.ok&&md.pct>0?'r2':'',md.ok?'Penurunan modal terdalam: Rp '+n0(md.rp):'Catat setoran dana dulu'],['Ekspektasi / transaksi',rpf(s.exp),c(s.exp)]].map((x,i)=>'<div class="kc" style="animation-delay:'+i*80+'ms"><small>'+x[0]+'</small><b class="'+x[2]+'">'+x[1]+'</b>'+(x[3]?'<em>'+x[3]+'</em>':'')+'</div>').join('');
- const L=[['Jumlah transaksi',s.n],['Menang / Kalah',s.w+' / '+s.l],['Sedang berjalan (posisi)',s.open],['Total setoran','Rp '+n0(s.dep)],['Total penarikan','Rp '+n0(s.wd)],['Rata-rata menang',rpf(s.aw)],['Rata-rata kalah',rpf(s.al)],['Menang terbesar',rpf(s.bw)],['Kalah terbesar',rpf(s.bl)]];
+function tDash(){dLbl();const s=tCalc(),c=x=>x>=0?'g2':'r2',md=s.mdd;
+ $('d_cards').innerHTML=[['Laba / Rugi (terealisasi)',rpf(s.real),c(s.real)],['Saldo akun (saat ini)','Rp '+n0(s.saldo),''],['Faktor laba',isFinite(s.pf)?s.pf.toFixed(2):'∞',s.pf>=1?'g2':'r2'],['Max Drawdown',md.ok?(md.pct>0?'−':'')+md.pct.toFixed(2)+'%':'–',md.ok&&md.pct>0?'r2':'',md.ok?'Penurunan modal terdalam: Rp '+n0(md.rp):'Catat setoran dana dulu'],['Ekspektasi / transaksi',rpf(s.exp),c(s.exp)]].map((x,i)=>'<div class="kc" style="animation-delay:'+i*80+'ms"><small>'+x[0]+'</small><b class="'+x[2]+'">'+x[1]+'</b>'+(x[3]?'<em>'+x[3]+'</em>':'')+'</div>').join('');
+ const L=[['Jumlah transaksi',s.n],['Menang / Kalah',s.w+' / '+s.l],['Sedang berjalan (posisi)',s.open],['Setoran pada periode','Rp '+n0(s.dep)],['Penarikan pada periode','Rp '+n0(s.wd)],['Rata-rata menang',rpf(s.aw)],['Rata-rata kalah',rpf(s.al)],['Menang terbesar',rpf(s.bw)],['Kalah terbesar',rpf(s.bl)]];
  $('d_st').innerHTML=L.map(x=>'<div class="sl"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>').join('');
  tCal();alList();trRender();kanim(p=>{dEq(p);dWr(p);dBar(p);dAl(p);dTr(p)});dBm(1);loadIhsg(()=>{if(KPG==='dash')kanim(dBm)})}
 function dEq(p){const o=kcv('c_eq'),g=o.g,P=eqPts();g.font='12px system-ui';
@@ -1136,7 +1156,7 @@ function dWr(p){const o=kcv('c_wr'),s=tCalc(),g=o.g,cx=o.w/2,cy=o.h/2,R=Math.min
  if(!tot){g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke()}
  else{let a=-Math.PI/2;[[s.w,'#22c55e'],[s.l,'#f87171']].forEach(q=>{const sw=q[0]/tot*Math.PI*2*p;g.strokeStyle=q[1];g.beginPath();g.arc(cx,cy,R,a,a+sw);g.stroke();a+=sw})}
  g.textAlign='center';g.fillStyle=DK()?'#e8edf7':'#0f172a';g.font='bold 26px system-ui';g.fillText(s.wr.toFixed(1)+'%',cx,cy+6);g.font='11px system-ui';g.fillStyle=DK()?'#8b9ab5':'#64748b';g.fillText(s.w+' menang · '+s.l+' kalah',cx,cy+26)}
-function dBar(p){const o=kcv('c_bar'),g=o.g,S=TD.sales.slice(-10);g.font='11px system-ui';
+function dBar(p){const o=kcv('c_bar'),g=o.g,S=dSales().slice(-10);g.font='11px system-ui';
  if(!S.length){g.fillStyle='#94a3b8';g.fillText('Belum ada penjualan tercatat.',12,30);return}
  const m=Math.max(...S.map(s=>Math.abs(s.pl)))||1,z=o.h/2,bw=(o.w-16)/S.length;
  g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.moveTo(0,z);g.lineTo(o.w,z);g.stroke();
@@ -1190,7 +1210,7 @@ const ALC=['#10b981','#34d3b4','#f59e0b','#a855f7','#3b82f6','#ef4444','#ec4899'
 function alData(){const m={};(TD.open||[]).forEach(r=>{const o=m[r.kode]=m[r.kode]||{k:r.kode,lot:0,cost:0};o.lot+=+r.lot;o.cost+=+r.lot*100*(+r.hb)});
  const px=(typeof DATA!=='undefined'&&DATA.prices)||{};
  const L=Object.keys(m).map(k=>{const o=m[k],q=px[k];o.v=q>0?o.lot*100*q:o.cost;return o}).sort((a,b)=>b.v-a.v);
- const s=tCalc(),inv=L.reduce((t,o)=>t+o.cost,0),cash=Math.max(0,s.saldo-inv);
+ const s=tCalc(true),inv=L.reduce((t,o)=>t+o.cost,0),cash=Math.max(0,s.saldo-inv);
  if(cash>0&&s.dep>0)L.push({k:'Kas',v:cash,cash:1});
  return L}
 function dAl(p){const o=kcv('c_al'),g=o.g,L=alData(),tot=L.reduce((t,x)=>t+x.v,0),st=L.filter(x=>!x.cash),sv=st.reduce((t,x)=>t+x.v,0),cx=o.w/2,cy=o.h/2,R=Math.min(cx,cy)-14;
