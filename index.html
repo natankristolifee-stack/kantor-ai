@@ -514,7 +514,7 @@ function meetMode(){return !!MT&&(MT.st==='kumpul'||MT.st==='diskusi')}
 /* ============ ADEGAN 3D: kantor isometrik multi-ruang ============ */
 const WH=9.5;
 const gl=$('gl'),ren=new THREE.WebGLRenderer({canvas:gl,antialias:true});
-ren.setPixelRatio(Math.min(devicePixelRatio||1,2));ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.1;
+ren.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<860?1.5:2));ren.shadowMap.enabled=true;ren.shadowMap.autoUpdate=false;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.1;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0xbbf7d0);scene.fog=new THREE.FogExp2(0xbbf7d0,.0045);
 const cam=new THREE.PerspectiveCamera(30,1,1,600);
 scene.add(new THREE.HemisphereLight(0xffffff,0x86efac,.9));const dl=new THREE.DirectionalLight(0xfffbeb,1.25);dl.position.set(24,46,22);dl.castShadow=true;const SMS=(innerWidth<860)?1024:2048;dl.shadow.mapSize.set(SMS,SMS);dl.shadow.camera.near=5;dl.shadow.camera.far=130;const SD=34;dl.shadow.camera.left=-SD;dl.shadow.camera.right=SD;dl.shadow.camera.top=SD;dl.shadow.camera.bottom=-SD;dl.shadow.bias=-.0005;scene.add(dl);
@@ -524,7 +524,7 @@ function bxm(w,h,d,mat,x,y,z,p){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h
 function cym(rt,rb,h,mat,x,y,z,seg){const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||14),mat);m.position.set(x,y,z);SHD(m);scene.add(m);return m}
 function bx(w,h,d,c,x,y,z,p){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M(c));m.position.set(x,y,z);SHD(m);(p||scene).add(m);return m}
 function cyl(r,h,c,x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,18),M(c));m.position.set(x,y,z);SHD(m);scene.add(m);return m}
-function ball(r,c,x,y,z){const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),M(c));m.position.set(x,y,z);m.castShadow=true;scene.add(m)}
+function ball(r,c,x,y,z){const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),M(c));m.position.set(x,y,z);scene.add(m)}
 function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 function wl(x0,z0,x1,z1,h,c){const t=.3,w=Math.max(Math.abs(x1-x0),t),d=Math.max(Math.abs(z1-z0),t);return bx(w,h,d,c,(x0+x1)/2,h/2,(z0+z1)/2)}
 function gw(x0,z0,x1,z1,h){const w=Math.max(Math.abs(x1-x0),.08),d=Math.max(Math.abs(z1-z0),.08),cx=(x0+x1)/2,cz=(z0+z1)/2;const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:0x38bdf8,transparent:true,opacity:.28,roughness:.05,metalness:.1,depthWrite:false}));m.position.set(cx,h/2,cz);scene.add(m);bx(Math.max(w,.14),.14,Math.max(d,.14),0x3b5169,cx,h,cz)}
@@ -628,8 +628,8 @@ const STY={
  resep:{top:0xe6d3b3,inner:0xf8fafc,hair:0x3a2417,skin:0xf4d2b0,style:'long',kind:'jaket',headset:true,lanyard:true,pants:0x4b3b2e},
  dir:{top:0x1c2a4a,inner:0xf8fafc,hair:0x2a1a12,skin:0xf1c9a5,style:'short',kind:'jaket',tie:0x1d5fd1}
 };
-function esf(r,c,x,y,z,sx,sy,sz,p){const m=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),M(c));m.position.set(x,y,z);m.scale.set(sx||1,sy||1,sz||1);m.castShadow=true;(p||scene).add(m);return m}
-function sil(rt,rb,h,c,x,y,z,p){const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,14),M(c));m.position.set(x,y,z);m.castShadow=true;(p||scene).add(m);return m}
+function esf(r,c,x,y,z,sx,sy,sz,p){const m=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),M(c));m.position.set(x,y,z);m.scale.set(sx||1,sy||1,sz||1);(p||scene).add(m);return m}
+function sil(rt,rb,h,c,x,y,z,p){const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,14),M(c));m.position.set(x,y,z);(p||scene).add(m);return m}
 function buildChar(a,lab){
  const S=STY[a.style||a.k]||{},C=S.top!=null?S.top:a.c,SK=S.skin!=null?S.skin:a.skin,HR=S.hair!=null?S.hair:a.hair,PT=S.pants!=null?S.pants:0x1e293b,IN=S.inner!=null?S.inner:C,SH=0x1a1a1f;
  const g=a.g=new THREE.Group();scene.add(g);
@@ -1073,7 +1073,7 @@ function refreshState(){const w=wmode(),mt=meetMode(),jj=jk();if(jj.wd>=1&&jj.wd
  const S=sched();AG.forEach(a=>{a.busy=!!(RUN?RUN.set.has(a.k):S.has(a.k))||(a.k==='ask'&&ASKING)});
  const c=$('clk');if(c)c.textContent=clockText();
  const sig=AG.map(a=>(a.busy?1:0)+''+(a.done?1:0)+a.at+(SEL===a?1:0)).join('|')+DATA.updated+DATA.log.length;if(sig!==sideSig){sideSig=sig;renderSide();renderChips()}}
-function loop(t){requestAnimationFrame(loop);const s=t/1000,dt=Math.min(.05,s-(loop.p||s));loop.p=s;
+function loop(t){requestAnimationFrame(loop);if(loop.n===undefined)loop.n=0;if(++loop.n===3)ren.shadowMap.needsUpdate=true;const s=t/1000,dt=Math.min(.05,s-(loop.p||s));loop.p=s;
  if(s-tSec>1){tSec=s;refreshState()}
  meetTick(s);AG.forEach(a=>stepAgent(a,dt,s));notes(s);NPC.forEach((a,i)=>{a.head.rotation.y=Math.sin(s*.7+i*2)*.25});
  if(GOAL){let d=0;for(const k in GOAL){T[k]+=(GOAL[k]-T[k])*.07;d+=Math.abs(GOAL[k]-T[k])}if(d<.02)GOAL=null}
