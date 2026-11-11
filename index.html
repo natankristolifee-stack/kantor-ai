@@ -1166,7 +1166,7 @@ function doLogin(){const u=$('lg_u').value.trim(),p=$('lg_p').value;if(!u||!p){l
  const bad=e=>{done();lgMsg('Gagal menghubungi server: '+((e&&e.message)||e))};
  if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(bad).loginWeb(u,p);else setTimeout(()=>ok({ok:true,nama:u}),600)}
 function enterApp(n){$('u_n').textContent=n;$('u_av').textContent=n.slice(0,2).toUpperCase();$('tb_d').textContent=clockText();$('app').classList.add('on');$('login').classList.add('out');setTimeout(()=>{$('login').style.display='none'},500);if(innerWidth<860)document.body.classList.add('sbc');showPg('kantor')}
-function doLogout(){try{sessionStorage.removeItem('kai_in');sessionStorage.removeItem('kai_tok')}catch(e){}$('app').classList.remove('on');const l=$('login');l.style.display='grid';void l.offsetWidth;l.classList.remove('out');$('lg_p').value='';$('lg_p').focus()}
+function doLogout(){try{sessionStorage.removeItem('kai_in');sessionStorage.removeItem('kai_tok')}catch(e){}$('app').classList.remove('on');const l=$('login');l.style.display='flex';void l.offsetWidth;l.classList.remove('out');$('lg_p').value='';$('lg_p').focus()}
 
 /* --- Data trading --- */
 function demoTrade(){const td=jk().date;return{demo:1,sales:[{tgl:td,waktu:'09:41',sesi:1,kode:'KJEN',lot:4,hb:126,hj:139,fee:215,pl:4985,pct:9.89,ket:'Mencapai Target 1'},{tgl:td,waktu:'10:05',sesi:1,kode:'HMSP',lot:5,hb:640,hj:668,fee:1300,pl:12700,pct:3.97,ket:''},{tgl:td,waktu:'11:20',sesi:1,kode:'ACES',lot:3,hb:365,hj:352,fee:430,pl:-4330,pct:-3.95,ket:'Di bawah Stop Loss'}],open:[{waktu:'-',kode:'SSMS',tipe:'BTST',hb:985,lot:2,t1:1055,sl:935}],akun:[{tgl:td,jenis:'Deposit',jml:3000000,cat:'Modal awal'}]}}
