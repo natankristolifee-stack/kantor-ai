@@ -109,33 +109,74 @@ body.hideui #topbar,body.hideui #tools,body.hideui #rl,body.hideui #roomtabs,bod
 #brand{display:none}
 #pg-kantor{color:#e8edf7}
 #pg-kantor.on{display:grid}
-/* ===== LOGIN ===== */
-#login{position:fixed;inset:0;z-index:50;display:grid;grid-template-columns:1.05fr 1fr;background:#fff;color:#0f172a;transition:opacity .45s,transform .45s}
+/* ===== LOGIN (desain baru: portal + visual pasar modal) ===== */
+#login{position:fixed;inset:0;z-index:50;display:flex;background:#fff;color:#0f172a;transition:opacity .45s,transform .45s;--pr:#1e3a8a;--prh:#1e40af;--mut:#64748b;--up:#10b981;--dn:#ef4444}
 #login.out{opacity:0;transform:scale(1.03);pointer-events:none}
-.lg-l{position:relative;overflow:hidden;background:linear-gradient(160deg,#0a1a33,#0d3a52 60%,#0f766e);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:48px}
-.lg-l:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff0d 1px,transparent 1px),linear-gradient(90deg,#ffffff0d 1px,transparent 1px);background-size:38px 38px;animation:gridmv 14s linear infinite}
-@keyframes gridmv{to{background-position:38px 38px}}
-.lg-l>*{position:relative}
-.lg-logo{font-size:30px;font-weight:800;letter-spacing:.06em}.lg-logo span{color:#34d399}
-.lg-l h2{font-size:26px;line-height:1.35;margin:18px 0 0;max-width:340px}
-.bars{display:flex;gap:7px;align-items:flex-end;height:100px;margin-top:34px}
-.bars i{width:16px;border-radius:4px 4px 0 0;background:linear-gradient(#34d399,#0f766e);transform-origin:bottom;animation:bar 2.4s ease-in-out infinite}
-@keyframes bar{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
-.lg-r{display:grid;place-items:center;padding:24px}
-.lg-c{width:min(380px,100%);animation:up .6s both}
-@keyframes up{from{opacity:0;transform:translateY(18px)}}
-.lg-c h3{margin:0;font-size:24px}.lg-c p{color:#64748b;margin:4px 0 8px}
-.lg-c label{display:block;margin:14px 0 5px;font-size:12px;color:#475569;font-weight:600}
-.lg-c input[type=text],.lg-c input[type=password]{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;font:inherit;transition:border .2s,box-shadow .2s}
-.lg-c input:focus{outline:0;border-color:#10b981;box-shadow:0 0 0 3px #10b98133}
-.pw2{position:relative}.pw2 button{position:absolute;right:6px;top:5px;border:0;background:none;cursor:pointer;font-size:16px}
-.rm{display:flex!important;gap:7px;align-items:center;font-weight:500!important}
-#lg_m{color:#dc2626;font-size:12px;min-height:18px;margin-top:8px}
-.lg-b{width:100%;margin-top:6px;border:0;border-radius:10px;padding:12px;background:#0b1426;color:#fff;font:inherit;font-weight:700;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:transform .15s,background .2s}
-.lg-b:hover{background:#10b981;transform:translateY(-1px)}.lg-b:disabled{opacity:.7;cursor:wait}
-.lg-b.ld:after{content:"";width:14px;height:14px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px}
+#login *{box-sizing:border-box}
+.lx-l{width:55%;position:relative;background:#f8fafc;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.lx-grid{position:absolute;inset:0;background-image:linear-gradient(#cbd5e1 1px,transparent 1px),linear-gradient(90deg,#cbd5e1 1px,transparent 1px);background-size:40px 40px;opacity:.25;z-index:1}
+.lx-bgc{position:absolute;bottom:0;left:0;width:100%;height:60%;z-index:2;opacity:.6;pointer-events:none}
+.lx-tk{position:absolute;left:0;width:100%;overflow:hidden;white-space:nowrap;z-index:3;background:rgba(255,255,255,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.8);border-bottom:1px solid rgba(255,255,255,.8);padding:12px 0;box-shadow:0 4px 15px rgba(0,0,0,.02)}
+.lx-tk.top{top:40px}.lx-tk.bot{bottom:40px}
+.lx-tl{display:inline-block;animation:lxl 35s linear infinite}
+.lx-tr{display:inline-block;animation:lxr 35s linear infinite}
+.lx-ti{display:inline-flex;align-items:center;gap:8px;margin:0 28px;font-size:13px;font-weight:700;color:#0f172a}
+.lx-ti span{font-weight:600}
+.lx-up{color:var(--up)}.lx-dn{color:var(--dn)}
+@keyframes lxl{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes lxr{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
+.lx-orn{position:absolute;z-index:4;font-size:11px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,.8);padding:6px 12px;border-radius:6px;border:1px solid #e2e8f0}
+.lx-orn.tl{top:110px;left:40px}.lx-orn.br{bottom:110px;right:40px}
+.lx-cs{position:relative;width:100%;height:100%;max-width:700px;z-index:10}
+.lx-gc{position:absolute;background:rgba(255,255,255,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:16px;padding:24px;box-shadow:0 20px 40px -10px rgba(15,23,42,.08)}
+.lx-c1{top:22%;left:5%;width:320px;animation:lxf 7s ease-in-out infinite}
+.lx-c2{top:15%;right:5%;width:260px;animation:lxf 6s ease-in-out infinite 1s;text-align:center}
+.lx-c3{bottom:20%;left:20%;width:360px;animation:lxf 8s ease-in-out infinite 2s}
+@keyframes lxf{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.lx-ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.lx-ct{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.lx-cv{font-size:26px;font-weight:800;margin-top:4px;letter-spacing:-.5px}
+.lx-cb{background:#dcfce7;color:var(--up);padding:4px 8px;border-radius:6px;font-size:12px;font-weight:700}
+.lx-ca{display:flex;align-items:flex-end;justify-content:space-between;height:100px;gap:8px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-top:8px}
+.lx-cd{position:relative;width:14px;display:flex;justify-content:center;align-items:center}
+.lx-wk{position:absolute;width:2px;border-radius:1px;z-index:1}
+.lx-bd{position:relative;width:10px;border-radius:2px;z-index:2}
+.lx-cd.u .lx-wk,.lx-cd.u .lx-bd{background:var(--up)}
+.lx-cd.d .lx-wk,.lx-cd.d .lx-bd{background:var(--dn)}
+.lx-gg{position:relative;width:160px;height:80px;margin:16px auto 0;overflow:hidden}
+.lx-gs{width:100%;height:200%}
+.lx-gt{position:absolute;bottom:0;left:0;width:100%;text-align:center;font-size:24px;font-weight:800;color:var(--pr)}
+.lx-lr{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e2e8f0}
+.lx-lr:last-child{border-bottom:0;padding-bottom:0}
+.lx-lc{font-weight:700;font-size:15px}
+.lx-lp{font-size:14px;font-weight:600;color:var(--mut)}
+.lx-sp{width:60px;height:24px}
+.lx-r{width:45%;background:#fff;display:flex;flex-direction:column;padding:24px 10%;box-shadow:-20px 0 50px rgba(15,23,42,.03);z-index:20;overflow:auto}
+.lx-in{margin:auto 0;width:100%}
+.lx-br{display:flex;align-items:center;gap:12px;margin-bottom:44px}
+.lx-br b{font-size:20px;font-weight:800;color:var(--pr);letter-spacing:-.5px}
+.lx-bg{background:#f1f5f9;color:var(--mut);font-size:11px;font-weight:700;padding:4px 8px;border-radius:4px;border:1px solid #e2e8f0}
+.lx-in h1{font-size:30px;font-weight:800;margin:0 0 12px;letter-spacing:-.5px;line-height:1.2}
+.lx-in p{color:var(--mut);font-size:15px;margin:0 0 36px;line-height:1.5}
+.lx-ig{margin-bottom:22px;position:relative}
+.lx-ig label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.lx-ig input[type=text],.lx-ig input[type=password]{width:100%;padding:12px 34px 12px 0;border:0;border-bottom:2px solid #e2e8f0;font:inherit;font-size:16px;font-weight:500;color:#0f172a;background:transparent;transition:border .2s;outline:0;border-radius:0}
+.lx-ig input:focus{border-bottom-color:var(--pr)}
+.lx-eye{position:absolute;right:0;bottom:10px;border:0;background:none;cursor:pointer;font-size:17px}
+.lx-op{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:13.5px;gap:10px}
+.lx-op label{display:flex;align-items:center;gap:8px;color:var(--mut);cursor:pointer;font-weight:500}
+.lx-op input{width:16px;height:16px;accent-color:var(--pr);cursor:pointer}
+.lx-op a{color:var(--pr);text-decoration:none;font-weight:600}
+.lx-op a:hover{text-decoration:underline}
+#lg_m{color:#dc2626;font-size:13px;min-height:18px;margin-bottom:12px;line-height:1.4}
+.lx-btn{width:100%;padding:17px;background:var(--pr);color:#fff;border:0;border-radius:12px;font:inherit;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;justify-content:center;align-items:center}
+.lx-btn:hover{background:var(--prh);transform:translateY(-2px);box-shadow:0 10px 25px -8px rgba(30,58,138,.5)}
+.lx-btn:disabled{opacity:.75;cursor:wait;transform:none}
+.lx-btn.ld:after{content:"";width:14px;height:14px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:10px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.lg-c small{display:block;margin-top:16px;color:#94a3b8;font-size:11.5px;line-height:1.5}
+.lx-ft{margin-top:48px;font-size:12px;color:#94a3b8;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media(max-width:1024px){.lx-l{width:50%}.lx-r{width:50%}.lx-c3{left:10%;width:320px}}
+@media(max-width:860px){#login{flex-direction:column}.lx-l{display:none}.lx-r{width:100%;padding:36px 24px;box-shadow:none}}
 /* ===== KERANGKA APLIKASI ===== */
 #app{display:none;height:100%;background:#f1f5f9;color:#0f172a}
 #app.on{display:flex;animation:fadein .5s}
@@ -201,7 +242,6 @@ body.sbc #sb{margin-left:-248px}
 @media(max-width:860px){
 #sb{position:fixed;left:0;top:0;bottom:0;box-shadow:8px 0 30px #0006}
 body.sbc #sb{margin-left:0;transform:translateX(-100%)}body.sbc #sb{box-shadow:none}
-#login{grid-template-columns:1fr}.lg-l{display:none}
 #tb small,.lv{display:none}.rw.a,.rw.b{grid-template-columns:1fr}}
 
 /* ===== Kantor 3D bersih: chat popup + panel divisi ===== */
@@ -218,10 +258,6 @@ body.pop-chat #fabc{background:#0b1426}
 #sbx{display:none;margin-left:auto;background:#ffffff14;border:0;color:#fff;width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer}
 @media(max-width:860px){#sbx{display:block}}
 /* ===== FITUR: tema gelap, kalender kinerja, filter tanggal, baris berwarna ===== */
-body.dark #login{background:#0b1220;color:#e8edf7}
-body.dark .lg-c h3{color:#fff}
-body.dark .lg-c label{color:#cbd5e1}
-body.dark .lg-c input[type=text],body.dark .lg-c input[type=password]{background:#111a2e;color:#e8edf7;border-color:#22304a}
 body.dark #app{background:#0b1220;color:#e8edf7}
 body.dark #tb{background:#0e1627;border-bottom-color:#22304a}
 body.dark #tb h1{color:#e8edf7}
@@ -336,13 +372,32 @@ body.dark .cc-t th,body.dark .cc-t td{border-bottom-color:#22304a}
 </style>
 </head>
 <body>
-<div id="login"><div class="lg-l"><div class="lg-logo">📊 KANTOR <span>AI</span></div><h2>Investasi lebih cerdas, dengan bantuan AI.</h2><div class="bars" id="lg_bars"></div></div>
-<div class="lg-r"><div class="lg-c"><h3>Selamat Datang</h3><p>Masuk untuk melanjutkan ke Kantor AI Anda.</p>
-<label>Username</label><input type="text" id="lg_u" autocomplete="username" placeholder="Masukkan username" onkeydown="if(event.key==='Enter')$('lg_p').focus()">
-<label>Password</label><div class="pw2"><input type="password" id="lg_p" autocomplete="current-password" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" onclick="lgEye()" title="Tampilkan">👁</button></div>
-<label class="rm"><input type="checkbox" id="lg_r" checked> Ingat username</label><div id="lg_m"></div>
-<button class="lg-b" id="lg_b" onclick="doLogin()">Masuk →</button>
-<small>Belum punya login? Di Google Sheets buka menu Kantor Virtual › Atur Login Web.</small></div></div></div>
+<div id="login">
+<div class="lx-l">
+<div class="lx-grid"></div>
+<svg class="lx-bgc" viewBox="0 0 1000 400" preserveAspectRatio="none"><defs><linearGradient id="lxg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/><stop offset="100%" stop-color="#10b981" stop-opacity="0.01"/></linearGradient></defs><path d="M0,400 L0,250 C100,280 200,150 350,200 C500,250 600,100 750,150 C850,180 950,50 1000,80 L1000,400 Z" fill="url(#lxg)"/><path d="M0,250 C100,280 200,150 350,200 C500,250 600,100 750,150 C850,180 950,50 1000,80" fill="none" stroke="#3b82f6" stroke-width="2" stroke-opacity="0.3"/></svg>
+<div class="lx-orn tl">Tampilan ilustrasi</div>
+<div class="lx-orn br">Bukan data pasar nyata</div>
+<div class="lx-tk top"><div class="lx-tl"><div class="lx-ti">BBCA <span class="lx-up">+0.85%</span></div><div class="lx-ti">BMRI <span class="lx-dn">-0.42%</span></div><div class="lx-ti">AMMN <span class="lx-up">+3.15%</span></div><div class="lx-ti">TLKM <span class="lx-dn">-1.12%</span></div><div class="lx-ti">ASII <span class="lx-up">+1.50%</span></div><div class="lx-ti">BREN <span class="lx-up">+4.20%</span></div><div class="lx-ti">GOTO <span class="lx-dn">-2.10%</span></div><div class="lx-ti">ICBP <span class="lx-up">+0.55%</span></div><div class="lx-ti">BBCA <span class="lx-up">+0.85%</span></div><div class="lx-ti">BMRI <span class="lx-dn">-0.42%</span></div><div class="lx-ti">AMMN <span class="lx-up">+3.15%</span></div><div class="lx-ti">TLKM <span class="lx-dn">-1.12%</span></div><div class="lx-ti">ASII <span class="lx-up">+1.50%</span></div><div class="lx-ti">BREN <span class="lx-up">+4.20%</span></div><div class="lx-ti">GOTO <span class="lx-dn">-2.10%</span></div><div class="lx-ti">ICBP <span class="lx-up">+0.55%</span></div></div></div>
+<div class="lx-tk bot"><div class="lx-tr"><div class="lx-ti">ADRO <span class="lx-up">+2.40%</span></div><div class="lx-ti">PTBA <span class="lx-dn">-1.80%</span></div><div class="lx-ti">ITMG <span class="lx-dn">-0.50%</span></div><div class="lx-ti">PGAS <span class="lx-up">+1.25%</span></div><div class="lx-ti">UNVR <span class="lx-dn">-1.15%</span></div><div class="lx-ti">KLBF <span class="lx-up">+0.75%</span></div><div class="lx-ti">MEDC <span class="lx-up">+2.85%</span></div><div class="lx-ti">BRPT <span class="lx-dn">-0.95%</span></div><div class="lx-ti">ADRO <span class="lx-up">+2.40%</span></div><div class="lx-ti">PTBA <span class="lx-dn">-1.80%</span></div><div class="lx-ti">ITMG <span class="lx-dn">-0.50%</span></div><div class="lx-ti">PGAS <span class="lx-up">+1.25%</span></div><div class="lx-ti">UNVR <span class="lx-dn">-1.15%</span></div><div class="lx-ti">KLBF <span class="lx-up">+0.75%</span></div><div class="lx-ti">MEDC <span class="lx-up">+2.85%</span></div><div class="lx-ti">BRPT <span class="lx-dn">-0.95%</span></div></div></div>
+<div class="lx-cs">
+<div class="lx-gc lx-c1"><div class="lx-ch"><div><div class="lx-ct">IHSG Composite</div><div class="lx-cv">7,354.20</div></div><div class="lx-cb">+0.85%</div></div><div class="lx-ca"><div class="lx-cd d"><div class="lx-wk" style="height:50px;bottom:20px"></div><div class="lx-bd" style="height:30px;bottom:25px"></div></div><div class="lx-cd u"><div class="lx-wk" style="height:60px;bottom:15px"></div><div class="lx-bd" style="height:25px;bottom:35px"></div></div><div class="lx-cd u"><div class="lx-wk" style="height:45px;bottom:30px"></div><div class="lx-bd" style="height:20px;bottom:40px"></div></div><div class="lx-cd d"><div class="lx-wk" style="height:55px;bottom:10px"></div><div class="lx-bd" style="height:40px;bottom:15px"></div></div><div class="lx-cd u"><div class="lx-wk" style="height:70px;bottom:20px"></div><div class="lx-bd" style="height:35px;bottom:30px"></div></div><div class="lx-cd u"><div class="lx-wk" style="height:65px;bottom:30px"></div><div class="lx-bd" style="height:40px;bottom:45px"></div></div><div class="lx-cd u"><div class="lx-wk" style="height:85px;bottom:5px"></div><div class="lx-bd" style="height:45px;bottom:35px"></div></div></div></div>
+<div class="lx-gc lx-c2"><div class="lx-ct">Market Sentiment</div><div class="lx-gg"><svg viewBox="0 0 100 50" class="lx-gs"><path d="M 10 45 A 35 35 0 0 1 90 45" fill="none" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/><path d="M 10 45 A 35 35 0 0 1 90 45" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="110" stroke-dashoffset="30"/></svg><div class="lx-gt">72%</div></div><div style="font-size:13px;font-weight:600;color:#10b981;margin-top:4px">Strong Bullish</div></div>
+<div class="lx-gc lx-c3"><div class="lx-ct" style="margin-bottom:12px">Top Active Volume</div><div class="lx-lr"><div><div class="lx-lc">BBCA</div><div class="lx-lp">Rp 9,850 <span class="lx-up" style="font-size:12px;margin-left:4px">+1.2%</span></div></div><svg class="lx-sp" viewBox="0 0 60 24"><path d="M0,20 L10,15 L20,18 L30,8 L40,12 L50,4 L60,2" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="lx-lr"><div><div class="lx-lc">BMRI</div><div class="lx-lp">Rp 7,125 <span class="lx-dn" style="font-size:12px;margin-left:4px">-0.5%</span></div></div><svg class="lx-sp" viewBox="0 0 60 24"><path d="M0,5 L10,8 L20,4 L30,12 L40,10 L50,18 L60,20" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="lx-lr"><div><div class="lx-lc">AMMN</div><div class="lx-lp">Rp 8,450 <span class="lx-up" style="font-size:12px;margin-left:4px">+4.3%</span></div></div><svg class="lx-sp" viewBox="0 0 60 24"><path d="M0,22 L10,18 L20,20 L30,12 L40,6 L50,8 L60,2" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+</div>
+</div>
+<div class="lx-r"><div class="lx-in">
+<div class="lx-br"><span style="font-size:26px">📊</span><b>KANTOR AI</b><div class="lx-bg">Saham IDX</div></div>
+<h1>Selamat Datang</h1>
+<p>Akses terpusat untuk monitoring portofolio, analisis pasar, dan strategi Beli Sore Jual Pagi Anda.</p>
+<div class="lx-ig"><label for="lg_u">Username</label><input type="text" id="lg_u" autocomplete="username" placeholder="Masukkan username" onkeydown="if(event.key==='Enter')$('lg_p').focus()"></div>
+<div class="lx-ig"><label for="lg_p">Password</label><input type="password" id="lg_p" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="lx-eye" onclick="lgEye()" title="Tampilkan / sembunyikan">👁</button></div>
+<div class="lx-op"><label><input type="checkbox" id="lg_r" checked> Ingat username</label><a href="#" onclick="lgMsg('Lupa password? Di Google Sheets buka menu Kantor Virtual › Atur Login Web, lalu isi ulang.');return false">Lupa password?</a></div>
+<div id="lg_m"></div>
+<button class="lx-btn" id="lg_b" onclick="doLogin()">Masuk ke Konsol →</button>
+<div class="lx-ft"><span>Belum punya login? Menu Kantor Virtual › Atur Login Web</span><span>© 2026 Kantor AI</span></div>
+</div></div>
+</div>
 <div id="app">
 <aside id="sb"><div class="sb-h"><i>📊</i><div><b>Kantor AI</b><small>FINANCIAL ANALYST</small></div><button id="sbx" onclick="document.body.classList.add('sbc')" title="Tutup menu">✕</button></div>
 <div id="kn"></div>
@@ -514,7 +569,7 @@ function meetMode(){return !!MT&&(MT.st==='kumpul'||MT.st==='diskusi')}
 /* ============ ADEGAN 3D: kantor isometrik multi-ruang ============ */
 const WH=9.5;
 const gl=$('gl'),ren=new THREE.WebGLRenderer({canvas:gl,antialias:true});
-ren.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<860?1.5:2));ren.shadowMap.enabled=true;ren.shadowMap.autoUpdate=false;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.1;
+ren.setPixelRatio(Math.min(devicePixelRatio||1,2));ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.1;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0xbbf7d0);scene.fog=new THREE.FogExp2(0xbbf7d0,.0045);
 const cam=new THREE.PerspectiveCamera(30,1,1,600);
 scene.add(new THREE.HemisphereLight(0xffffff,0x86efac,.9));const dl=new THREE.DirectionalLight(0xfffbeb,1.25);dl.position.set(24,46,22);dl.castShadow=true;const SMS=(innerWidth<860)?1024:2048;dl.shadow.mapSize.set(SMS,SMS);dl.shadow.camera.near=5;dl.shadow.camera.far=130;const SD=34;dl.shadow.camera.left=-SD;dl.shadow.camera.right=SD;dl.shadow.camera.top=SD;dl.shadow.camera.bottom=-SD;dl.shadow.bias=-.0005;scene.add(dl);
@@ -524,7 +579,7 @@ function bxm(w,h,d,mat,x,y,z,p){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h
 function cym(rt,rb,h,mat,x,y,z,seg){const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||14),mat);m.position.set(x,y,z);SHD(m);scene.add(m);return m}
 function bx(w,h,d,c,x,y,z,p){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M(c));m.position.set(x,y,z);SHD(m);(p||scene).add(m);return m}
 function cyl(r,h,c,x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,18),M(c));m.position.set(x,y,z);SHD(m);scene.add(m);return m}
-function ball(r,c,x,y,z){const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),M(c));m.position.set(x,y,z);scene.add(m)}
+function ball(r,c,x,y,z){const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),M(c));m.position.set(x,y,z);m.castShadow=true;scene.add(m)}
 function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 function wl(x0,z0,x1,z1,h,c){const t=.3,w=Math.max(Math.abs(x1-x0),t),d=Math.max(Math.abs(z1-z0),t);return bx(w,h,d,c,(x0+x1)/2,h/2,(z0+z1)/2)}
 function gw(x0,z0,x1,z1,h){const w=Math.max(Math.abs(x1-x0),.08),d=Math.max(Math.abs(z1-z0),.08),cx=(x0+x1)/2,cz=(z0+z1)/2;const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:0x38bdf8,transparent:true,opacity:.28,roughness:.05,metalness:.1,depthWrite:false}));m.position.set(cx,h/2,cz);scene.add(m);bx(Math.max(w,.14),.14,Math.max(d,.14),0x3b5169,cx,h,cz)}
@@ -628,8 +683,8 @@ const STY={
  resep:{top:0xe6d3b3,inner:0xf8fafc,hair:0x3a2417,skin:0xf4d2b0,style:'long',kind:'jaket',headset:true,lanyard:true,pants:0x4b3b2e},
  dir:{top:0x1c2a4a,inner:0xf8fafc,hair:0x2a1a12,skin:0xf1c9a5,style:'short',kind:'jaket',tie:0x1d5fd1}
 };
-function esf(r,c,x,y,z,sx,sy,sz,p){const m=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),M(c));m.position.set(x,y,z);m.scale.set(sx||1,sy||1,sz||1);(p||scene).add(m);return m}
-function sil(rt,rb,h,c,x,y,z,p){const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,14),M(c));m.position.set(x,y,z);(p||scene).add(m);return m}
+function esf(r,c,x,y,z,sx,sy,sz,p){const m=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),M(c));m.position.set(x,y,z);m.scale.set(sx||1,sy||1,sz||1);m.castShadow=true;(p||scene).add(m);return m}
+function sil(rt,rb,h,c,x,y,z,p){const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,14),M(c));m.position.set(x,y,z);m.castShadow=true;(p||scene).add(m);return m}
 function buildChar(a,lab){
  const S=STY[a.style||a.k]||{},C=S.top!=null?S.top:a.c,SK=S.skin!=null?S.skin:a.skin,HR=S.hair!=null?S.hair:a.hair,PT=S.pants!=null?S.pants:0x1e293b,IN=S.inner!=null?S.inner:C,SH=0x1a1a1f;
  const g=a.g=new THREE.Group();scene.add(g);
@@ -1073,7 +1128,7 @@ function refreshState(){const w=wmode(),mt=meetMode(),jj=jk();if(jj.wd>=1&&jj.wd
  const S=sched();AG.forEach(a=>{a.busy=!!(RUN?RUN.set.has(a.k):S.has(a.k))||(a.k==='ask'&&ASKING)});
  const c=$('clk');if(c)c.textContent=clockText();
  const sig=AG.map(a=>(a.busy?1:0)+''+(a.done?1:0)+a.at+(SEL===a?1:0)).join('|')+DATA.updated+DATA.log.length;if(sig!==sideSig){sideSig=sig;renderSide();renderChips()}}
-function loop(t){requestAnimationFrame(loop);if(loop.n===undefined)loop.n=0;if(++loop.n===3)ren.shadowMap.needsUpdate=true;const s=t/1000,dt=Math.min(.05,s-(loop.p||s));loop.p=s;
+function loop(t){requestAnimationFrame(loop);const s=t/1000,dt=Math.min(.05,s-(loop.p||s));loop.p=s;
  if(s-tSec>1){tSec=s;refreshState()}
  meetTick(s);AG.forEach(a=>stepAgent(a,dt,s));notes(s);NPC.forEach((a,i)=>{a.head.rotation.y=Math.sin(s*.7+i*2)*.25});
  if(GOAL){let d=0;for(const k in GOAL){T[k]+=(GOAL[k]-T[k])*.07;d+=Math.abs(GOAL[k]-T[k])}if(d<.02)GOAL=null}
@@ -1403,7 +1458,7 @@ function ccHit(){const c=CALC[CC.i];let h=null;
  $('cc_out').innerHTML='<div class="cc-res">'+(h||'<div class="cc-n">Isi kolom di atas dengan lengkap, lalu tekan Hitung.</div>')+'</div>'}
 
 /* --- Mulai --- */
-(function(){let u='',s=null;$('lg_bars').innerHTML=[55,80,45,95,65,100,70,85].map((h,i)=>'<i style="height:'+h+'%;animation-delay:'+i*.18+'s"></i>').join('');
+(function(){let u='',s=null;
  try{u=localStorage.getItem('kai_u')||''}catch(e){}try{s=sessionStorage.getItem('kai_in')}catch(e){}
  $('lg_u').value=u;kNav();try{setTheme(localStorage.getItem('kai_theme')==='dark')}catch(e){}document.addEventListener('click',function(e){if(innerWidth<860&&!document.body.classList.contains('sbc')&&!e.target.closest('#sb')&&!e.target.closest('#hb'))document.body.classList.add('sbc')});setInterval(()=>{const e=$('tb_d');if(e)e.textContent=clockText()},20000);
  if(s){$('login').style.display='none';enterApp(s)}else setTimeout(()=>$(u?'lg_p':'lg_u').focus(),300)})();
