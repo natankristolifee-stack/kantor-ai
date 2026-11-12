@@ -674,6 +674,59 @@ body.pop-chat #fabc .rb{display:none}body.pop-chat #fabc .fx{display:block}
 .tb i,.np i{font-size:13px}
 .rl i{margin-right:6px;font-size:11px}
 .ag .agi i{font-size:15px}
+
+/* ===== v3: animasi saat kursor mengenai komponen dashboard ===== */
+#ktip{position:fixed;z-index:60;pointer-events:none;min-width:130px;background:rgba(2,6,23,.94);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:8px 11px;font-size:12px;color:#f8fafc;box-shadow:0 10px 30px rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;transform:translateY(4px) scale(.97);transition:opacity .14s,transform .14s}
+#ktip.on{opacity:1;transform:none}
+#ktip .th{font-weight:700;margin-bottom:5px;color:#e2e8f0}
+#ktip .tr{display:flex;align-items:center;gap:8px;line-height:1.7}
+#ktip .tr i{width:9px;height:9px;border-radius:3px;flex:none}
+#ktip .tr span{color:#94a3b8;flex:1}
+#ktip .tr b{font:700 12px "JetBrains Mono",ui-monospace,monospace}
+#c_eq,#c_wr,#c_bar,#c_bm,#c_al,#c_tr{touch-action:pan-y}
+/* kartu & panel */
+#pg-dash .kc,#pg-dash .bx,#pg-log .bx,#pg-calc .bx{transition:transform .28s cubic-bezier(.16,1,.3,1),border-color .25s,box-shadow .28s}
+#pg-dash .bx:hover,#pg-log .bx:hover{transform:translateY(-3px);border-color:rgba(16,185,129,.32);box-shadow:0 14px 40px -12px rgba(16,185,129,.2)}
+body:not(.dark) #pg-dash .kc:hover,body:not(.dark) #pg-dash .bx:hover{transform:translateY(-3px);box-shadow:0 12px 30px -10px rgba(16,185,129,.28)}
+.ki{transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.kc:hover .ki{transform:scale(1.18) rotate(-8deg)}
+.kc b{transition:transform .25s}
+.kc:hover b{transform:translateX(3px)}
+.kc:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#10b981,transparent);transform:scaleX(0);transition:transform .35s ease}
+.kc:hover:after{transform:scaleX(1)}
+/* daftar & chip */
+#d_st .sl,.tr-s .sl{border-radius:8px;transition:background .2s,padding .2s}
+#d_st .sl:hover,.tr-s .sl:hover{background:rgba(16,185,129,.07);padding-left:10px;padding-right:10px}
+.bm-chip{transition:transform .22s,border-color .22s,background .22s}
+.bm-chip:hover{transform:translateY(-2px);border-color:rgba(16,185,129,.35)}
+.wx{transition:transform .22s,box-shadow .22s}
+.wx:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 20px -8px rgba(0,0,0,.5)}
+.tr-k{transition:transform .22s,border-color .22s,background .22s}
+.tr-k:hover{transform:translateY(-2px);border-color:rgba(16,185,129,.35)}
+.al-i{padding:6px 8px;margin:0 -8px 8px;border-radius:10px;transition:background .2s,transform .2s}
+.al-i:hover{background:rgba(255,255,255,.04);transform:translateX(4px)}
+.al-bar i{transition:width .5s cubic-bezier(.16,1,.3,1),filter .2s}
+.al-i:hover .al-bar i{filter:brightness(1.25)}
+.al-i:hover .al-d{transform:scale(1.5)}
+.al-d{transition:transform .2s}
+.cal-c:not(.empty){cursor:default}
+.cal-c.up,.cal-c.dn{cursor:pointer}
+body.dark .cal-c.up:hover{box-shadow:0 0 0 1px rgba(16,185,129,.7),0 10px 24px rgba(16,185,129,.25)}
+body.dark .cal-c.dn:hover{box-shadow:0 0 0 1px rgba(244,63,94,.7),0 10px 24px rgba(244,63,94,.25)}
+/* tabel */
+body.dark .tt tbody tr{transition:background .2s,box-shadow .2s}
+body.dark .tt tbody tr:hover{background:rgba(16,185,129,.09);box-shadow:inset 3px 0 0 #10b981}
+.bd{transition:transform .2s}
+.tt tbody tr:hover .bd{transform:scale(1.08)}
+/* tombol & isian */
+.fl button,.tup,.tg2 button,.bm-per button,.calnav button{transition:transform .2s,box-shadow .2s,background .2s,color .2s,border-color .2s}
+.fl button:hover,.tup:hover{transform:translateY(-2px)}
+body.dark .fl button:not(.sec):hover{box-shadow:0 10px 26px rgba(16,185,129,.35)}
+.tg2 button:hover{transform:translateY(-2px)}
+.bm-per button:hover{color:#34d399}
+body.dark .fl input:hover,body.dark .fl select:hover{border-color:rgba(16,185,129,.4)}
+.sb-f .av{transition:transform .25s}.sb-f:hover .av{transform:scale(1.1)}
+@media(prefers-reduced-motion:reduce){#ktip,.kc:after,.ki,.kc b,.al-i{transition:none!important}}
 </style>
 </head>
 <body>
@@ -1539,26 +1592,30 @@ function tDash(){dLbl();const s=tCalc(),c=x=>x>=0?'g2':'r2',md=s.mdd;
  const L=[['Total Transaksi Selesai',s.n+' Trade',''],['Posisi Sedang Berjalan (Open)',s.open+' Posisi','b'],['Total Setoran (Deposit)','Rp '+n0(s.dep),''],['Total Penarikan (Withdraw)','Rp '+n0(s.wd),''],['Keuntungan Terbesar (Best Trade)',bt&&bt.pl>0?rpf(bt.pl)+' ('+esc(bt.kode)+')':'–',bt&&bt.pl>0?'g2':''],['Kerugian Terbesar (Worst Trade)',wt&&wt.pl<0?rpf(wt.pl)+' ('+esc(wt.kode)+')':'–',wt&&wt.pl<0?'r2':'']];
  $('d_st').innerHTML=L.map(x=>'<div class="sl"><span>'+x[0]+'</span><b class="'+x[2]+'">'+x[1]+'</b></div>').join('');
  tCal();alList();trRender();kanim(p=>{dEq(p);dWr(p);dBar(p);dAl(p);dTr(p)});dBm(1);loadIhsg(()=>{if(KPG==='dash')kanim(dBm)})}
+var HV={},HG={};
+const kpc=v=>(v>=0?'+':'\u2212')+Math.abs(v).toFixed(2)+'%';
+function hvLine(g,id,y0,y1){const h=HV[id],G=HG[id];if(h==null||!G||!G.pts||!G.pts[h])return;const q=G.pts[h];g.save();g.setLineDash([4,4]);g.strokeStyle='rgba(148,163,184,.55)';g.lineWidth=1;g.beginPath();g.moveTo(q.x,y0);g.lineTo(q.x,y1);g.stroke();g.setLineDash([]);q.y.forEach((yy,i)=>{g.beginPath();g.arc(q.x,yy,5.5,0,7);g.fillStyle=G.cols[i];g.fill();g.lineWidth=2.2;g.strokeStyle=DK()?'#0b1220':'#fff';g.stroke()});g.restore()}
 function kcurve(g,X,Y){g.moveTo(X[0],Y[0]);for(let i=1;i<X.length;i++){const m=(X[i-1]+X[i])/2;g.bezierCurveTo(m,Y[i-1],m,Y[i],X[i],Y[i])}}
 function dEq(p){const o=kcv('c_eq'),g=o.g,P=eqPts();g.font='12px system-ui';
  if(P.length<2){g.fillStyle='#94a3b8';g.fillText('Belum cukup data. Catat setoran dan penjualan.',12,30);return}
  const vs=P.map(q=>q.v),mn=Math.min(0,...vs),mx=Math.max(...vs)||1,L=52,B=22,T0=10,x=i=>L+i/(P.length-1)*(o.w-L-12),y=v=>T0+(1-(v-mn)/(mx-mn||1))*(o.h-T0-B);
+ HG.c_eq={t:'line',cols:['#10b981'],pts:P.map((q,i)=>({x:x(i),y:[y(q.v)],tt:{h:q.d,r:[['Saldo kumulatif','Rp '+n0(q.v),'#10b981']]}}))};
  g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.fillStyle=DK()?'#8b9ab5':'#64748b';g.lineWidth=1;g.textAlign='right';
  for(let k=0;k<=4;k++){const v=mn+(mx-mn)*k/4,yy=y(v);g.beginPath();g.moveTo(L,yy);g.lineTo(o.w-8,yy);g.stroke();g.fillText(kcmp(v),L-6,yy+4)}
  g.textAlign='left';g.fillText(P[0].d,L,o.h-6);g.textAlign='right';g.fillText(P[P.length-1].d,o.w-8,o.h-6);
  g.save();g.beginPath();g.rect(0,0,o.w*p,o.h);g.clip();
  g.beginPath();kcurve(g,P.map((q,i)=>x(i)),P.map(q=>y(q.v)));g.strokeStyle='#10b981';g.lineWidth=2.5;g.lineJoin='round';g.stroke();
  g.lineTo(x(P.length-1),y(mn));g.lineTo(x(0),y(mn));g.closePath();const gr=g.createLinearGradient(0,T0,0,o.h-B);gr.addColorStop(0,'rgba(16,185,129,.28)');gr.addColorStop(1,'rgba(16,185,129,0)');g.fillStyle=gr;g.fill();
- if(P.length<=16)P.forEach((q,i)=>{g.beginPath();g.arc(x(i),y(q.v),3.2,0,7);g.fillStyle='#10b981';g.fill()});g.restore()}
+ if(P.length<=16)P.forEach((q,i)=>{g.beginPath();g.arc(x(i),y(q.v),3.2,0,7);g.fillStyle='#10b981';g.fill()});g.restore();hvLine(g,'c_eq',T0,o.h-B)}
 function dWr(p){const o=kcv('c_wr'),s=tCalc(),g=o.g,cx=o.w/2,cy=o.h/2,R=Math.min(cx,cy)-16,tot=s.w+s.l;g.lineWidth=26;
  if(!tot){g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke()}
- else{let a=-Math.PI/2;[[s.w,'#10b981'],[s.l,'#f43f5e']].forEach(q=>{const sw=q[0]/tot*Math.PI*2*p;g.strokeStyle=q[1];g.beginPath();g.arc(cx,cy,R,a,a+sw);g.stroke();a+=sw})}
+ else{let a=-Math.PI/2;const sg=[];[[s.w,'#10b981','Win'],[s.l,'#f43f5e','Loss']].forEach((q,i)=>{const full=q[0]/tot*Math.PI*2,sw=full*p,hv=HV.c_wr===i&&p>=1;g.strokeStyle=q[1];g.lineWidth=hv?32:26;g.beginPath();g.arc(cx,cy,hv?R+2:R,a,a+sw);g.stroke();sg.push({a0:a+Math.PI/2,a1:a+Math.PI/2+full,tt:{h:q[2],r:[['Jumlah',q[0]+' trade',q[1]],['Persentase',(q[0]/tot*100).toFixed(1)+'%',q[1]]]}});a+=sw});HG.c_wr={t:'arc',cx:cx,cy:cy,R:R,lw:32,segs:sg}}
  g.textAlign='center';g.fillStyle=DK()?'#e8edf7':'#0f172a';g.font='800 28px "JetBrains Mono",monospace';g.fillText(s.wr.toFixed(1)+'%',cx,cy+6);g.font='11px "Plus Jakarta Sans",system-ui';g.fillStyle=DK()?'#94a3b8':'#64748b';g.fillText(s.w+' Win • '+s.l+' Loss',cx,cy+26)}
 function dBar(p){const o=kcv('c_bar'),g=o.g,S=dSales().slice(-10);g.font='11px system-ui';
  if(!S.length){g.fillStyle='#94a3b8';g.fillText('Belum ada penjualan tercatat.',12,30);return}
- const m=Math.max(...S.map(s=>Math.abs(s.pl)))||1,z=o.h/2,bw=(o.w-16)/S.length;
+ const m=Math.max(...S.map(s=>Math.abs(s.pl)))||1,z=o.h/2,bw=(o.w-16)/S.length;HG.c_bar={t:'bar',items:[]};
  g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.moveTo(0,z);g.lineTo(o.w,z);g.stroke();
- S.forEach((s,i)=>{const h=Math.abs(s.pl)/m*(z-24)*p,x=8+i*bw+bw*.15;g.fillStyle=s.pl>=0?'#10b981':'#f43f5e';g.fillRect(x,s.pl>=0?z-h:z,bw*.7,h);g.fillStyle=DK()?'#8b9ab5':'#64748b';g.textAlign='center';g.fillText(s.kode,x+bw*.35,o.h-4)})}
+ S.forEach((s,i)=>{const h=Math.abs(s.pl)/m*(z-24)*p,x=8+i*bw+bw*.15,hv=HV.c_bar===i&&p>=1;HG.c_bar.items.push({x0:8+i*bw,x1:8+(i+1)*bw,tt:{h:s.kode,r:[['L/R Bersih (Rp)',(s.pl>=0?'':'\u2212')+n0(Math.abs(s.pl)),s.pl>=0?'#10b981':'#f43f5e']]}});if(hv){g.save();g.shadowColor=s.pl>=0?'rgba(16,185,129,.55)':'rgba(244,63,94,.55)';g.shadowBlur=14}g.fillStyle=s.pl>=0?(hv?'#34d399':'#10b981'):(hv?'#fb7185':'#f43f5e');g.fillRect(x,s.pl>=0?z-h:z,bw*.7,h);if(hv)g.restore();g.fillStyle=hv?(DK()?'#e8edf7':'#0f172a'):(DK()?'#8b9ab5':'#64748b');g.textAlign='center';g.fillText(s.kode,x+bw*.35,o.h-4)})}
 
 /* --- Benchmark: L/R Anda vs IHSG --- */
 let IH=null,IHKEY='';
@@ -1597,8 +1654,9 @@ function dBm(p){const o=kcv('c_bm'),g=o.g,tx=DK()?'#8b9ab5':'#64748b',gr=DK()?'#
  const lb=d=>(+d.slice(8))+' '+BLN[+d.slice(5,7)-1];
  for(let j=0;j<4;j++){const ix=Math.round(j*(P.length-1)/3);g.textAlign=j===0?'left':j===3?'right':'center';g.fillText(lb(P[ix].d),j===0?4:j===3?W-4:x(ix),o.h-6)}
  g.strokeStyle=DK()?'#cbd5e1':'#64748b';g.setLineDash([4,4]);g.beginPath();g.moveTo(0,y(0));g.lineTo(W,y(0));g.stroke();g.setLineDash([]);
+ HG.c_bm={t:'line',cols:['#10b981','#a855f7'],pts:P.map((q,i)=>({x:x(i),y:[y(A[i]),y(B[i])],tt:{h:(+q.d.slice(8))+' '+BLN[+q.d.slice(5,7)-1]+' '+q.d.slice(0,4),r:[['Portofolio AI',kpc(A[i]),'#10b981'],['Indeks IHSG',kpc(B[i]),'#a855f7']]}}))};
  g.save();g.beginPath();g.rect(0,0,W*p+2,o.h);g.clip();
- [[B,'#a855f7'],[A,'#10b981']].forEach(z=>{g.beginPath();kcurve(g,z[0].map((v,i)=>x(i)),z[0].map(y));g.strokeStyle=z[1];g.lineWidth=1.8;g.lineJoin='round';g.stroke()});g.restore();
+ [[B,'#a855f7'],[A,'#10b981']].forEach(z=>{g.beginPath();kcurve(g,z[0].map((v,i)=>x(i)),z[0].map(y));g.strokeStyle=z[1];g.lineWidth=1.8;g.lineJoin='round';g.stroke()});g.restore();hvLine(g,'c_bm',T0,o.h-Bm);
  const a=A[A.length-1],b=B[B.length-1],dv=a-b,sg=v=>(v>=0?'+':'−')+Math.abs(v).toFixed(2)+'%',cc=v=>v>=0?'g2':'r2';
  const tg=$('d_bmtag');if(tg){tg.textContent=(dv>=0?'Outperform +':'Underperform −')+Math.abs(dv).toFixed(2)+'%';tg.className='bmtag '+cc(dv)}
  sum.innerHTML='<div class="bm-chips"><div class="bm-chip" style="--c:#10b981"><span>Portofolio AI</span><b class="'+cc(a)+'">'+sg(a)+'</b></div><div class="bm-chip" style="--c:#a855f7"><span>Indeks IHSG</span><b class="'+cc(b)+'">'+sg(b)+'</b></div></div>';
@@ -1615,7 +1673,7 @@ function alData(){const m={};(TD.open||[]).forEach(r=>{const o=m[r.kode]=m[r.kod
 function dAl(p){const o=kcv('c_al'),g=o.g,L=alData(),tot=L.reduce((t,x)=>t+x.v,0),st=L.filter(x=>!x.cash),sv=st.reduce((t,x)=>t+x.v,0),cx=o.w/2,cy=o.h/2,R=Math.min(cx,cy)-14;
  g.lineWidth=16;g.lineCap='butt';
  if(!tot){g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke()}
- else{let a=-Math.PI/2;const gap=L.length>1?.04:0;L.forEach((x,i)=>{const sw=x.v/tot*Math.PI*2*p;g.strokeStyle=x.cash?'#64748b':ALC[i%ALC.length];g.beginPath();g.arc(cx,cy,R,a+gap/2,Math.max(a+gap/2,a+sw-gap/2));g.stroke();a+=sw})}
+ else{let a=-Math.PI/2;const gap=L.length>1?.04:0,sg=[];L.forEach((x,i)=>{const full=x.v/tot*Math.PI*2,sw=full*p,hv=HV.c_al===i&&p>=1,col=x.cash?'#64748b':ALC[i%ALC.length];g.lineWidth=hv?23:16;g.strokeStyle=col;g.beginPath();g.arc(cx,cy,hv?R+1:R,a+gap/2,Math.max(a+gap/2,a+sw-gap/2));g.stroke();sg.push({a0:a+Math.PI/2,a1:a+Math.PI/2+full,tt:{h:x.k,r:[['Nilai','Rp '+n0(x.v),col],['Alokasi',(x.v/tot*100).toFixed(2)+'%',col]]}});a+=sw});HG.c_al={t:'arc',cx:cx,cy:cy,R:R,lw:24,segs:sg}}
  g.textAlign='center';g.fillStyle=DK()?'#e8edf7':'#0f172a';g.font='bold 18px system-ui';g.fillText(st.length?'Rp '+n0(sv):'–',cx,cy+2);
  g.font='12px system-ui';g.fillStyle=DK()?'#8b9ab5':'#64748b';g.fillText(st.length?st.length+' Saham':'Belum ada posisi',cx,cy+22)}
 function alList(){const L=alData(),tot=L.reduce((t,x)=>t+x.v,0),el=$('d_allist');if(!el)return;
@@ -1657,9 +1715,10 @@ function dTr(p){const o=kcv('c_tr'),g=o.g,tx=DK()?'#8b9ab5':'#64748b';g.font='11
  const lb=d=>(+d.slice(8))+' '+BLN[+d.slice(5,7)-1],ix=[];for(let j=0;j<5;j++){const i=Math.round(j*(n-1)/4);if(ix.indexOf(i)<0)ix.push(i)}
  ix.forEach((i,j)=>{g.textAlign=i===0?'left':i===n-1?'right':'center';g.fillText(lb(Dt[i]),i===0?4:i===n-1?W-4:x(i),o.h-6)});
  g.strokeStyle=DK()?'#cbd5e1':'#64748b';g.setLineDash([4,4]);g.lineWidth=1;g.beginPath();g.moveTo(0,y(0));g.lineTo(W,y(0));g.stroke();g.setLineDash([]);
+ HG.c_tr={t:'line',cols:[col],pts:V.map((v,i)=>({x:x(i),y:[y(v)],tt:{h:(+Dt[i].slice(8))+' '+BLN[+Dt[i].slice(5,7)-1]+' '+Dt[i].slice(0,4),r:[['L/R kumulatif',rpf(v),col]]}}))};
  g.save();g.beginPath();g.rect(0,0,W*p+2,o.h);g.clip();
  g.beginPath();V.forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.lineTo(x(n-1),y(0));g.lineTo(x(0),y(0));g.closePath();g.globalAlpha=.16;g.fillStyle=col;g.fill();g.globalAlpha=1;
- g.beginPath();V.forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.strokeStyle=col;g.lineWidth=2.2;g.lineJoin='round';g.stroke();g.restore()}
+ g.beginPath();V.forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.strokeStyle=col;g.lineWidth=2.2;g.lineJoin='round';g.stroke();g.restore();hvLine(g,'c_tr',T0,o.h-Bm)}
 
 /* --- Trade Log: tab OPEN vs selesai --- */
 function dkOf_(w){const s=String(w||''),m=s.match(/^(\d{2})-(\d{2})-(\d{4})/);return m?m[3]+'-'+m[2]+'-'+m[1]:((s.match(/^\d{4}-\d{2}-\d{2}/)||[''])[0])}
@@ -1697,7 +1756,7 @@ function tCal(){
   if(!(k in pl)){h+='<div class="cal-c"><small>'+d+'</small></div>';continue}
   const v=pl[k];tot+=v;if(v>0)nW++;else if(v<0)nL++;
   const a=.1+.25*Math.min(1,Math.abs(v)/mx),bgc=v>0?'rgba(16,185,129,'+a.toFixed(2)+')':v<0?'rgba(244,63,94,'+a.toFixed(2)+')':'#94a3b844';
-  h+='<div class="cal-c '+(v>0?'up':v<0?'dn':'')+'" style="background:'+bgc+'" title="'+k+' · '+rpf(v)+'"><small>'+d+'</small><b>'+(v>0?'+':v<0?'−':'')+kcmp(Math.abs(v))+'</b></div>';
+  h+='<div class="cal-c '+(v>0?'up':v<0?'dn':'')+'" style="background:'+bgc+'" data-d="'+k+'" data-v="'+v+'"><small>'+d+'</small><b>'+(v>0?'+':v<0?'−':'')+kcmp(Math.abs(v))+'</b></div>';
  }
  $('d_cal').innerHTML=h;
  $('d_calt').textContent=BLN_F[m]+' '+y;
@@ -1811,6 +1870,50 @@ function spinR(b){var i=b&&b.querySelector('i');if(!i)return;i.classList.add('fa
  var _k=window.kRender;
  if(typeof _k==='function')window.kRender=function(){var r=_k.apply(this,arguments);try{badge()}catch(e){}return r};
  try{badge()}catch(e){}
+})();
+</script>
+<script>
+/* Tooltip & efek sorot grafik saat kursor/jari mengenai komponen dashboard. Hanya tampilan. */
+(function(){
+ var tip=document.createElement('div');tip.id='ktip';document.body.appendChild(tip);
+ var F={c_eq:dEq,c_wr:dWr,c_bar:dBar,c_bm:dBm,c_al:dAl,c_tr:dTr};
+ function esc2(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function show(tt,e){
+  tip.innerHTML='<div class="th">'+esc2(tt.h)+'</div>'+tt.r.map(function(x){return '<div class="tr"><i style="background:'+x[2]+'"></i><span>'+esc2(x[0])+'</span><b>'+esc2(x[1])+'</b></div>'}).join('');
+  tip.classList.add('on');
+  var w=tip.offsetWidth,h=tip.offsetHeight,l=e.clientX+16,t=e.clientY-h-10;
+  if(l+w>innerWidth-8)l=e.clientX-w-16;if(t<8)t=e.clientY+18;
+  tip.style.left=Math.max(8,l)+'px';tip.style.top=t+'px'}
+ function hide(id){if(id&&HV[id]!=null){HV[id]=null;try{F[id](1)}catch(e){}}tip.classList.remove('on')}
+ function hit(id,mx,my){var G=HG[id];if(!G)return null;
+  if(G.t==='line'){var b=-1,bd=1e9;G.pts.forEach(function(q,i){var d=Math.abs(q.x-mx);if(d<bd){bd=d;b=i}});
+   var step=G.pts.length>1?Math.abs(G.pts[1].x-G.pts[0].x):40;return(b>=0&&bd<=Math.max(18,step*.75))?{i:b,tt:G.pts[b].tt}:null}
+  if(G.t==='bar'){for(var i=0;i<G.items.length;i++){var q=G.items[i];if(mx>=q.x0&&mx<=q.x1)return{i:i,tt:q.tt}}return null}
+  if(G.t==='arc'){var dx=mx-G.cx,dy=my-G.cy,r=Math.sqrt(dx*dx+dy*dy);if(Math.abs(r-G.R)>G.lw/2+3)return null;
+   var an=(Math.atan2(dy,dx)+Math.PI/2+2*Math.PI)%(2*Math.PI);
+   for(var j=0;j<G.segs.length;j++){var q2=G.segs[j];if(an>=q2.a0-1e-6&&an<=q2.a1+1e-6)return{i:j,tt:q2.tt}}return null}
+  return null}
+ Object.keys(F).forEach(function(id){
+  var c=document.getElementById(id);if(!c)return;
+  function mv(e){var r=c.getBoundingClientRect(),h=hit(id,e.clientX-r.left,e.clientY-r.top);
+   if(!h){c.style.cursor='default';hide(id);return}
+   c.style.cursor='pointer';
+   if(HV[id]!==h.i){HV[id]=h.i;try{F[id](1)}catch(er){}}
+   show(h.tt,e)}
+  c.addEventListener('pointermove',mv);c.addEventListener('pointerdown',mv);
+  c.addEventListener('pointerleave',function(){hide(id)});
+ });
+ /* kalender: tooltip per hari */
+ var cal=document.getElementById('d_cal');
+ if(cal){
+  cal.addEventListener('mousemove',function(e){var t=e.target.closest&&e.target.closest('.cal-c[data-d]');if(!t){tip.classList.remove('on');return}
+   var d=t.getAttribute('data-d'),v=+t.getAttribute('data-v');
+   show({h:(+d.slice(8))+' '+BLN_F[+d.slice(5,7)-1]+' '+d.slice(0,4),r:[['L/R Bersih',rpf(v),v>=0?'#10b981':'#f43f5e']]},e)});
+  cal.addEventListener('mouseleave',function(){tip.classList.remove('on')});
+ }
+ /* bersihkan sorotan saat data dimuat ulang */
+ var _t=window.tDash;
+ if(typeof _t==='function')window.tDash=function(){HV={};tip.classList.remove('on');return _t.apply(this,arguments)};
 })();
 </script>
 </body>
