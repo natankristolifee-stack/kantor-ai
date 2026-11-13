@@ -1978,7 +1978,7 @@ function spinR(b){var i=b&&b.querySelector('i');if(!i)return;i.classList.add('fa
   '<div class="bx tw" style="padding:0"><table class="tt"><thead><tr><th class="l">Tanggal</th><th class="l">Saham</th><th>Skor</th><th>Zona beli</th><th>Target 1</th><th>Stop Loss</th><th>Hasil</th><th>Return</th><th>Saya beli?</th><th>L/R saya (Rp)</th><th class="l">Evaluasi</th></tr></thead><tbody id="h_tb"></tbody></table></div></div>';
  $('pgs').appendChild(pg);
 
- var H={rows:[],d:'ALL',t:'BTST',b:'ALL'};
+ var H={rows:[],d:'ALL',t:'BTST',b:'ALL'};$('h_d').innerHTML='<option value="ALL">Semua tanggal</option>';
  var HL={ok:['Berhasil (capai target / untung)','#10b981'],gagal:['Gagal (stop loss / rugi)','#f43f5e'],tb:['Tidak terbeli / gugur','#94a3b8'],run:['Masih berjalan','#3b82f6']};
  function cls(r){var s=r.status,x=+r.ret;if(s==='TP1')return'ok';if(s==='SL')return'gagal';if(s==='TUTUP')return x>0?'ok':'gagal';if(s==='TIDAK TERBELI'||s==='GUGUR')return'tb';return'run'}
  function base(){return H.rows.filter(function(r){return(H.t==='ALL'||r.tipe===H.t)&&(H.b==='ALL'||(H.b==='YA')===!!r.dibeli)})}
@@ -2012,8 +2012,10 @@ function spinR(b){var i=b&&b.querySelector('i');if(!i)return;i.classList.add('fa
    return'<tr class="rw-'+BD[k]+'"><td class="l">'+esc(r.date)+'</td><td class="l"><b>'+esc(r.kode)+'</b></td><td>'+(+r.skor).toFixed(0)+'</td><td>'+n0(r.lo)+'–'+n0(r.hi)+'</td><td>'+n0(r.t1)+'</td><td>'+n0(r.sl)+'</td><td><span class="bd '+BD[k]+'">'+esc(TX[r.status]||r.status||'Berjalan')+'</span></td><td class="'+(+r.ret>0?'g2':+r.ret<0?'r2':'')+'">'+fmtR(r.ret)+'</td><td>'+(r.dibeli?'Ya ('+n0(r.lot)+' lot)':'Tidak')+'</td><td class="'+(p===null?'':p>=0?'g2':'r2')+'">'+(p===null?'–':rpf(p))+'</td><td class="l">'+esc(r.eval)+'</td></tr>'}).join('')
    :'<tr><td colspan="11" class="l" style="padding:20px;color:#64748b">Belum ada data untuk filter ini. Jalankan Laporan 16:30 dulu agar hasil evaluasi terisi.</td></tr>'}
  function demo(){var rows=[],st=['TP1','SL','TUTUP','OPEN'],i,d,k;for(d=1;d<=6;d++)for(k=0;k<4;k++){i=(d+k)%4;rows.push({date:'2026-11-0'+d,tipe:'BTST',kode:['DMAS','HMSP','CARE','ACES'][k],skor:90-k*7,lo:200,hi:210,t1:220,t2:230,sl:195,status:st[i],ret:i===0?4.2:i===1?-3.1:i===2?0.8:'',eval:'(DEMO)',dibeli:k<2,lot:k<2?5:0,pl:k<2?(i===1?-30000:50000):''})}return{rows:rows}}
- function load(){var ok=function(d){H.rows=(d&&d.rows)||[];fillDates();render()};
-  if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){toast('Gagal memuat histori: '+((e&&e.message)||e))}).getHistoriEvaluasi();else ok(demo())}
+  function load(){$('h_sub').textContent='Memuat data…';var tm=setTimeout(function(){$('h_sub').textContent='Masih menunggu server Google (bisa 10-20 detik)…'},8000);
+  var ok=function(d){clearTimeout(tm);try{H.rows=(d&&d.rows)||[];fillDates();render()}catch(e){$('h_sub').textContent='Error tampilan: '+e.message}};
+  var bad=function(e){clearTimeout(tm);$('h_sub').textContent='Gagal memuat: '+((e&&e.message)||e)};
+  if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(bad).getHistoriEvaluasi();else ok(demo())}
  $('h_d').onchange=function(){H.d=this.value;render()};$('h_t').onchange=function(){H.t=this.value;render()};$('h_b').onchange=function(){H.b=this.value;render()};
  $('h_r').onclick=function(){load();spinR(this)};
  $('h_sum').addEventListener('click',function(e){var t=e.target.closest('tr[data-d]');if(!t)return;H.d=t.getAttribute('data-d');$('h_d').value=H.d;render()});
