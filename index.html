@@ -1973,6 +1973,8 @@ body.dark #h_tbl td:nth-child(-n+2){background:#0e1627}
 body.dark #h_tbl tr.rw-WIN td:nth-child(-n+2){background:linear-gradient(rgba(34,197,94,.16),rgba(34,197,94,.16)),#0e1627}
 body.dark #h_tbl tr.rw-LOSS td:nth-child(-n+2){background:linear-gradient(rgba(239,68,68,.18),rgba(239,68,68,.18)),#0e1627}
 body.dark #h_tbl tr.rw-OPEN td:nth-child(-n+2){background:linear-gradient(rgba(59,130,246,.14),rgba(59,130,246,.14)),#0e1627}
+#h_sumt th{z-index:3;background:#f8fafc}
+body.dark #h_sumt th{background:#0e1627}
 </style>
 <script>
 /* Menu Histori Evaluasi: pilih periode (range), hasil target, diagram lingkaran berhasil/gagal */
@@ -1985,17 +1987,17 @@ body.dark #h_tbl tr.rw-OPEN td:nth-child(-n+2){background:linear-gradient(rgba(5
  pg.innerHTML='<div class="pw"><div id="h_sub" style="margin:0 0 14px;font-size:12px;color:#94a3b8">Memuat…</div>'+
   '<div class="hs fl"><select id="h_p"><option value="ALL">Semua waktu</option><option value="TD">Hari ini</option><option value="7">7 hari terakhir</option><option value="30">30 hari terakhir</option><option value="MTD">Bulan ini</option><option value="ONE">Pilih 1 tanggal</option><option value="CUS">Kustom (dari - sampai)</option></select>'+
   '<input type="date" id="h_d1" style="display:none" title="Dari tanggal"><input type="date" id="h_d2" style="display:none" title="Sampai tanggal">'+
-  '<select id="h_t"><option value="BTST">BSJP</option><option value="ALL">Semua tipe</option><option value="DAY">Day Trade</option><option value="SWING">Swing</option></select>'+
-  '<select id="h_b"><option value="ALL">Dibeli &amp; tidak dibeli</option><option value="YA">Yang saya beli</option><option value="TDK">Yang tidak saya beli</option></select>'+
+  '<select id="h_t"><option value="BTST">BSJP</option><option value="DAY">Day Trade</option><option value="SWING">Swing</option><option value="ALL">Semua tipe</option></select>'+
+  '<select id="h_b"><option value="YA">Yang saya beli</option><option value="TDK">Yang tidak saya beli</option><option value="ALL">Dibeli &amp; tidak dibeli</option></select>'+
   '<button id="h_r"><i class="fa-solid fa-rotate-right"></i><span>Muat Ulang</span></button></div>'+
   '<div class="kg" id="h_cards"></div>'+
   '<div class="rw b"><div class="bx"><h4>Diagram Hasil Evaluasi</h4><canvas id="c_hist"></canvas><div id="h_leg"></div></div>'+
-  '<div class="bx"><h4>Ringkasan per Tanggal (klik untuk memilih 1 tanggal)</h4><div class="tw" style="max-height:300px"><table class="tt"><thead><tr><th class="l">Tanggal</th><th>Saham</th><th>Berhasil</th><th>Gagal</th><th>Win rate</th></tr></thead><tbody id="h_sum"></tbody></table></div></div></div>'+
+  '<div class="bx"><h4>Ringkasan per Tanggal (klik untuk memilih 1 tanggal)</h4><div class="tw" style="max-height:300px"><table class="tt" id="h_sumt"><thead><tr><th class="l">Tanggal</th><th>Saham</th><th>Berhasil</th><th>Gagal</th><th>Win rate</th></tr></thead><tbody id="h_sum"></tbody></table></div></div></div>'+
   '<div class="bx tw" style="padding:0"><table class="tt" id="h_tbl"><thead><tr><th class="l">Tanggal</th><th class="l">Saham</th><th>Skor</th><th>Zona beli</th><th>Target 1</th><th>Stop Loss</th><th>Penutupan</th><th>Return Sistem</th><th>Status</th><th>Harga Beli</th><th>Harga Jual</th><th>Harga Tertinggi</th><th>Harga Penutupan</th><th>Return Saya</th><th>L/R saya (Rp)</th><th class="l">Evaluasi</th></tr></thead><tbody id="h_tb"></tbody></table></div></div>';
  $('pgs').appendChild(pg);
 
- var H={rows:[],p:'ALL',d1:'',d2:'',t:'BTST',b:'ALL'};
- var HL={ok:['Berhasil (capai target / untung)','#10b981'],gagal:['Gagal (stop loss / rugi)','#f43f5e'],tb:['Tidak terbeli / gugur','#94a3b8'],run:['Masih berjalan','#3b82f6']};
+ var H={rows:[],p:'ALL',d1:'',d2:'',t:'BTST',b:'YA'};
+ var HL={ok:['Berhasil (untung)','#10b981'],gagal:['Gagal (rugi)','#f43f5e'],tb:['Tidak dibeli / impas','#94a3b8'],run:['Belum terjual / berjalan','#3b82f6']};
  function ago(n){return new Date(new Date(jk().date+'T00:00:00Z').getTime()-n*864e5).toISOString().slice(0,10)}
  function rng(){var td=jk().date,a='',b='';
   if(H.p==='TD'){a=td;b=td}
@@ -2008,24 +2010,34 @@ body.dark #h_tbl tr.rw-OPEN td:nth-child(-n+2){background:linear-gradient(rgba(5
  function inR(d){var R=rng(),x=String(d||'');return(!R.a||x>=R.a)&&(!R.b||x<=R.b)}
  function showInputs(){var one=H.p==='ONE',cus=H.p==='CUS';$('h_d1').style.display=(one||cus)?'':'none';$('h_d2').style.display=cus?'':'none'}
  function cls(r){var s=r.status,x=+r.ret;if(s==='TP1')return'ok';if(s==='SL')return'gagal';if(s==='TUTUP')return x>0?'ok':'gagal';if(s==='TIDAK TERBELI'||s==='GUGUR')return'tb';return'run'}
+ function cls2(r){
+  if(r.dibeli){var p=(r.pl===''||r.pl==null)?null:+r.pl;if(p===null)return'run';return p>0?'ok':p<0?'gagal':'tb'}
+  return H.b==='TDK'?cls(r):'tb'}
+ function rv(r){
+  if(r.dibeli)return(r.rps===''||r.rps==null)?null:+r.rps;
+  return(['TP1','SL','TUTUP'].indexOf(r.status)>=0&&r.ret!==''&&r.ret!=null)?+r.ret:null}
  function base(){return H.rows.filter(function(r){return(H.t==='ALL'||r.tipe===H.t)&&(H.b==='ALL'||(H.b==='YA')===!!r.dibeli)})}
  function fmtR(v){return v===''||v==null?'–':((+v>=0?'+':'')+(+v).toFixed(2)+'%')}
+ function drawPie(){
+  var P=H.pie;if(!P)return;var c=P.c,tot=P.tot,o=kcv('c_hist'),g=o.g,cx=o.w/2,cy=o.h/2,Rd=Math.min(cx,cy)-20,sg=[],a=-Math.PI/2;
+  g.lineWidth=30;
+  if(!tot){g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.arc(cx,cy,Rd,0,7);g.stroke()}
+  else{['ok','gagal','tb','run'].forEach(function(k){if(!c[k])return;var full=c[k]/tot*Math.PI*2,hv=(H.hv===k);g.lineWidth=hv?38:30;g.strokeStyle=HL[k][1];g.beginPath();g.arc(cx,cy,hv?Rd+2:Rd,a,a+full);g.stroke();sg.push({k:k,a0:a+Math.PI/2,a1:a+Math.PI/2+full});a+=full})}
+  P.g={cx:cx,cy:cy,Rd:Rd,segs:sg};
+  g.textAlign='center';g.fillStyle=DK()?'#e8edf7':'#0f172a';g.font='800 26px "JetBrains Mono",monospace';g.fillText(P.done?P.wr.toFixed(0)+'%':'–',cx,cy+6);
+  g.font='11px system-ui';g.fillStyle=DK()?'#94a3b8':'#64748b';g.fillText('win rate',cx,cy+24)}
  function render(){
   var B=base(),sel=B.filter(function(r){return inR(r.date)}),c={ok:0,gagal:0,tb:0,run:0},R=rng();
-  sel.forEach(function(r){c[cls(r)]++});
-  var done=c.ok+c.gagal,wr=done?c.ok/done*100:0,rr=sel.filter(function(r){return['TP1','SL','TUTUP'].indexOf(r.status)>=0&&r.ret!==''&&r.ret!=null}),
-   avg=rr.length?rr.reduce(function(t,r){return t+ +r.ret},0)/rr.length:0,pl=sel.reduce(function(t,r){return t+(r.dibeli&&r.pl!==''?+r.pl:0)},0),nb=sel.filter(function(r){return r.dibeli}).length;
+  sel.forEach(function(r){c[cls2(r)]++});
+  var done=c.ok+c.gagal,wr=done?c.ok/done*100:0,rr=sel.map(rv).filter(function(x){return x!==null}),
+   avg=rr.length?rr.reduce(function(t,x){return t+x},0)/rr.length:0,pl=sel.reduce(function(t,r){return t+(r.dibeli&&r.pl!==''?+r.pl:0)},0),nb=sel.filter(function(r){return r.dibeli}).length;
   $('h_sub').textContent=sel.length+' rekomendasi · '+(H.p==='ALL'?'semua waktu':'periode '+(R.a||'awal')+' s/d '+(R.b||'sekarang'))+' · '+nb+' saham benar-benar Anda beli';
-  var K=[['Total Rekomendasi',sel.length,'','Sesuai filter di atas','list-check','bl'],['Berhasil',c.ok,'g2','Capai Target 1 / ditutup untung','circle-check','em'],['Gagal',c.gagal,'r2','Kena Stop Loss / ditutup rugi','circle-xmark','ro'],
+  var K=[['Total Rekomendasi',sel.length,'','Sesuai filter di atas','list-check','bl'],['Berhasil',c.ok,'g2','Penjualan untung','circle-check','em'],['Gagal',c.gagal,'r2','Penjualan rugi','circle-xmark','ro'],
    ['Win Rate',wr.toFixed(1)+'%',wr>=50?'g2':'r2','Rata-rata return '+(avg>=0?'+':'')+avg.toFixed(2)+'%','bullseye','am'],['L/R Nyata Saya',rpf(pl),pl>=0?'g2':'r2','Dari saham yang Anda beli','wallet','pu']];
   $('h_cards').innerHTML=K.map(function(x){return'<div class="kc"><div class="kh"><small>'+x[0]+'</small><span class="ki '+x[5]+'"><i class="fa-solid fa-'+x[4]+'"></i></span></div><b class="'+x[2]+'">'+x[1]+'</b><em>'+x[3]+'</em></div>'}).join('');
-  var o=kcv('c_hist'),g=o.g,cx=o.w/2,cy=o.h/2,Rd=Math.min(cx,cy)-16,tot=sel.length;g.lineWidth=30;
-  if(!tot){g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.arc(cx,cy,Rd,0,7);g.stroke()}
-  else{var a=-Math.PI/2;['ok','gagal','tb','run'].forEach(function(k){if(!c[k])return;var sw=c[k]/tot*Math.PI*2;g.strokeStyle=HL[k][1];g.beginPath();g.arc(cx,cy,Rd,a,a+sw);g.stroke();a+=sw})}
-  g.textAlign='center';g.fillStyle=DK()?'#e8edf7':'#0f172a';g.font='800 26px "JetBrains Mono",monospace';g.fillText(done?wr.toFixed(0)+'%':'–',cx,cy+6);
-  g.font='11px system-ui';g.fillStyle=DK()?'#94a3b8':'#64748b';g.fillText('win rate',cx,cy+24);
+  var tot=sel.length;H.pie={c:c,tot:tot,done:done,wr:wr};H.hv=null;drawPie();
   $('h_leg').innerHTML=['ok','gagal','tb','run'].map(function(k){return'<div class="al-h"><span class="al-d" style="background:'+HL[k][1]+'"></span><span>'+HL[k][0]+'</span><em>'+c[k]+' ('+(tot?(c[k]/tot*100).toFixed(0):0)+'%)</em></div>'}).join('');
-  var G={};B.forEach(function(r){var o2=G[r.date]=G[r.date]||{n:0,ok:0,g:0};o2.n++;var k=cls(r);if(k==='ok')o2.ok++;else if(k==='gagal')o2.g++});
+  var G={};B.forEach(function(r){var o2=G[r.date]=G[r.date]||{n:0,ok:0,g:0};o2.n++;var k=cls2(r);if(k==='ok')o2.ok++;else if(k==='gagal')o2.g++});
   var ds=Object.keys(G).sort().reverse().slice(0,60);
   $('h_sum').innerHTML=ds.length?ds.map(function(d){var q=G[d],w=q.ok+q.g?q.ok/(q.ok+q.g)*100:null,on=(H.p!=='ALL'&&inR(d));return'<tr data-d="'+esc(d)+'"'+(on?' class="on"':'')+'><td class="l">'+esc(d)+'</td><td>'+q.n+'</td><td class="g2">'+q.ok+'</td><td class="r2">'+q.g+'</td><td>'+(w===null?'–':w.toFixed(0)+'%')+'</td></tr>'}).join(''):'<tr><td colspan="5" class="l" style="color:#64748b">Belum ada data.</td></tr>';
   var S=sel.slice().sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:(+y.skor)-(+x.skor)}).slice(0,300),BD={ok:'WIN',gagal:'LOSS',tb:'BE',run:'OPEN'},TX={TP1:'Capai T1',SL:'Kena SL',TUTUP:'Ditutup','TIDAK TERBELI':'Tidak terbeli',GUGUR:'Gugur',OPEN:'Berjalan'};
@@ -2037,6 +2049,18 @@ body.dark #h_tbl tr.rw-OPEN td:nth-child(-n+2){background:linear-gradient(rgba(5
   var ok=function(d){clearTimeout(tm);try{H.rows=(d&&d.rows)||[];render()}catch(e){$('h_sub').textContent='Error tampilan: '+e.message}};
   var bad=function(e){clearTimeout(tm);$('h_sub').textContent='Gagal memuat: '+((e&&e.message)||e)};
   if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(bad).getHistoriEvaluasi();else ok(demo())}
+ (function(){var cv=$('c_hist'),tip=$('ktip');
+  function hit(e){var P=H.pie;if(!P||!P.g)return null;var r=cv.getBoundingClientRect(),dx=e.clientX-r.left-P.g.cx,dy=e.clientY-r.top-P.g.cy,d=Math.sqrt(dx*dx+dy*dy);
+   if(Math.abs(d-P.g.Rd)>21)return null;var an=(Math.atan2(dy,dx)+Math.PI/2+2*Math.PI)%(2*Math.PI);
+   for(var i=0;i<P.g.segs.length;i++){var s=P.g.segs[i];if(an>=s.a0-1e-6&&an<=s.a1+1e-6)return s.k}return null}
+  function off(){cv.style.cursor='default';if(H.hv){H.hv=null;drawPie()}if(tip)tip.classList.remove('on')}
+  function mv(e){var k=hit(e);if(!k){off();return}
+   cv.style.cursor='pointer';if(H.hv!==k){H.hv=k;drawPie()}
+   if(!tip)return;var n=H.pie.c[k],tt=H.pie.tot,col=HL[k][1];
+   tip.innerHTML='<div class="th">'+esc(HL[k][0])+'</div><div class="tr"><i style="background:'+col+'"></i><span>Jumlah</span><b>'+n+' saham</b></div><div class="tr"><i style="background:'+col+'"></i><span>Persentase</span><b>'+(n/tt*100).toFixed(1)+'%</b></div>';
+   tip.classList.add('on');var w=tip.offsetWidth,h=tip.offsetHeight,l=e.clientX+16,tp=e.clientY-h-10;
+   if(l+w>innerWidth-8)l=e.clientX-w-16;if(tp<8)tp=e.clientY+18;tip.style.left=Math.max(8,l)+'px';tip.style.top=tp+'px'}
+  cv.addEventListener('pointermove',mv);cv.addEventListener('pointerdown',mv);cv.addEventListener('pointerleave',off)})();
  $('h_p').onchange=function(){H.p=this.value;if((H.p==='ONE'||H.p==='CUS')&&!H.d1){H.d1=jk().date;$('h_d1').value=H.d1}showInputs();render()};
  $('h_d1').onchange=function(){H.d1=this.value;render()};
  $('h_d2').onchange=function(){H.d2=this.value;render()};
