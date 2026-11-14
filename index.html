@@ -776,7 +776,7 @@ body.dark .m.u{color:#022c22}
 <div class="lx-r"><div class="lx-in">
 <div class="lx-br"><span class="lx-lg"><i class="fa-solid fa-bolt"></i></span><b>KANTOR AI</b><div class="lx-bg">Saham IDX</div></div>
 <h1>Selamat Datang</h1>
-<p>Akses terpusat untuk monitoring portofolio, analisis pasar, dan strategi Beli Sore Jual Pagi Anda.</p>
+<p>Akses terpusat untuk monitoring portofolio, analisis pasar, dan strategi BSJP dan Swing Anda.</p>
 <div class="lx-ig"><label for="lg_u">Username</label><input type="text" id="lg_u" autocomplete="username" placeholder="Masukkan username" onkeydown="if(event.key==='Enter')$('lg_p').focus()"></div>
 <div class="lx-ig"><label for="lg_p">Password</label><input type="password" id="lg_p" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="lx-eye" onclick="lgEye()" title="Tampilkan / sembunyikan"><i class="fa-regular fa-eye"></i></button></div>
 <div class="lx-op"><label><input type="checkbox" id="lg_r" checked> Ingat username</label><a href="#" onclick="lgMsg('Lupa password? Di Google Sheets buka menu Kantor Virtual › Atur Login Web, lalu isi ulang.');return false">Lupa password?</a></div>
@@ -842,7 +842,7 @@ body.dark .m.u{color:#022c22}
   <div id="chat">
     <div class="chh"><span class="cav"><span class="rb"></span></span><div class="cht"><b>J.A.R.V.I.S Assist</b><small>Membaca data <em>Portofolio &amp; IDX</em></small></div><span class="chb"><button class="vb" onclick="resetChat()" title="Percakapan baru"><i class="fa-solid fa-plus"></i></button><button class="vb" id="vbtn" onclick="toggleVoice()" title="Suara jawaban"><i class="fa-solid fa-volume-xmark"></i></button><button class="vb" onclick="togglePop('chat')" title="Tutup"><i class="fa-solid fa-xmark"></i></button></span></div>
     <div id="msgs"></div><div id="qr"></div>
-    <div class="cin"><input id="q" placeholder="Tanya analisis saham, win rate, BSJP, atau beri perintah…" onkeydown="if(event.key==='Enter')ask()"><button id="micb" onclick="listen()" title="Bicara"><i class="fa-solid fa-microphone"></i></button><button id="askb" onclick="ask()"><i class="fa-solid fa-arrow-right"></i></button></div>
+    <div class="cin"><input id="q" placeholder="Tanya analisis saham, win rate, BSJP &amp; Swing, atau beri perintah…" onkeydown="if(event.key==='Enter')ask()"><button id="micb" onclick="listen()" title="Bicara"><i class="fa-solid fa-microphone"></i></button><button id="askb" onclick="ask()"><i class="fa-solid fa-arrow-right"></i></button></div>
     <div class="chf"><span>Tekan Enter untuk kirim</span><span>Kantor AI Financial Agent</span></div>
   </div>
   <div id="agl"></div>
@@ -859,10 +859,10 @@ body.dark .m.u{color:#022c22}
   <div class="btns"><button onclick="closeOrd()">Batal</button><button class="pri" onclick="saveOrd()">Simpan rencana</button></div>
 </div></div>
 <div id="inp" class="modal"><div class="box">
-  <h3><span class="mi"><i class="fa-solid fa-keyboard"></i></span>Input Saham · Beli Sore Jual Pagi</h3>
-  <div style="color:#8b9ab5;font-size:12px;line-height:1.5">Tempel kode saham dari screener Anda (satu per baris atau dipisah koma). Opsional: tambahkan harga dan volume live setelah kode, misalnya <b>TMPO 167 160083900</b> (volume dalam lembar). Agent menganalisis semuanya, mengurutkan dari skor tertinggi, dan memberi harga beli serta harga jual besok pagi. Kode yang sama diperbarui otomatis.</div>
+  <h3><span class="mi"><i class="fa-solid fa-keyboard"></i></span>Input Saham · Analisis BSJP &amp; Swing</h3>
+  <div style="color:#8b9ab5;font-size:12px;line-height:1.5">Tempel kode saham dari screener Anda (satu per baris atau dipisah koma). Opsional: tambahkan harga dan volume live setelah kode, misalnya <b>TMPO 167 160083900</b> (volume dalam lembar). Agent menganalisis dua tahap: <b>BSJP</b> (beli sore, jual besok pagi) dan <b>Swing</b> (tahan 3-5 hari mengikuti tren). Setiap saham mendapat skor BSJP dan skor Swing, diurutkan dari skor tertinggi, lalu diberi keputusan: BSJP - STRICT, BSJP + SWING (SAFE), SWING ONLY, REJECT, atau PANTAU. Kode yang sama diperbarui otomatis.</div>
   <label>Kode saham</label><textarea id="i_t" rows="7" placeholder="TMPO&#10;TRUK 4020 2667000&#10;ACES"></textarea>
-  <div class="btns"><button onclick="closeInp()">Batal</button><button class="pri" onclick="runManualWeb()">Analisis & Urutkan</button></div>
+  <div class="btns"><button onclick="closeInp()">Batal</button><button class="pri" onclick="runManualWeb()">Analisis BSJP &amp; Swing</button></div>
 </div></div>
 <div id="pf" class="modal"><div class="box wide">
   <h3><span class="mi"><i class="fa-solid fa-briefcase"></i></span>Portofolio</h3><div id="pf_sum"></div>
@@ -930,7 +930,7 @@ const $=id=>document.getElementById(id);
 const TICK=['BBCA','BBRI','BMRI','TLKM','ASII','ANTM','GOTO','ADRO','MDKA','BRIS','UNTR','ICBP'];
 const AG=[
  {k:'lead',n:'Leader & Evaluator',r:'Memantau market, evaluasi & rencana beli',ic:'<i class="fa-solid fa-compass"></i>',c:0xa855f7,hair:0x3b1d4a,skin:0xd9a07a},
- {k:'day',n:'Beli Sore Jual Pagi',r:'Analisis & ranking hasil screening Anda',ic:'<i class="fa-solid fa-chart-line"></i>',c:0xef4444,hair:0x2b2118,skin:0xf1c9a5},
+ {k:'day',n:'Beli Sore Jual Pagi',r:'Skor BSJP dan Swing, ranking, strategi',ic:'<i class="fa-solid fa-chart-line"></i>',c:0xef4444,hair:0x2b2118,skin:0xf1c9a5},
  {k:'tech',n:'Analis Teknikal',r:'Chart & indikator',ic:'<i class="fa-solid fa-chart-column"></i>',c:0xf59e0b,hair:0x5a3a1e,skin:0xf4d2b0},
  {k:'fund',n:'Analis Fundamental',r:'Valuasi & kinerja emiten',ic:'<i class="fa-solid fa-building-columns"></i>',c:0x10b981,hair:0x111827,skin:0xe8b992},
  {k:'div',n:'Dividend Hunter',r:'Cum date hingga pembayaran',ic:'<i class="fa-solid fa-coins"></i>',c:0x14b8a6,hair:0x7c2d12,skin:0xf1c9a5},
@@ -1224,59 +1224,84 @@ function resize(){document.body.classList.toggle('cmp',innerWidth-(($('sb')&&$('
 new ResizeObserver(resize).observe(gl.parentElement);
 
 /* ============ SLIDE PRESENTASI ============ */
-function bg(g,title,sub){g.fillStyle='#0b1324';g.fillRect(0,0,1280,720);g.fillStyle='#19b5b0';g.fillRect(0,0,1280,86);g.fillStyle='#fff';g.textAlign='left';g.font='bold 38px system-ui';g.fillText(title,36,56);g.font='22px system-ui';g.textAlign='right';g.fillText((sub||'')+(SL.length?'   '+(SI+1)+'/'+SL.length:''),1244,54);g.textAlign='left'}
+const MONO='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace';
+function rr2(g,x,y,w,h){if(w<=14||h<=6||(x<=0&&w>=1270)){g.fillRect(x,y,w,h);return}const f=g.fillStyle;rrect(g,x,y,w,h,Math.min(14,h/2.5));g.fill();g.strokeStyle='#1e2b3c';g.lineWidth=1.5;g.stroke();g.fillStyle=f}
+function chip(g,x,y,txt,col,fs){fs=fs||15;g.font='bold '+fs+'px system-ui';const w=g.measureText(txt).width+22,h=fs+14;g.fillStyle=col+'26';rrect(g,x,y,w,h,8);g.fill();g.strokeStyle=col+'66';g.lineWidth=1.5;rrect(g,x,y,w,h,8);g.stroke();g.fillStyle=col;g.textAlign='left';g.fillText(txt,x+11,y+h-8);return w}
+function bg(g,title,sub){g.fillStyle='#0e151f';g.fillRect(0,0,1280,720);g.fillStyle='#131c27';g.fillRect(0,0,1280,86);g.fillStyle='#1e2b3c';g.fillRect(0,86,1280,2);
+ g.fillStyle='#10b981';rrect(g,34,24,8,38,4);g.fill();g.textAlign='left';g.fillStyle='#fff';g.font='bold 34px system-ui';g.fillText(title,58,56);
+ const pg=SL.length?(SI+1)+'/'+SL.length:'';let rx=1246;
+ if(pg){g.font='bold 22px '+MONO;const w=g.measureText(pg).width+28;g.fillStyle='#0b1017';rrect(g,rx-w,26,w,36,10);g.fill();g.strokeStyle='#1e2b3c';g.lineWidth=2;rrect(g,rx-w,26,w,36,10);g.stroke();g.fillStyle='#10b981';g.textAlign='center';g.fillText(pg,rx-w/2,52);rx-=w+16}
+ g.textAlign='right';g.fillStyle='#94a3b8';g.font='20px '+MONO;g.fillText(sub||'',rx,52);g.textAlign='left'}
 function lines(g,t,mw){const o=[];let l='';String(t).split(' ').forEach(w=>{const q=l?l+' '+w:w;if(g.measureText(q).width>mw&&l){o.push(l);l=w}else l=q});if(l)o.push(l);return o}
 function para(g,t,x,y,mw,lh,max){const L=lines(g,t,mw);L.slice(0,max).forEach((l,i)=>g.fillText(i===max-1&&L.length>max?l+'…':l,x,y+i*lh));return y+Math.min(L.length,max)*lh}
 function empty(g){g.fillStyle='#94a3b8';g.font='28px system-ui';g.fillText('Belum ada data. Tunggu jadwal otomatis atau tekan tombol sesi.',40,200)}
-const TIPE={DAY:'Day Trade',SWING:'Swing Trade',BTST:'BSJP'};
+const TIPE={DAY:'Day Trade',SWING:'Swing Trade',BTST:'BSJP & Swing'};
 /* --- Skor ganda BSJP & Swing (disimpan di dalam kolom chart) --- */
 function RX(r){if(!r._x){try{r._x=JSON.parse(r.chart||'{}')}catch(e){r._x={}}}return r._x}
 function bS(r){const x=RX(r);return x.b!=null?{b:+x.b,s:+x.s,st:x.st||''}:null}
 const scBS=r=>{const q=bS(r);return q?Math.round(q.b)+'/'+Math.round(q.s):String(Math.round(+r.skor))};
-const STR={'BSJP - STRICT':['#f59e0b','Hit & run: wajib jual besok pagi.'],'BSJP + SWING (SAFE)':['#22c55e','Beli sore jual pagi; aman di-hold 3-5 hari bila besok sideways.'],'SWING ONLY':['#38bdf8','Fokus hold 3-5 hari memakai level swing.'],'REJECT':['#ef4444','Tidak direkomendasikan.'],'PANTAU':['#94a3b8','Skor di zona abu-abu (50-70): pantau dulu, jangan dipaksa masuk.']};
+const STRC={b:'#10b981',s:'#38bdf8'};
+const STR={'BSJP - STRICT':['#f59e0b','Hit & run: wajib jual besok pagi.'],'BSJP + SWING (SAFE)':['#10b981','Beli sore jual pagi; aman di-hold 3-5 hari bila besok sideways.'],'SWING ONLY':['#38bdf8','Fokus hold 3-5 hari memakai level swing.'],'REJECT':['#f43f5e','Tidak direkomendasikan.'],'PANTAU':['#94a3b8','Skor di zona abu-abu (50-70): pantau dulu, jangan dipaksa masuk.']};
 function hasil(r){const s=r.status,v=(+r.ret>0?'+':'')+r.ret+'%';if(s==='GUGUR')return'✖ Gugur pra-open';if(!s||s==='OPEN')return((r.cek?String(r.cek).split(':')[0]+' · ':'')+String(r.eval||'').slice(0,24))||'–';return s==='TP1'?'✔ T1 '+v:s==='SL'?'✖ SL '+v:s==='TIDAK TERBELI'?'Tidak terbeli':'Tutup '+v}
 function tableSlide(title,rows){return g=>{bg(g,title,rows[0]?rows[0].date:'');if(!rows.length){empty(g);return}
- const C=[['Kode',110,'l',r=>r.kode],['Beli (zona)',230,'l',r=>n0(r.lo)+' – '+n0(r.hi)],['Jual T1',140,'r',r=>n0(r.t1),'#4ade80'],['Jual T2',140,'r',r=>n0(r.t2),'#4ade80'],['Stop Loss',140,'r',r=>n0(r.sl),'#f87171'],['R/R',80,'r',r=>(+r.rr).toFixed(2)],['Skor B/S',110,'r',r=>scBS(r)],['Status',260,'l',hasil]];
- let x0=36;g.font='bold 19px system-ui';g.fillStyle='#8fa3c4';C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillText(c[0],c[2]==='r'?x0+c[1]-10:x0,128);c[5]=x0;x0+=c[1]});
- rows.slice(0,7).forEach((r,i)=>{const y=146+i*72;g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,64);C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillStyle=c[4]||'#fff';const t=String(c[3](r)),b=c[0]==='Kode'?'bold ':'';let fs=c[0]==='Kode'?30:25;g.font=b+fs+'px system-ui';while(g.measureText(t).width>c[1]-16&&fs>13){fs--;g.font=b+fs+'px system-ui'}g.fillText(t,c[2]==='r'?c[5]+c[1]-10:c[5],y+42)})});
- g.textAlign='left';g.fillStyle='#64748b';g.font='18px system-ui';g.fillText('BSJP: beli sore di zona beli · jual besok pagi di T1 (utama) / T2 · keluar bila menyentuh stop loss. Level berbasis ATR. Bukan nasihat investasi.',36,704)}}
-function chartBox(g,x,y,w,h,r){let ch={};try{ch=JSON.parse(r.chart||'{}')}catch(e){}const c=ch.c||[],m=ch.m||[];g.fillStyle='#0f1b33';g.fillRect(x,y,w,h);if(c.length<2)return;
- const all=c.concat(m,[r.sl,r.t2,r.lo]),mn=Math.min.apply(0,all),mx=Math.max.apply(0,all),py=v=>y+h-8-(v-mn)/(mx-mn||1)*(h-16),px=i=>x+8+i/(c.length-1)*(w*.8);
- g.fillStyle='rgba(59,130,246,.25)';g.fillRect(x,py(r.hi),w,Math.max(py(r.lo)-py(r.hi),3));
- g.font='bold 18px system-ui';[['T2',r.t2,'#86efac'],['T1',r.t1,'#22c55e'],['SL',r.sl,'#ef4444']].forEach(l=>{g.strokeStyle=l[2];g.fillStyle=l[2];g.lineWidth=2;g.setLineDash([8,6]);g.beginPath();g.moveTo(x,py(l[1]));g.lineTo(x+w,py(l[1]));g.stroke();g.fillText(l[0]+' '+n0(l[1]),x+w*.82,py(l[1])-5)});g.setLineDash([]);
- g.fillStyle='#93c5fd';g.fillText('Beli '+n0(r.lo)+'–'+n0(r.hi),x+w*.82,py((r.lo+r.hi)/2)+6);
- [[m,'#fbbf24',2],[c,'#e2e8f0',3.5]].forEach(s=>{g.strokeStyle=s[1];g.lineWidth=s[2];g.beginPath();s[0].forEach((v,i)=>i?g.lineTo(px(i),py(v)):g.moveTo(px(i),py(v)));g.stroke()});
- g.fillStyle='#fbbf24';g.font='16px system-ui';g.fillText('— MA20',x+10,y+22);g.fillStyle='#e2e8f0';g.fillText('— Harga 40 hari',x+90,y+22)}
+ g.fillStyle='#101822';rr2(g,30,98,1220,36);g.font='bold 16px system-ui';g.fillStyle='#7d8fa4';
+ [['Kode',48,'left'],['Mode',172,'left'],['Beli (zona)',300,'left'],['Jual T1',650,'right'],['Jual T2',770,'right'],['Stop Loss',890,'right'],['R/R',965,'right'],['Skor',1040,'right'],['Keputusan',1066,'left']].forEach(h=>{g.textAlign=h[2];g.fillText(h[0],h[1],122)});g.textAlign='left';
+ rows.slice(0,6).forEach((r,i)=>{const y=144+i*88,q=bS(r),x=RX(r);g.fillStyle='#131c27';rr2(g,30,y,1220,80);
+  g.fillStyle='#fff';g.font='bold 28px '+MONO;g.textAlign='left';g.fillText(r.kode,48,y+48);
+  const line=(yy,mode,L,sc,col)=>{const tc=sc<50?'#475569':null;chip(g,172,yy-19,mode,col,13);g.font='20px '+MONO;g.textAlign='left';g.fillStyle=tc||'#e2e8f0';g.fillText(n0(L.lo)+' – '+n0(L.hi),300,yy);
+   g.textAlign='right';g.fillStyle=tc||'#10b981';g.fillText(n0(L.t1),650,yy);g.fillText(n0(L.t2),770,yy);g.fillStyle=tc||'#f43f5e';g.fillText(n0(L.sl),890,yy);g.fillStyle=tc||'#e2e8f0';g.fillText((+L.rr).toFixed(2),965,yy);
+   g.fillStyle=col;g.font='bold 20px '+MONO;g.fillText(String(Math.round(sc)),1040,yy);g.textAlign='left'};
+  if(q&&x.sw){line(y+32,'BSJP',r,q.b,STRC.b);line(y+64,'SWING',x.sw,q.s,STRC.s);const sx=STR[q.st]||['#94a3b8',''];chip(g,1066,y+27,q.st,sx[0],13)}
+  else line(y+46,'BSJP',r,q?q.b:+r.skor,STRC.b)});
+ g.textAlign='left';g.fillStyle='#64748b';g.font='15px system-ui';g.fillText('BSJP: beli sore di zona beli, jual besok pagi di T1 (utama) / T2, keluar bila menyentuh stop loss. Level berbasis ATR.',36,692);
+ g.fillText('SWING: level lebih lebar (ATR dan MA20) untuk tahan 3-5 hari. Angka redup = skor di bawah 50 (tidak disarankan). Bukan nasihat investasi.',36,712)}}
+function chartBox(g,x,y,w,h,r){let ch={};try{ch=JSON.parse(r.chart||'{}')}catch(e){}const c=ch.c||[],m=ch.m||[];g.fillStyle='#131c27';rr2(g,x,y,w,h);if(c.length<2)return;
+ const all=c.concat(m,[r.sl,r.t2,r.lo]),mn=Math.min.apply(0,all),mx=Math.max.apply(0,all),py=v=>y+h-18-(v-mn)/(mx-mn||1)*(h-56),px=i=>x+14+i/(c.length-1)*(w*.74);
+ g.fillStyle='rgba(148,163,184,.14)';g.fillRect(x+4,py(r.hi),w-8,Math.max(py(r.lo)-py(r.hi),3));
+ const Lb=[['T2 '+n0(r.t2),r.t2,'#34d399'],['T1 '+n0(r.t1),r.t1,'#10b981'],['Beli '+n0(r.lo)+'–'+n0(r.hi),(r.lo+r.hi)/2,'#cbd5e1'],['SL '+n0(r.sl),r.sl,'#f43f5e']].map(l=>({t:l[0],c:l[2],y:py(l[1])}));
+ g.lineWidth=1.5;Lb.forEach(l=>{g.strokeStyle=l.c;g.setLineDash([6,5]);g.beginPath();g.moveTo(x+8,l.y);g.lineTo(x+w*.78,l.y);g.stroke()});g.setLineDash([]);
+ const so=Lb.slice().sort((a,b)=>a.y-b.y);so.forEach((l,i)=>{l.ly=i?Math.max(l.y,so[i-1].ly+22):l.y});
+ g.font='bold 16px '+MONO;g.textAlign='left';Lb.forEach(l=>{g.fillStyle=l.c;g.fillText(l.t,x+w*.8,l.ly+5)});
+ g.beginPath();c.forEach((v,i)=>i?g.lineTo(px(i),py(v)):g.moveTo(px(i),py(v)));g.lineTo(px(c.length-1),y+h-10);g.lineTo(px(0),y+h-10);g.closePath();const gr=g.createLinearGradient(0,y,0,y+h);gr.addColorStop(0,'rgba(56,189,248,.22)');gr.addColorStop(1,'rgba(56,189,248,0)');g.fillStyle=gr;g.fill();
+ [[m,'#f59e0b',2],[c,'#38bdf8',3.5]].forEach(s2=>{g.strokeStyle=s2[1];g.lineWidth=s2[2];g.lineJoin='round';g.beginPath();s2[0].forEach((v,i)=>i?g.lineTo(px(i),py(v)):g.moveTo(px(i),py(v)));g.stroke()});
+ g.font='15px system-ui';g.textAlign='left';g.fillStyle='#f59e0b';g.fillText('— MA20',x+14,y+24);g.fillStyle='#38bdf8';g.fillText('— Harga 40 hari',x+96,y+24)}
 function bullets(t,sep){return String(t||'').split(sep).map(s=>s.trim().replace(/\.$/,'')).filter(Boolean)}
-function detail(r){return g=>{bg(g,r.kode+' · '+TIPE[r.tipe],r.date+' · skor B/S '+scBS(r));chartBox(g,36,110,640,360,r);
- const L=[['Beli',n0(r.lo)+'–'+n0(r.hi),'#93c5fd'],['Jual T1',n0(r.t1),'#4ade80'],['Jual T2',n0(r.t2),'#86efac'],['Stop Loss',n0(r.sl),'#f87171'],['R/R',(+r.rr).toFixed(2),'#fff']];
- L.forEach((l,i)=>{const x=36+i*130;g.fillStyle='#13203a';g.fillRect(x,490,122,76);g.fillStyle='#8fa3c4';g.font='16px system-ui';g.fillText(l[0],x+10,514);g.fillStyle=l[2];g.font='bold 21px system-ui';g.fillText(l[1],x+10,548)});
- g.fillStyle='#8fa3c4';g.font='20px system-ui';g.fillText('Hasil: '+hasil(r),36,606);
- const q=bS(r);if(q){const sx=STR[q.st]||['#94a3b8',''];g.font='bold 20px system-ui';g.fillStyle='#f59e0b';g.fillText('BSJP '+Math.round(q.b),36,640);g.fillStyle='#38bdf8';g.fillText('SWING '+Math.round(q.s),170,640);g.fillStyle=sx[0];g.fillText(q.st,330,640);g.fillStyle='#94a3b8';g.font='17px system-ui';g.fillText(sx[1],36,668)}
- let y=116;g.fillStyle='#fbbf24';g.font='bold 24px system-ui';g.fillText('Teknikal',710,y+16);y+=30;g.fillStyle='#dbe4f3';g.font='18px system-ui';
- if(q&&q.s>=70){g.fillStyle='#38bdf8';y=tp(g,'Swing skor '+Math.round(q.s)+' memenuhi kriteria Trend Following V1: lihat slide berikutnya.',710,y,530,23)+5;g.fillStyle='#dbe4f3'}
+function detail(r){return g=>{bg(g,r.kode+' · BSJP',r.date+' · skor BSJP/Swing '+scBS(r));chartBox(g,36,110,640,360,r);
+ const L=[['Beli',n0(r.lo)+'–'+n0(r.hi),'#93c5fd'],['Jual T1',n0(r.t1),'#10b981'],['Jual T2',n0(r.t2),'#34d399'],['Stop Loss',n0(r.sl),'#f43f5e'],['R/R',(+r.rr).toFixed(2),'#fff']];
+ L.forEach((l,i)=>{const x=36+i*130;g.fillStyle='#131c27';rr2(g,x,490,122,76);g.fillStyle='#94a3b8';g.font='16px system-ui';g.fillText(l[0],x+10,514);g.fillStyle=l[2];g.font='bold 21px system-ui';g.fillText(l[1],x+10,548)});
+ g.fillStyle='#94a3b8';g.font='20px system-ui';g.fillText('Status: '+hasil(r),36,606);
+ const q=bS(r);if(q){const sx=STR[q.st]||['#94a3b8',''];let cx=36;cx+=chip(g,cx,616,'BSJP '+Math.round(q.b),STRC.b,16)+10;cx+=chip(g,cx,616,'SWING '+Math.round(q.s),STRC.s,16)+10;chip(g,cx,616,q.st,sx[0],16);g.fillStyle='#94a3b8';g.font='17px system-ui';g.fillText(sx[1],36,668)}
+ let y=116;g.fillStyle='#f59e0b';g.font='bold 24px system-ui';g.fillText('Teknikal',710,y+16);y+=30;g.fillStyle='#cbd5e1';g.font='18px system-ui';
+ if(q&&q.s>=70){g.fillStyle='#38bdf8';y=tp(g,'Swing skor '+Math.round(q.s)+' memenuhi kriteria Trend Following V1: lihat slide berikutnya.',710,y,530,23)+5;g.fillStyle='#cbd5e1'}
  bullets(r.tek,'. ').forEach(t=>{y=tp(g,'• '+t,710,y,530,23)+5});
- y+=14;g.fillStyle='#34d399';g.font='bold 24px system-ui';g.fillText('Fundamental',710,y+16);y+=30;g.fillStyle='#dbe4f3';g.font='18px system-ui';
+ y+=14;g.fillStyle='#34d399';g.font='bold 24px system-ui';g.fillText('Fundamental',710,y+16);y+=30;g.fillStyle='#cbd5e1';g.font='18px system-ui';
  bullets(r.fun,' · ').forEach(t=>{y=tp(g,'• '+t,710,y,530,23)+5});
  g.fillStyle='#64748b';g.font='16px system-ui';g.fillText('Bukan nasihat investasi. Keputusan ada di tangan Anda.',36,700)}}
 const SWL=['Tren: Price > MA20 > MA50 > MA100 > MA200','Harga dekat MA20 (tidak tembus ke bawah)','Volume ≥ 1,5x rata-rata Volume MA20','RSI di area 40 - 60','Candle reversal di area MA20','Bandar Accum/Dist > 0','EPS > 0','Net Income > 1'];
 function detailSwing(r){return g=>{const x=RX(r),q=bS(r)||{b:0,s:0,st:''},sw=x.sw||{},K=x.k||[],sx=STR[q.st]||['#94a3b8',''];
  bg(g,r.kode+' · Swing (Trend Following V1)',r.date+' · skor Swing '+Math.round(q.s));
  chartBox(g,36,110,640,360,Object.assign({},r,{lo:sw.lo,hi:sw.hi,t1:sw.t1,t2:sw.t2,sl:sw.sl}));
- [['Beli',n0(sw.lo)+'–'+n0(sw.hi),'#93c5fd'],['Jual T1',n0(sw.t1),'#4ade80'],['Jual T2',n0(sw.t2),'#86efac'],['Stop Loss',n0(sw.sl),'#f87171'],['R/R',(+sw.rr).toFixed(2),'#fff']].forEach((l,i)=>{const x0=36+i*130;g.fillStyle='#13203a';g.fillRect(x0,490,122,76);g.fillStyle='#8fa3c4';g.font='16px system-ui';g.fillText(l[0],x0+10,514);g.fillStyle=l[2];g.font='bold 21px system-ui';g.fillText(l[1],x0+10,548)});
- g.font='bold 22px system-ui';g.fillStyle=sx[0];g.fillText(q.st+'  ·  BSJP '+Math.round(q.b)+' / Swing '+Math.round(q.s),36,606);
- g.font='17px system-ui';g.fillStyle='#94a3b8';para(g,sx[1]+' Level di atas dihitung dari ATR dan MA20 untuk hold beberapa hari, bukan target BSJP.',36,628,640,22,3);
+ [['Beli',n0(sw.lo)+'–'+n0(sw.hi),'#93c5fd'],['Jual T1',n0(sw.t1),'#10b981'],['Jual T2',n0(sw.t2),'#34d399'],['Stop Loss',n0(sw.sl),'#f43f5e'],['R/R',(+sw.rr).toFixed(2),'#fff']].forEach((l,i)=>{const x0=36+i*130;g.fillStyle='#131c27';rr2(g,x0,490,122,76);g.fillStyle='#94a3b8';g.font='16px system-ui';g.fillText(l[0],x0+10,514);g.fillStyle=l[2];g.font='bold 21px system-ui';g.fillText(l[1],x0+10,548)});
+ chip(g,36,580,'SWING '+Math.round(q.s),STRC.s,16);chip(g,150,580,'BSJP '+Math.round(q.b),STRC.b,16);chip(g,262,580,q.st,sx[0],16);
+ g.font='17px system-ui';g.fillStyle='#94a3b8';para(g,sx[1]+' Level di atas dihitung dari ATR dan MA20 untuk hold beberapa hari, bukan target BSJP.',36,640,640,22,3);
  g.fillStyle='#38bdf8';g.font='bold 24px system-ui';g.fillText('Checklist Swing '+Math.round(q.s)+'/100',710,132);
- K.forEach((k,i)=>{const y=150+i*66,ok=k[0];g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(704,y,540,60);
-  g.font='bold 24px system-ui';g.fillStyle=ok===1?'#4ade80':ok===0?'#f87171':'#94a3b8';g.fillText(ok===1?'✔':ok===0?'✖':'–',716,y+38);
+ K.forEach((k,i)=>{const y=150+i*66,ok=k[0];g.fillStyle=i%2?'#101822':'#131c27';rr2(g,704,y,540,60);
+  g.font='bold 24px system-ui';g.fillStyle=ok===1?'#10b981':ok===0?'#f43f5e':'#94a3b8';g.fillText(ok===1?'✔':ok===0?'✖':'–',716,y+38);
   g.font='bold 18px system-ui';g.fillStyle='#fff';g.fillText(SWL[i]||'',752,y+25);g.font='15px system-ui';g.fillStyle='#94a3b8';para(g,String(k[1]||''),752,y+46,480,18,1)});
  g.fillStyle='#64748b';g.font='16px system-ui';g.fillText('Swing belum dievaluasi otomatis: pantau sendiri 3-5 hari. Bukan nasihat investasi.',36,700)}}
-function drawOv(g){const td=jk().date,b=latest('BTST'),rp=DATA.reports[0];bg(g,'Kantor AI · Beli Sore Jual Pagi',td+' · '+phase());
- [['Sore: input & analisis','Tempel hasil screening Anda',b[0]&&b[0].date===td],['Pagi: jual','Leader memantau target & stop loss',false],['16:30 Laporan','Evaluasi & catatan',rp&&rp.date===td]].forEach((c,i)=>{const x=36+i*404;g.fillStyle='#13203a';g.fillRect(x,110,380,110);g.fillStyle='#fff';g.font='bold 25px system-ui';g.fillText(c[0],x+16,150);g.fillStyle='#8fa3c4';g.font='20px system-ui';g.fillText(c[1],x+16,180);g.fillStyle=c[2]?'#4ade80':'#fbbf24';g.fillText(c[2]?'✔ selesai hari ini':(i===1?'⏳ otomatis saat market buka':'⏳ menunggu'),x+16,208)});
- g.fillStyle='#19b5b0';g.font='bold 26px system-ui';g.fillText('Rekomendasi BSJP · '+b.length+' saham'+(b[0]?' · data '+b[0].date:''),36,262);
- b.slice(0,5).forEach((r,j)=>{const y=282+j*72;g.fillStyle=j%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,64);g.textAlign='left';g.fillStyle='#fff';g.font='bold 30px system-ui';g.fillText(r.kode,48,y+43);g.fillStyle='#93c5fd';g.font='22px system-ui';g.fillText('Beli '+n0(r.lo)+'–'+n0(r.hi),190,y+42);g.fillStyle='#4ade80';g.fillText('Jual '+n0(r.t1)+' / '+n0(r.t2),470,y+42);g.fillStyle='#f87171';g.fillText('SL '+n0(r.sl),790,y+42);g.fillStyle='#fff';g.font='bold 24px system-ui';g.textAlign='right';g.fillText(bS(r)?'B'+Math.round(bS(r).b)+' · S'+Math.round(bS(r).s):(+r.skor).toFixed(0)+'/100',1230,y+42);g.textAlign='left'});
- if(!b.length){g.fillStyle='#64748b';g.font='24px system-ui';g.fillText('Belum ada input. Klik “⌨ Input Saham” dan tempel hasil screening Anda.',36,330)}
- g.fillStyle='#64748b';g.font='18px system-ui';g.fillText('Update: '+(DATA.updated||'-')+' · Alat bantu seleksi & edukasi, bukan nasihat investasi.',36,700)}
+function drawOv(g){const td=jk().date,b=latest('BTST'),rp=DATA.reports[0];bg(g,'Kantor AI · BSJP & Swing',td+' · '+phase());
+ [['Sore: input & analisis','Tempel hasil screening Anda',b[0]&&b[0].date===td],['Pagi: jual','Leader memantau target & stop loss',false],['16:30 Laporan','Evaluasi & catatan',rp&&rp.date===td]].forEach((c,i)=>{const x=36+i*410;g.fillStyle='#131c27';rr2(g,x,108,388,100);g.textAlign='left';g.fillStyle='#fff';g.font='bold 24px system-ui';g.fillText(c[0],x+20,146);g.fillStyle='#7d8fa4';g.font='17px system-ui';g.fillText(c[1],x+20,172);g.fillStyle=c[2]?'#10b981':'#f59e0b';g.font='bold 16px system-ui';g.fillText(c[2]?'✓ selesai hari ini':(i===1?'⏳ otomatis saat market buka':'⏳ menunggu'),x+20,196)});
+ g.fillStyle='#131c27';rr2(g,36,226,1208,66);let w=chip(g,54,243,'BSJP',STRC.b,16);g.fillStyle='#cbd5e1';g.font='18px system-ui';g.fillText('Beli sore, jual besok pagi (hit & run)',54+w+14,267);
+ w=chip(g,650,243,'SWING',STRC.s,16);g.fillStyle='#cbd5e1';g.font='18px system-ui';g.fillText('Tahan 3-5 hari mengikuti tren',650+w+14,267);
+ g.fillStyle='#10b981';g.font='bold 22px system-ui';g.fillText('Rekomendasi · '+b.length+' saham'+(b[0]?' · data '+b[0].date:''),36,328);
+ b.slice(0,5).forEach((r,j)=>{const y=346+j*66,q=bS(r),x2=RX(r),L=(q&&q.st==='SWING ONLY'&&x2.sw)?x2.sw:r;g.fillStyle='#131c27';rr2(g,30,y,1220,58);g.textAlign='left';
+  g.fillStyle='#fff';g.font='bold 28px '+MONO;g.fillText(r.kode,52,y+39);
+  if(q){const sx=STR[q.st]||['#94a3b8',''];chip(g,160,y+14,q.st,sx[0],15)}
+  g.font='20px '+MONO;g.fillStyle='#cbd5e1';g.fillText('Beli '+n0(L.lo)+'–'+n0(L.hi),410,y+37);g.fillStyle='#10b981';g.fillText('Jual '+n0(L.t1)+' / '+n0(L.t2),640,y+37);g.fillStyle='#f43f5e';g.fillText('SL '+n0(L.sl),890,y+37);
+  g.textAlign='right';g.font='bold 22px '+MONO;
+  if(q){g.fillStyle=STRC.s;const st='S'+Math.round(q.s);g.fillText(st,1228,y+37);const sw=g.measureText(st+'   ').width;g.fillStyle=STRC.b;g.fillText('B'+Math.round(q.b),1228-sw,y+37)}else{g.fillStyle='#94a3b8';g.fillText((+r.skor).toFixed(0)+'/100',1228,y+37)}g.textAlign='left'});
+ if(!b.length){g.fillStyle='#64748b';g.font='22px system-ui';g.fillText('Belum ada input. Klik “Input Saham” dan tempel hasil screening Anda.',36,380)}
+ g.fillStyle='#64748b';g.font='16px system-ui';g.fillText('Update: '+(DATA.updated||'-')+' · Alat bantu seleksi & edukasi, bukan nasihat investasi.',36,704)}
 const FEE={beli:.0015,jual:.0025},rpf=v=>(v>=0?'+':'−')+'Rp '+n0(Math.abs(v));
 function holdings(){const m={};(DATA.port||[]).forEach(r=>{if(+r.sisa<=0)return;const o=m[r.kode]=m[r.kode]||{kode:r.kode,lot:0,cost:0};o.lot+=+r.sisa;o.cost+=+r.sisa*100*(+r.hb);o.t1=r.t1;o.t2=r.t2;o.sl=r.sl;o.tipe=r.tipe});
  return Object.keys(m).map(k=>{const o=m[k],p=(DATA.prices||{})[k];o.avg=o.cost/(o.lot*100);o.px=p||null;o.unrl=p?o.lot*100*(p-o.avg):null;o.pct=p?(p/o.avg-1)*100:null;return o})}
@@ -1284,81 +1309,80 @@ function realisasi(date){const S=(DATA.sales||[]).filter(s=>s.tgl===date),o={s1:
 function cohortPrev(){const td=jk().date,B=(DATA.recs||[]).filter(r=>r.tipe==='BTST'&&r.date<td),d=B.map(r=>r.date).sort().pop();return{date:d||'',rows:B.filter(r=>r.date===d).sort((a,b)=>b.skor-a.skor)}}
 function cohortStats(cp){const td=jk().date,codes=cp.rows.map(r=>r.kode),o={tp:0,sl:0,tutup:0,tb:0,open:0,n:0,avg:0,real:0};let sum=0;cp.rows.forEach(r=>{if(r.status==='TP1')o.tp++;else if(r.status==='SL')o.sl++;else if(r.status==='TUTUP')o.tutup++;else if(r.status==='TIDAK TERBELI')o.tb++;else o.open++;if(['TP1','SL','TUTUP'].includes(r.status)&&r.ret!==''&&r.ret!=null){sum+=+r.ret;o.n++}});o.avg=o.n?sum/o.n:0;(DATA.sales||[]).filter(s=>s.tgl===td&&codes.includes(s.kode)).forEach(s=>o.real+=+s.pl);return o}
 function repBody(rp){return g=>{const X=50,W=1170,td=rp?rp.date:jk().date,z=realisasi(td);let y=30;
- g.fillStyle='#8fa3c4';g.font='22px system-ui';g.fillText('Realisasi penjualan '+td+' · akumulasi Sesi 1 + Sesi 2',X,y+20);y+=40;
- [['Sesi 1 (sebelum 12:00)',z.s1],['Sesi 2',z.s2],['TOTAL hari ini',z.total]].forEach((c,i)=>{const x=X+i*392;g.fillStyle='#13203a';g.fillRect(x,y,376,112);g.fillStyle='#8fa3c4';g.font='20px system-ui';g.fillText(c[0],x+16,y+34);g.fillStyle=c[1]>=0?'#4ade80':'#f87171';g.font='bold 36px system-ui';g.fillText(rpf(c[1]),x+16,y+84)});y+=136;
+ g.fillStyle='#94a3b8';g.font='22px system-ui';g.fillText('Realisasi penjualan '+td+' · akumulasi Sesi 1 + Sesi 2',X,y+20);y+=40;
+ [['Sesi 1 (sebelum 12:00)',z.s1],['Sesi 2',z.s2],['TOTAL hari ini',z.total]].forEach((c,i)=>{const x=X+i*392;g.fillStyle='#131c27';rr2(g,x,y,376,112);g.fillStyle='#94a3b8';g.font='20px system-ui';g.fillText(c[0],x+16,y+34);g.fillStyle=c[1]>=0?'#10b981':'#f43f5e';g.font='bold 36px system-ui';g.fillText(rpf(c[1]),x+16,y+84)});y+=136;
  {const cp=cohortPrev(),cs=cohortStats(cp),TS=(DATA.sales||[]).filter(s=>s.tgl===td);
-  g.fillStyle='#fbbf24';g.font='bold 26px system-ui';g.fillText('Evaluasi BSJP kemarin'+(cp.date?' ('+cp.date+')':''),X,y+26);y+=44;
-  g.fillStyle='#8fa3c4';g.font='19px system-ui';y=tp(g,'Rekomendasi yang Anda input sore sebelumnya dan dijual pagi ini. Input sore ini baru dievaluasi besok pagi.',X,y,W,26)+8;
+  g.fillStyle='#f59e0b';g.font='bold 26px system-ui';g.fillText('Evaluasi BSJP kemarin'+(cp.date?' ('+cp.date+')':''),X,y+26);y+=44;
+  g.fillStyle='#94a3b8';g.font='19px system-ui';y=tp(g,'Rekomendasi yang Anda input sore sebelumnya dan dijual pagi ini. Input sore ini baru dievaluasi besok pagi.',X,y,W,26)+8;
   if(!cp.rows.length){g.fillStyle='#64748b';g.font='22px system-ui';g.fillText('Belum ada rekomendasi BSJP hari sebelumnya untuk dievaluasi.',X,y+22);y+=54}
-  else{cp.rows.forEach((r,i)=>{const st=r.status,res=st==='TP1'?['✔ Capai Target 1','#4ade80']:st==='SL'?['✖ Kena Stop Loss','#f87171']:st==='TUTUP'?['Ditutup tanpa target/SL','#cbd5e1']:st==='TIDAK TERBELI'?['Zona beli tidak tersentuh','#94a3b8']:['⏳ '+String(r.eval||'Menunggu data hari ini').slice(0,34),'#fbbf24'],sl=TS.filter(s=>s.kode===r.kode);
-    g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(X-10,y,W+20,sl.length?84:56);g.textAlign='left';g.fillStyle='#fff';g.font='bold 26px system-ui';g.fillText(r.kode,X,y+36);g.fillStyle='#94a3b8';g.font='19px system-ui';g.fillText('beli '+n0(r.lo)+'–'+n0(r.hi)+' · T1 '+n0(r.t1)+' · SL '+n0(r.sl),190,y+35);
+  else{cp.rows.forEach((r,i)=>{const st=r.status,res=st==='TP1'?['✔ Capai Target 1','#10b981']:st==='SL'?['✖ Kena Stop Loss','#f43f5e']:st==='TUTUP'?['Ditutup tanpa target/SL','#cbd5e1']:st==='TIDAK TERBELI'?['Zona beli tidak tersentuh','#94a3b8']:['⏳ '+String(r.eval||'Menunggu data hari ini').slice(0,34),'#f59e0b'],sl=TS.filter(s=>s.kode===r.kode);
+    g.fillStyle=i%2?'#101822':'#131c27';rr2(g,X-10,y,W+20,sl.length?84:56);g.textAlign='left';g.fillStyle='#fff';g.font='bold 26px system-ui';g.fillText(r.kode,X,y+36);g.fillStyle='#94a3b8';g.font='19px system-ui';g.fillText('beli '+n0(r.lo)+'–'+n0(r.hi)+' · T1 '+n0(r.t1)+' · SL '+n0(r.sl),190,y+35);
     g.textAlign='right';g.fillStyle=res[1];g.font='bold 22px system-ui';g.fillText(res[0]+((st==='TP1'||st==='SL'||st==='TUTUP')&&r.ret!==''&&r.ret!=null?'  ('+(+r.ret>=0?'+':'')+(+r.ret).toFixed(2)+'%)':''),X+W,y+36);g.textAlign='left';
-    if(sl.length){const q=sl.reduce((a,s)=>({lot:a.lot+ +s.lot,pl:a.pl+ +s.pl,hj:s.hj}),{lot:0,pl:0,hj:0});g.fillStyle=q.pl>=0?'#4ade80':'#f87171';g.font='20px system-ui';g.fillText('Anda jual '+n0(q.lot)+' lot @ '+n0(q.hj)+' → '+rpf(q.pl),190,y+68)}
+    if(sl.length){const q=sl.reduce((a,s)=>({lot:a.lot+ +s.lot,pl:a.pl+ +s.pl,hj:s.hj}),{lot:0,pl:0,hj:0});g.fillStyle=q.pl>=0?'#10b981':'#f43f5e';g.font='20px system-ui';g.fillText('Anda jual '+n0(q.lot)+' lot @ '+n0(q.hj)+' → '+rpf(q.pl),190,y+68)}
     y+=sl.length?92:62});
-   g.fillStyle='#dbe4f3';g.font='21px system-ui';y=tp(g,'Ringkasan: capai T1 '+cs.tp+' · kena SL '+cs.sl+' · ditutup '+cs.tutup+' · tidak terbeli '+cs.tb+' · berjalan '+cs.open+(cs.n?' · rata-rata '+(cs.avg>=0?'+':'')+cs.avg.toFixed(2)+'%':'')+' · realisasi Anda dari saham ini '+rpf(cs.real),X,y+4,W,30)+14}}
- if(z.rows.length){g.fillStyle='#19b5b0';g.font='bold 26px system-ui';g.fillText('Transaksi jual hari ini ('+z.n+')',X,y+26);y+=46;
-  z.rows.slice().reverse().forEach((s,i)=>{g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(X-10,y,W+20,56);g.textAlign='left';g.fillStyle='#fff';g.font='bold 26px system-ui';g.fillText(s.kode,X,y+37);g.fillStyle='#94a3b8';g.font='20px system-ui';g.fillText('Sesi '+s.sesi+' · '+n0(s.lot)+' lot · beli '+n0(s.hb)+' → jual '+n0(s.hj),200,y+36);g.textAlign='right';g.fillStyle=+s.pl>=0?'#4ade80':'#f87171';g.font='bold 23px system-ui';g.fillText(rpf(+s.pl)+'  ('+(+s.pct>=0?'+':'')+(+s.pct).toFixed(2)+'%)',X+W,y+37);g.textAlign='left';y+=62});y+=16}
+   g.fillStyle='#cbd5e1';g.font='21px system-ui';y=tp(g,'Ringkasan: capai T1 '+cs.tp+' · kena SL '+cs.sl+' · ditutup '+cs.tutup+' · tidak terbeli '+cs.tb+' · berjalan '+cs.open+(cs.n?' · rata-rata '+(cs.avg>=0?'+':'')+cs.avg.toFixed(2)+'%':'')+' · realisasi Anda dari saham ini '+rpf(cs.real),X,y+4,W,30)+14}}
+ if(z.rows.length){g.fillStyle='#10b981';g.font='bold 26px system-ui';g.fillText('Transaksi jual hari ini ('+z.n+')',X,y+26);y+=46;
+  z.rows.slice().reverse().forEach((s,i)=>{g.fillStyle=i%2?'#101822':'#131c27';rr2(g,X-10,y,W+20,56);g.textAlign='left';g.fillStyle='#fff';g.font='bold 26px system-ui';g.fillText(s.kode,X,y+37);g.fillStyle='#94a3b8';g.font='20px system-ui';g.fillText('Sesi '+s.sesi+' · '+n0(s.lot)+' lot · beli '+n0(s.hb)+' → jual '+n0(s.hj),200,y+36);g.textAlign='right';g.fillStyle=+s.pl>=0?'#10b981':'#f43f5e';g.font='bold 23px system-ui';g.fillText(rpf(+s.pl)+'  ('+(+s.pct>=0?'+':'')+(+s.pct).toFixed(2)+'%)',X+W,y+37);g.textAlign='left';y+=62});y+=16}
  else{g.fillStyle='#64748b';g.font='22px system-ui';g.fillText('Belum ada penjualan yang dicatat hari ini.',X,y+20);y+=56}
- const H=holdings();if(H.length){g.fillStyle='#fbbf24';g.font='bold 26px system-ui';g.fillText('Masih dipegang (termasuk input sore ini)',X,y+26);y+=46;H.forEach(o=>{g.fillStyle='#dbe4f3';g.font='22px system-ui';y=tp(g,o.kode+' · '+n0(o.lot)+' lot · rata-rata beli '+n0(o.avg)+' · T1 '+n0(o.t1)+' · SL '+n0(o.sl)+(o.unrl!==null?' · '+rpf(o.unrl)+' (belum terealisasi)':''),X,y,W,32)+6});y+=16}
- if(rp){g.fillStyle='#34d399';g.font='bold 26px system-ui';g.fillText('Ringkasan sistem hari ini',X,y+26);y+=46;g.fillStyle='#dbe4f3';g.font='22px system-ui';y=tp(g,'Dievaluasi '+rp.total+' · win rate '+rp.wr+'% · rata-rata return '+rp.avg+'% · kena target '+rp.tp+' · kena SL '+rp.sl,X,y,W,32)+8;y=tp(g,rp.eval||'',X,y,W,32)+16}
+ const H=holdings();if(H.length){g.fillStyle='#f59e0b';g.font='bold 26px system-ui';g.fillText('Masih dipegang (termasuk input sore ini)',X,y+26);y+=46;H.forEach(o=>{g.fillStyle='#cbd5e1';g.font='22px system-ui';y=tp(g,o.kode+' · '+n0(o.lot)+' lot · rata-rata beli '+n0(o.avg)+' · T1 '+n0(o.t1)+' · SL '+n0(o.sl)+(o.unrl!==null?' · '+rpf(o.unrl)+' (belum terealisasi)':''),X,y,W,32)+6});y+=16}
+ if(rp){g.fillStyle='#34d399';g.font='bold 26px system-ui';g.fillText('Ringkasan sistem hari ini',X,y+26);y+=46;g.fillStyle='#cbd5e1';g.font='22px system-ui';y=tp(g,'Dievaluasi '+rp.total+' · win rate '+rp.wr+'% · rata-rata return '+rp.avg+'% · kena target '+rp.tp+' · kena SL '+rp.sl,X,y,W,32)+8;y=tp(g,rp.eval||'',X,y,W,32)+16}
  return y+30}}
 function drawRep(rp){return g=>tall('Laporan & Evaluasi',rp?rp.date:jk().date,repBody(rp))(g)}
 function drawPort(g){const H=holdings(),z=realisasi(jk().date);bg(g,'Portofolio · Posisi Saya','Realisasi hari ini '+rpf(z.total));
  if(!H.length){g.fillStyle='#94a3b8';g.font='28px system-ui';g.fillText('Belum ada posisi. Isi “Rencana Beli” untuk memasukkan saham ke portofolio.',40,200);return}
- const sg=v=>v===null?'#e2e8f0':v>=0?'#4ade80':'#f87171';
- const C=[['Kode',120,'l',o=>o.kode],['Lot',90,'r',o=>n0(o.lot)],['Rata2 beli',150,'r',o=>n0(o.avg)],['Harga kini',150,'r',o=>o.px?n0(o.px):'–'],['P/L belum real.',230,'r',o=>o.unrl===null?'–':rpf(o.unrl),o=>sg(o.unrl)],['%',100,'r',o=>o.pct===null?'–':(o.pct>=0?'+':'')+o.pct.toFixed(2)+'%',o=>sg(o.pct)],['Target 1',130,'r',o=>n0(o.t1),()=>'#4ade80'],['Stop Loss',130,'r',o=>n0(o.sl),()=>'#f87171']];
- let x0=36;g.font='bold 19px system-ui';g.fillStyle='#8fa3c4';C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillText(c[0],c[2]==='r'?x0+c[1]-10:x0,128);c[5]=x0;x0+=c[1]});
- H.slice(0,7).forEach((o,i)=>{const y=146+i*72;g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,64);C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillStyle=c[4]?c[4](o):'#fff';const t=String(c[3](o)),b=c[0]==='Kode'?'bold ':'';let fs=c[0]==='Kode'?30:25;g.font=b+fs+'px system-ui';while(g.measureText(t).width>c[1]-16&&fs>13){fs--;g.font=b+fs+'px system-ui'}g.fillText(t,c[2]==='r'?c[5]+c[1]-10:c[5],y+42)})});
+ const sg=v=>v===null?'#e2e8f0':v>=0?'#10b981':'#f43f5e';
+ const C=[['Kode',120,'l',o=>o.kode],['Lot',90,'r',o=>n0(o.lot)],['Rata2 beli',150,'r',o=>n0(o.avg)],['Harga kini',150,'r',o=>o.px?n0(o.px):'–'],['P/L belum real.',230,'r',o=>o.unrl===null?'–':rpf(o.unrl),o=>sg(o.unrl)],['%',100,'r',o=>o.pct===null?'–':(o.pct>=0?'+':'')+o.pct.toFixed(2)+'%',o=>sg(o.pct)],['Target 1',130,'r',o=>n0(o.t1),()=>'#10b981'],['Stop Loss',130,'r',o=>n0(o.sl),()=>'#f43f5e']];
+ let x0=36;g.font='bold 19px system-ui';g.fillStyle='#94a3b8';C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillText(c[0],c[2]==='r'?x0+c[1]-10:x0,128);c[5]=x0;x0+=c[1]});
+ H.slice(0,7).forEach((o,i)=>{const y=146+i*72;g.fillStyle=i%2?'#101822':'#131c27';rr2(g,30,y,1220,64);C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillStyle=c[4]?c[4](o):'#fff';const t=String(c[3](o)),b=c[0]==='Kode'?'bold ':'';let fs=c[0]==='Kode'?30:25;g.font=b+fs+'px system-ui';while(g.measureText(t).width>c[1]-16&&fs>13){fs--;g.font=b+fs+'px system-ui'}g.fillText(t,c[2]==='r'?c[5]+c[1]-10:c[5],y+42)})});
  g.textAlign='left';g.fillStyle='#64748b';g.font='18px system-ui';g.fillText('Harga kini dari Yahoo (bisa tertunda). Untung/rugi memakai fee '+(FEE.beli*100).toFixed(2)+'% beli / '+(FEE.jual*100).toFixed(2)+'% jual. Catat penjualan lewat tombol “Catat Jual”.',36,704)}
 function drawAna(g,s){bg(g,'Agen sedang menganalisis…',RUN.lbl);g.fillStyle='#e2e8f0';g.font='26px system-ui';g.fillText('Memindai watchlist, menghitung zona beli, target & stop loss',40,140);
- g.fillStyle='#1e293b';rrect(g,40,170,1200,22,11);g.fill();g.fillStyle='#19b5b0';rrect(g,40+((s*.25)%1)*900,170,300,22,11);g.fill();
+ g.fillStyle='#0b1017';rrect(g,40,170,1200,22,11);g.fill();g.fillStyle='#10b981';rrect(g,40+((s*.25)%1)*900,170,300,22,11);g.fill();
  for(let i=0;i<8;i++){const k=Math.floor(s*2.2)-i,t=TICK[((k%TICK.length)+TICK.length)%TICK.length];g.globalAlpha=1-i*.1;g.fillStyle=i?'#94a3b8':'#fff';g.font=(i?'24':'bold 30')+'px system-ui';g.fillText((i?'✓ ':'▶ ')+t+(i?'':'  MA · RSI · MACD · Volume'),60,250+i*46)}g.globalAlpha=1;
- const x0=760,y0=240,w=470,h=340,N=60,cut=Math.floor((s*18)%(N+20));g.fillStyle='#0f1b33';g.fillRect(x0,y0,w,h);g.strokeStyle='#19b5b0';g.lineWidth=3;g.beginPath();
+ const x0=760,y0=240,w=470,h=340,N=60,cut=Math.floor((s*18)%(N+20));g.fillStyle='#0e151f';rr2(g,x0,y0,w,h);g.strokeStyle='#10b981';g.lineWidth=3;g.beginPath();
  for(let i=0;i<=Math.min(cut,N-1);i++){const y=y0+h/2-(Math.sin(i/6+s*.3)*60+Math.sin(i/2.3)*20+(i-30)*1.6);i?g.lineTo(x0+i/(N-1)*w,y):g.moveTo(x0+i/(N-1)*w,y)}g.stroke();
  g.fillStyle='#64748b';g.font='18px system-ui';g.fillText('Animasi = indikator proses. Hasil asli muncul setelah server Google selesai (30–90 detik).',40,690)}
 /* ============ SLIDE TAMBAHAN ============ */
 function rankRows(){return latest('BTST').filter(r=>r.status!=='GUGUR').sort((a,b)=>b.skor-a.skor).slice(0,10)}
 function drawRank(g){const R=rankRows();bg(g,'Ranking Rekomendasi Harian','Skor BSJP & Swing /100 · urut skor tertinggi');if(!R.length){empty(g);return}
- const bar=(x,y,w,v,col)=>{g.fillStyle='#1e293b';rrect(g,x,y,w,14,7);g.fill();g.fillStyle=col;rrect(g,x,y,Math.max(14,w*Math.min(100,v)/100),14,7);g.fill();g.fillStyle='rgba(255,255,255,.4)';g.fillRect(x+w*.5,y-1,2,16);g.fillRect(x+w*.7,y-1,2,16)};
- R.forEach((r,i)=>{const y=104+i*58,q=bS(r),sx=q?STR[q.st]:null;g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,52);g.textAlign='left';
-  g.fillStyle=i<3?'#fbbf24':'#8fa3c4';g.font='bold 28px system-ui';g.fillText('#'+(i+1),44,y+36);
-  g.fillStyle='#fff';g.fillText(r.kode,115,y+36);
-  if(q){g.font='bold 14px system-ui';g.fillStyle='#f59e0b';g.fillText('BSJP',250,y+21);g.fillStyle='#38bdf8';g.fillText('SWING',250,y+43);
-   bar(310,y+9,240,q.b,'#f59e0b');bar(310,y+29,240,q.s,'#38bdf8');
-   g.font='bold 18px system-ui';g.fillStyle='#f59e0b';g.fillText(String(Math.round(q.b)),562,y+22);g.fillStyle='#38bdf8';g.fillText(String(Math.round(q.s)),562,y+43);
-   g.fillStyle=sx?sx[0]:'#94a3b8';g.font='bold 21px system-ui';g.fillText(q.st||'-',625,y+34)}
-  else{g.fillStyle='#19b5b0';g.font='18px system-ui';g.fillText(TIPE[r.tipe],250,y+34);g.fillStyle='#1e293b';rrect(g,370,y+14,300,24,12);g.fill();g.fillStyle=r.skor>=80?'#22c55e':r.skor>=65?'#19b5b0':'#f59e0b';rrect(g,370,y+14,Math.max(24,300*r.skor/100),24,12);g.fill();g.fillStyle='#fff';g.font='bold 26px system-ui';g.fillText((+r.skor).toFixed(0)+'/100',690,y+36)}
-  g.textAlign='right';g.fillStyle='#94a3b8';g.font='19px system-ui';g.fillText('T1 '+n0(r.t1),1236,y+34);g.textAlign='left'});
- g.fillStyle='#64748b';g.font='17px system-ui';g.fillText('Garis putih pada batang = batas 50 dan 70. Skor BSJP = momentum sore; skor Swing = Trend Following V1. Bukan nasihat investasi.',36,704)}
+ const bar=(x,y,w,v,col)=>{g.fillStyle='#0b1017';rrect(g,x,y,w,10,5);g.fill();g.fillStyle=col;rrect(g,x,y,Math.max(10,w*Math.min(100,v)/100),10,5);g.fill();g.fillStyle='rgba(255,255,255,.6)';g.fillRect(x+w*.5-1,y-2,2,14);g.fillRect(x+w*.7-1,y-2,2,14)};
+ R.slice(0,9).forEach((r,i)=>{const y=102+i*62,q=bS(r),sx=q?STR[q.st]:null,L=(q&&q.st==='SWING ONLY'&&RX(r).sw)?RX(r).sw:r;g.fillStyle='#131c27';rr2(g,30,y,1220,54);g.textAlign='left';
+  g.fillStyle='#f59e0b';g.font='bold 20px '+MONO;g.fillText('#'+(i+1),48,y+34);g.fillStyle='#fff';g.font='bold 26px '+MONO;g.fillText(r.kode,104,y+36);
+  if(q){g.font='13px '+MONO;g.fillStyle='#7d8fa4';g.fillText('BSJP',250,y+24);g.fillText('SWING',250,y+44);
+   bar(318,y+15,300,q.b,STRC.b);bar(318,y+35,300,q.s,STRC.s);
+   g.font='bold 15px '+MONO;g.textAlign='right';g.fillStyle=STRC.b;g.fillText(String(Math.round(q.b)),668,y+25);g.fillStyle=STRC.s;g.fillText(String(Math.round(q.s)),668,y+45);g.textAlign='left';
+   chip(g,700,y+12,q.st||'-',sx?sx[0]:'#94a3b8',16)}
+  else{g.fillStyle='#94a3b8';g.font='16px system-ui';g.fillText('SKOR',250,y+33);bar(318,y+22,300,r.skor,STRC.b);g.fillStyle='#fff';g.font='bold 18px '+MONO;g.fillText((+r.skor).toFixed(0)+'/100',640,y+34)}
+  g.textAlign='right';g.fillStyle='#cbd5e1';g.font='600 18px '+MONO;g.fillText('T1 '+n0(L.t1),1228,y+34);g.textAlign='left'});
+ g.fillStyle='#1c2836';g.fillRect(36,672,1208,1);g.fillStyle='#64748b';g.font='16px system-ui';g.fillText('Garis putih pada batang = batas 50 dan 70. BSJP = momentum sore (jual besok pagi). Swing = Trend Following V1 (tahan 3-5 hari). Bukan nasihat investasi.',36,700)}
 function drawDiv(g){const R=DATA.div;bg(g,'Dividend Hunter · Jadwal Dividen','Cum → Ex → Recording → Bayar');if(!R.length){empty(g);return}
  const C=[['Kode',100,'l',r=>r.kode],['Yield',100,'r',r=>r.yld+'%'],['Dividen/lbr',150,'r',r=>n0(r.last)],['Cum Date',165,'l',r=>r.cum],['Ex Date',165,'l',r=>r.ex],['Recording',165,'l',r=>r.rec],['Bayar',150,'l',r=>r.pay],['Status',205,'l',r=>String(r.status).replace(/ \(.*\)/,'')]];
- let x0=36;g.font='bold 20px system-ui';g.fillStyle='#8fa3c4';C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillText(c[0],c[2]==='r'?x0+c[1]-10:x0,128);c[4]=x0;x0+=c[1]});
- R.slice(0,6).forEach((r,i)=>{const y=142+i*58;g.fillStyle=i%2?'#0f1a30':'#13203a';g.fillRect(30,y,1220,52);C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillStyle=c[0]==='Yield'?'#4ade80':'#fff';g.font=(c[0]==='Kode'?'bold 28px':'23px')+' system-ui';g.fillText(String(c[3](r)),c[2]==='r'?c[4]+c[1]-10:c[4],y+35)})});
- g.textAlign='left';g.fillStyle='#fbbf24';g.font='bold 22px system-ui';g.fillText('Ringkasan 16:30',36,520);g.fillStyle='#dbe4f3';g.font='21px system-ui';para(g,DATA.divSummary||'Menunggu laporan 16:30.',36,552,1200,29,4);
+ let x0=36;g.font='bold 20px system-ui';g.fillStyle='#94a3b8';C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillText(c[0],c[2]==='r'?x0+c[1]-10:x0,128);c[4]=x0;x0+=c[1]});
+ R.slice(0,6).forEach((r,i)=>{const y=142+i*58;g.fillStyle=i%2?'#101822':'#131c27';rr2(g,30,y,1220,52);C.forEach(c=>{g.textAlign=c[2]==='r'?'right':'left';g.fillStyle=c[0]==='Yield'?'#10b981':'#fff';g.font=(c[0]==='Kode'?'bold 28px':'23px')+' system-ui';g.fillText(String(c[3](r)),c[2]==='r'?c[4]+c[1]-10:c[4],y+35)})});
+ g.textAlign='left';g.fillStyle='#f59e0b';g.font='bold 22px system-ui';g.fillText('Ringkasan 16:30',36,520);g.fillStyle='#cbd5e1';g.font='21px system-ui';para(g,DATA.divSummary||'Menunggu laporan 16:30.',36,552,1200,29,4);
  const sr=R.find(r=>r.src);g.fillStyle='#64748b';g.font='16px system-ui';g.fillText('Sumber: Yahoo Finance + Google News'+(sr?' · '+String(sr.src).slice(0,95):''),36,704)}
 function bul(g,arr,x,y,w,lh,ml){(arr||[]).slice(0,4).forEach(t=>{y=para(g,'• '+t,x,y,w,lh,ml)+4});return y}
 const bigc=document.createElement('canvas');bigc.width=1280;bigc.height=2600;const bg2=bigc.getContext('2d');
 function tp(g,t,x,y,w,lh){const L=lines(g,t,w);L.forEach((l,i)=>g.fillText(l,x,y+lh*.8+i*lh));return y+L.length*lh}
-function tall(title,sub,body){return g=>{bg2.fillStyle='#0b1324';bg2.fillRect(0,0,1280,2600);bg2.textAlign='left';const h=Math.min(2580,body(bg2)+30);
+function tall(title,sub,body){return g=>{bg2.fillStyle='#0e151f';bg2.fillRect(0,0,1280,2600);bg2.textAlign='left';const h=Math.min(2580,body(bg2)+30);
  SC.max=Math.max(0,h-610);SC.y=clamp(SC.y,0,SC.max);bg(g,title,sub);g.drawImage(bigc,0,SC.y,1280,610,0,100,1280,610);
- if(SC.max>0){g.fillStyle='#1e293b';g.fillRect(1262,104,8,602);g.fillStyle='#19b5b0';const th=Math.max(40,602*610/h);g.fillRect(1262,104+(602-th)*SC.y/SC.max,8,th)}g.textAlign='left'}}
+ if(SC.max>0){g.fillStyle='#0b1017';rr2(g,1262,104,8,602);g.fillStyle='#10b981';const th=Math.max(40,602*610/h);rr2(g,1262,104+(602-th)*SC.y/SC.max,8,th)}g.textAlign='left'}}
 function askBody(q){return g=>{const X=50,W=1170;let y=30;
- g.fillStyle='#8fa3c4';g.font='italic 22px system-ui';y=tp(g,'Tanya: '+(q.tanya||''),X,y,W,32)+16;
+ g.fillStyle='#94a3b8';g.font='italic 22px system-ui';y=tp(g,'Tanya: '+(q.tanya||''),X,y,W,32)+16;
  g.fillStyle='#fff';g.font='bold 34px system-ui';y=tp(g,q.judul||'',X,y,W,46)+22;
- const sec=(t,c,arr)=>{if(!arr||!arr.length)return;g.fillStyle=c;g.font='bold 26px system-ui';g.fillText(t,X,y+28);y+=50;g.fillStyle='#dbe4f3';g.font='24px system-ui';arr.forEach(s=>{y=tp(g,s,X+4,y,W-10,36)+12});y+=24};
- sec('Ringkasan','#19b5b0',q.poin&&q.poin.length?q.poin.map(x=>'• '+x):[q.ringkasan||q.jawaban||'']);
+ const sec=(t,c,arr)=>{if(!arr||!arr.length)return;g.fillStyle=c;g.font='bold 26px system-ui';g.fillText(t,X,y+28);y+=50;g.fillStyle='#cbd5e1';g.font='24px system-ui';arr.forEach(s=>{y=tp(g,s,X+4,y,W-10,36)+12});y+=24};
+ sec('Ringkasan','#10b981',q.poin&&q.poin.length?q.poin.map(x=>'• '+x):[q.ringkasan||q.jawaban||'']);
  sec('Kesimpulan','#34d399',q.kesimpulan?[q.kesimpulan]:[]);
- sec('Risiko','#f87171',(q.risiko||[]).map(x=>'• '+x));
+ sec('Risiko','#f43f5e',(q.risiko||[]).map(x=>'• '+x));
  sec('Berita terbaru','#60a5fa',(q.berita||[]).slice(0,4).map(b=>'• '+b.t));
  g.fillStyle='#64748b';g.font='20px system-ui';g.fillText('Bukan nasihat investasi. Periksa sumber berita dan laporan keuangan emiten.',X,y+20);return y+44}}
-function verseBody(v){return g=>{const X=50,W=1170;let y=30;g.fillStyle='#fbbf24';g.font='bold 44px system-ui';g.fillText(v.ayat,X,y+40);y+=76;
+function verseBody(v){return g=>{const X=50,W=1170;let y=30;g.fillStyle='#f59e0b';g.font='bold 44px system-ui';g.fillText(v.ayat,X,y+40);y+=76;
  if(v.teks){g.fillStyle='#94a3b8';g.font='italic 24px system-ui';y=tp(g,'“'+v.teks+'” (WEB, Inggris)',X,y,W,36)+22}
- if(v.parafrase){g.fillStyle='#19b5b0';g.font='bold 26px system-ui';g.fillText('Parafrase (bukan kutipan resmi)',X,y+28);y+=50;g.fillStyle='#dbe4f3';g.font='25px system-ui';y=tp(g,v.parafrase,X,y,W,38)+26}
+ if(v.parafrase){g.fillStyle='#10b981';g.font='bold 26px system-ui';g.fillText('Parafrase (bukan kutipan resmi)',X,y+28);y+=50;g.fillStyle='#cbd5e1';g.font='25px system-ui';y=tp(g,v.parafrase,X,y,W,38)+26}
  g.fillStyle='#34d399';g.font='bold 26px system-ui';g.fillText('Perenungan',X,y+28);y+=50;g.fillStyle='#e2e8f0';g.font='25px system-ui';y=tp(g,v.renung||'-',X,y,W,38);return y+30}}
 function drawAsk(g){const q=LASTQ;tall('Report Analis Pasar',q.ai?'Gemini AI':'Ringkasan otomatis',askBody(q))(g)}
 function drawRun(g){const w=wmode();bg(g,'Ibadah Mingguan · Rundown','Minggu 15:00');
- [['15:00','Pujian & penyembahan','30 menit',w==='pujian'],['15:30','Sharing firman','setiap divisi membagikan ayat acak & perenungan',w==='sharing']].forEach((c,i)=>{const y=130+i*150;g.fillStyle=c[3]?'#164e63':'#13203a';g.fillRect(36,y,1208,130);g.fillStyle='#19b5b0';g.font='bold 54px system-ui';g.fillText(c[0],64,y+80);g.fillStyle='#fff';g.font='bold 36px system-ui';g.fillText(c[1],260,y+58);g.fillStyle='#94a3b8';g.font='24px system-ui';g.fillText(c[2],260,y+98);if(c[3]){g.fillStyle='#4ade80';g.font='bold 26px system-ui';g.textAlign='right';g.fillText('● sedang berlangsung',1220,y+50);g.textAlign='left'}});
- g.fillStyle='#dbe4f3';g.font='24px system-ui';para(g,'Setiap divisi menyiapkan satu ayat acak beserta perenungannya. Laporan dibuat otomatis oleh server pukul 15:00 dan dibagikan satu per satu saat sharing firman.',36,470,1200,34,4)}
+ [['15:00','Pujian & penyembahan','30 menit',w==='pujian'],['15:30','Sharing firman','setiap divisi membagikan ayat acak & perenungan',w==='sharing']].forEach((c,i)=>{const y=130+i*150;g.fillStyle=c[3]?'#11392d':'#131c27';rr2(g,36,y,1208,130);g.fillStyle='#10b981';g.font='bold 54px system-ui';g.fillText(c[0],64,y+80);g.fillStyle='#fff';g.font='bold 36px system-ui';g.fillText(c[1],260,y+58);g.fillStyle='#94a3b8';g.font='24px system-ui';g.fillText(c[2],260,y+98);if(c[3]){g.fillStyle='#10b981';g.font='bold 26px system-ui';g.textAlign='right';g.fillText('● sedang berlangsung',1220,y+50);g.textAlign='left'}});
+ g.fillStyle='#cbd5e1';g.font='24px system-ui';para(g,'Setiap divisi menyiapkan satu ayat acak beserta perenungannya. Laporan dibuat otomatis oleh server pukul 15:00 dan dibagikan satu per satu saat sharing firman.',36,470,1200,34,4)}
 function verse(v){return g=>tall('Sharing Firman · '+v.divisi,v.ayat,verseBody(v))(g)}
 function slides(){
  if(wmode()){const o=[{id:'run',draw:drawRun}];AG.forEach((a,i)=>{const v=DATA.ibadah.find(x=>x.divisi===a.n)||{divisi:a.n,ayat:'(belum dibuat)',teks:'',parafrase:'',renung:'Laporan ibadah dibuat otomatis oleh server pada Minggu 15:00.'};o.push({id:'v'+i,draw:verse(v),ag:a,tall:true})});return o}
@@ -1401,7 +1425,7 @@ const RT=[['home','<i class="fa-solid fa-house"></i> Beranda'],['meeting','Ruang
 $('roomtabs').innerHTML=RT.map(r=>'<button class="rt" onclick="goRoom(\''+r[0]+'\')">'+r[1]+'</button>').join('');
 const LBL=[{t:'Analisis Pasar',ic:'<i class="fa-solid fa-chart-column"></i>',x:0,y:10.6,z:-15,r:'screen'},{t:'Ruang Meeting',ic:'<i class="fa-solid fa-users"></i>',x:-16,y:4.4,z:-6.5,r:'meeting'},{t:'Ruang Direktur',ic:'<i class="fa-solid fa-crown"></i>',x:16.5,y:4.6,z:-8.5,r:'direktur'},
  {t:'Resepsionis',ic:'<i class="fa-solid fa-bell-concierge"></i>',x:-17.5,y:3.2,z:1.4,r:'resepsionis'},{t:'Pintu Masuk',ic:'<i class="fa-solid fa-door-open"></i>',x:-15,y:3.4,z:15.8,r:'lounge'},{t:'Billiard & Relax',ic:'<i class="fa-solid fa-bullseye"></i>',x:16,y:4.4,z:-1.5,r:'billiard'},
- {t:'Pantry',ic:'<i class="fa-solid fa-mug-hot"></i>',x:5,y:3.6,z:10.2,r:'pantry'},{t:'Toilet',ic:'<i class="fa-solid fa-restroom"></i>',x:17,y:4.4,z:9,r:'toilet'},{t:'Beli Sore Jual Pagi',ic:'<i class="fa-solid fa-chart-line"></i>',x:-7,y:3.8,z:-3.4,r:'desks'},
+ {t:'Pantry',ic:'<i class="fa-solid fa-mug-hot"></i>',x:5,y:3.6,z:10.2,r:'pantry'},{t:'Toilet',ic:'<i class="fa-solid fa-restroom"></i>',x:17,y:4.4,z:9,r:'toilet'},{t:'BSJP + Swing',ic:'<i class="fa-solid fa-chart-line"></i>',x:-7,y:3.8,z:-3.4,r:'desks'},
  {t:'Analis Teknikal & Fundamental',ic:'<i class="fa-solid fa-chart-column"></i>',x:7,y:3.8,z:-3.4,r:'desks'},{t:'Leader & Evaluator',ic:'<i class="fa-solid fa-compass"></i>',x:-7,y:3.8,z:3.6,r:'desks'},{t:'Dividend Hunter',ic:'<i class="fa-solid fa-coins"></i>',x:7,y:3.8,z:3.6,r:'desks'}];
 $('rl').innerHTML=LBL.map((l,i)=>'<div class="rl" id="rl'+i+'" onclick="goRoom(\''+l.r+'\')">'+l.ic+' '+l.t+'</div>').join('');
 const LBLE=LBL.map((_,i)=>$('rl'+i)),V3=new THREE.Vector3();
@@ -1427,7 +1451,7 @@ function runPhase(k){if(RUN)return;const p=PH[k];RUN={k:k,lbl:p.lbl,set:new Set(
 const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
 function addMsg(t,cls){const d=document.createElement('div');d.className='m '+cls;if(cls==='a')d.innerHTML=fmt(t);else d.textContent=t;$('msgs').appendChild(d);$('msgs').scrollTop=1e9;return d}
 function initChat(){const u=$('u_n'),nm=(u&&u.textContent&&u.textContent!=='User')?u.textContent:'Bos',
- Q=[['fa-chart-line','#34d399','Evaluasi Performa','Ringkas win rate dan evaluasi BSJP kemarin.','Evaluasi BSJP kemarin dan ringkas performa trading saya'],['fa-sun','#fbbf24','Screening BSJP','Rekomendasi beli sore jual pagi beserta targetnya.','Tampilkan ranking rekomendasi BSJP hari ini'],['fa-scale-balanced','#c084fc','Portofolio vs IHSG','Cek seberapa jauh performa mengungguli indeks.','Bagaimana perbandingan return portofolio saya dibanding IHSG?'],['fa-briefcase','#60a5fa','Buka Portofolio','Lihat posisi dan catat penjualan dengan cepat.','Buka portofolio']],
+ Q=[['fa-chart-line','#34d399','Evaluasi Performa','Ringkas win rate dan evaluasi BSJP kemarin.','Evaluasi BSJP kemarin dan ringkas performa trading saya'],['fa-sun','#fbbf24','Ranking BSJP & Swing','Skor BSJP dan Swing, strategi, serta level harga.','Tampilkan ranking rekomendasi BSJP dan Swing hari ini'],['fa-scale-balanced','#c084fc','Portofolio vs IHSG','Cek seberapa jauh performa mengungguli indeks.','Bagaimana perbandingan return portofolio saya dibanding IHSG?'],['fa-briefcase','#60a5fa','Buka Portofolio','Lihat posisi dan catat penjualan dengan cepat.','Buka portofolio']],
  w=document.createElement('div');w.className='jw';
  w.innerHTML='<div class="jwi"><span class="rb"></span></div><h4>Halo, <span id="jw_n">'+esc(nm.charAt(0).toUpperCase()+nm.slice(1))+'</span></h4><p>Tanyakan apa saja soal evaluasi BSJP, performa win rate, analisis saham, atau beri perintah seperti "buka ruang meeting". Saya ambil angkanya langsung dari data Kantor AI Anda.</p><div class="jwg">'+Q.map(x=>'<button data-q="'+esc(x[4])+'"><i class="fa-solid '+x[0]+'" style="color:'+x[1]+'"></i><b>'+x[2]+'</b><small>'+x[3]+'</small></button>').join('')+'</div>';
  w.querySelectorAll('button').forEach(b=>b.onclick=()=>quick(b));$('msgs').appendChild(w);$('qr').innerHTML=''}
@@ -1520,7 +1544,7 @@ function meetScript(){const rp=DATA.reports[0],b=latest('BTST'),z=realisasi(jk()
  const cut=(t,n)=>{t=String(t||'').replace(/\s+/g,' ').trim();return t.length>n?t.slice(0,n-1)+'…':t};
  const dv=(DATA.div||[])[0],L=[],cp=cohortPrev(),cs=cohortStats(cp);
  L.push({a:lead,t:'Selamat sore, tim. Mari kita evaluasi hasil hari ini.',d:4});
- L.push({a:g('day'),t:b.length?'Ada '+b.length+' rekomendasi BSJP. Teratas '+top.kode+', '+(bS(top)?'BSJP '+Math.round(bS(top).b)+' / Swing '+Math.round(bS(top).s)+' ('+bS(top).st+')':'skor '+Math.round(top.skor)+'/100')+', beli '+n0(top.lo)+'–'+n0(top.hi)+'.':'Belum ada input BSJP hari ini.',d:6});
+ L.push({a:g('day'),t:b.length?'Ada '+b.length+' rekomendasi (BSJP dan Swing). Teratas '+top.kode+', '+(bS(top)?'BSJP '+Math.round(bS(top).b)+' / Swing '+Math.round(bS(top).s)+' ('+bS(top).st+')':'skor '+Math.round(top.skor)+'/100')+', beli '+n0(top.lo)+'–'+n0(top.hi)+'.':'Belum ada input BSJP hari ini.',d:6});
  L.push({a:g('day'),s:'rep',t:cp.rows.length?'BSJP kemarin ('+cp.date+'): capai T1 '+cs.tp+', kena SL '+cs.sl+', ditutup '+cs.tutup+(cs.n?', rata-rata '+(cs.avg>=0?'+':'')+cs.avg.toFixed(2)+'%':'')+'.':'Belum ada BSJP kemarin untuk dievaluasi.',d:6});
  L.push({a:g('tech'),t:top?cut('Teknikal '+top.kode+': '+String(top.tek||'').split('. ')[0]+(bS(top)&&bS(top).s>=70?'. Swing '+Math.round(bS(top).s)+': tren naik, dekat MA20.':''),95):'Belum ada data teknikal baru.',d:6});
  L.push({a:g('fund'),t:top?cut('Fundamental '+top.kode+': '+String(top.fun||'').split(' · ').slice(0,3).join(', '),95):'Belum ada data fundamental baru.',d:6});
@@ -2010,7 +2034,7 @@ body.dark #h_sumt th{background:#0e1627}
  pg.innerHTML='<div class="pw"><div id="h_sub" style="margin:0 0 14px;font-size:12px;color:#94a3b8">Memuat…</div>'+
   '<div class="hs fl"><select id="h_p"><option value="ALL">Semua waktu</option><option value="TD">Hari ini</option><option value="7">7 hari terakhir</option><option value="30">30 hari terakhir</option><option value="MTD">Bulan ini</option><option value="ONE">Pilih 1 tanggal</option><option value="CUS">Kustom (dari - sampai)</option></select>'+
   '<input type="date" id="h_d1" style="display:none" title="Dari tanggal"><input type="date" id="h_d2" style="display:none" title="Sampai tanggal">'+
-  '<select id="h_t"><option value="BTST">BSJP</option><option value="DAY">Day Trade</option><option value="SWING">Swing</option><option value="ALL">Semua tipe</option></select>'+
+  '<select id="h_t"><option value="BTST">BSJP + Swing (Input Saham)</option><option value="DAY">Day Trade</option><option value="SWING">Swing</option><option value="ALL">Semua tipe</option></select>'+
   '<select id="h_b"><option value="YA">Yang saya beli</option><option value="TDK">Yang tidak saya beli</option><option value="ALL">Dibeli &amp; tidak dibeli</option></select>'+
   '<button id="h_r"><i class="fa-solid fa-rotate-right"></i><span>Muat Ulang</span></button></div>'+
   '<div class="kg" id="h_cards"></div>'+
