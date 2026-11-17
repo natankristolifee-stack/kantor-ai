@@ -2279,5 +2279,51 @@ body:not(.dark) #pg-news .nsum{color:#334155}
  kNav();try{document.querySelectorAll('.it').forEach(function(b){b.classList.toggle('on',b.dataset.pg===KPG)});if(typeof badge==='function')badge()}catch(e){}
 })();
 </script>
+<script>
+/* TAHAP 2 Analis Sentimen: lencana di slide ranking + laporan Analis Sentimen di rapat evaluasi */
+(function(){
+ var SD={rows:[],held:[]},SM={};
+ function ago(n){return new Date(new Date(jk().date+'T00:00:00Z').getTime()-n*864e5).toISOString().slice(0,10)}
+ function build(){SM={};var from=ago(3);
+  (SD.rows||[]).forEach(function(r){if(!r.kode||String(r.d)<from)return;
+   var o=SM[r.kode]=SM[r.kode]||{min:0,max:0,urgNeg:false,n:0};o.n++;
+   if(r.skor<o.min)o.min=r.skor;if(r.skor>o.max)o.max=r.skor;if(r.skor<0&&r.urg==='tinggi')o.urgNeg=true})}
+ function badge(k){var o=SM[k];if(!o)return null;
+  if(o.min<0)return{t:(o.min<=-2||o.urgNeg?'\u26A0 ':'\u25BC ')+'\u2212'+Math.abs(o.min),c:'#f43f5e'};
+  if(o.max>0)return{t:'\u25B2 +'+o.max,c:'#10b981'};
+  return null}
+
+ /* 1. lencana sentimen di slide ranking */
+ var _dr=window.drawRank;
+ window.drawRank=function(g){_dr(g);
+  try{rankRows().slice(0,9).forEach(function(r,i){var b=badge(r.kode);if(!b)return;var y=102+i*62;
+   g.font='bold 14px '+MONO;var w=g.measureText(b.t).width+18;
+   g.fillStyle=b.c+'26';rrect(g,176,y+15,w,24,8);g.fill();
+   g.strokeStyle=b.c+'88';g.lineWidth=1.5;rrect(g,176,y+15,w,24,8);g.stroke();
+   g.fillStyle=b.c;g.textAlign='left';g.fillText(b.t,185,y+32)})}catch(e){}};
+
+ /* 2. giliran bicara Analis Sentimen di rapat evaluasi */
+ var _ms=window.meetScript;
+ window.meetScript=function(){var L=_ms();
+  try{var an=AG.find(function(a){return a.k==='ask'}),td=jk().date,
+    P=(SD.rows||[]).filter(function(r){return r.grp==='Pasar'&&r.d===td}),
+    av=P.length?P.reduce(function(t,r){return t+r.skor},0)/P.length:null,
+    lab=av===null?null:av>=.4?'positif':av<=-.4?'negatif':'netral',
+    tx1=lab?'Laporan Analis Sentimen: suasana berita pasar hari ini '+lab+' ('+P.length+' berita).':'Laporan Analis Sentimen: belum ada berita pasar yang dinilai hari ini.',
+    held=SD.held||[],neg=[];
+   held.forEach(function(k){var o=SM[k];if(o&&o.min<0)neg.push(k+' (\u2212'+Math.abs(o.min)+')')});
+   var tx2=neg.length?'Perhatian, ada berita negatif untuk saham kita: '+neg.slice(0,3).join(', ')+'.':(held.length?'Tidak ada berita negatif untuk saham di Portofolio.':'Belum ada saham di Portofolio untuk dipantau.');
+   var i=L.findIndex(function(x){return x.a&&x.a.k==='ask'});if(i<0)i=L.length-3;
+   L.splice(i+1,0,{a:an,s:'rank',t:tx1,d:6},{a:an,s:'rank',t:tx2,d:6})}catch(e){}
+  return L};
+
+ /* 3. muat data sentimen (saat buka, lalu tiap 10 menit) */
+ function loadS(){var ok=function(d){SD=d||{rows:[],held:[]};build();try{dirty=true}catch(e){}};
+  if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(function(){}).getSentimenData();
+  else ok({held:['DMAS'],rows:[{d:jk().date,kode:'DMAS',skor:-2,urg:'tinggi',grp:'Portofolio'},{d:jk().date,kode:'HMSP',skor:1,urg:'rendah',grp:'BSJP'},{d:jk().date,kode:'',skor:1,urg:'sedang',grp:'Pasar'}]})}
+ loadS();setInterval(loadS,600000);
+ try{SL=slides();dirty=true}catch(e){}
+})();
+</script>
 </body>
 </html>
