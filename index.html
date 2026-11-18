@@ -1626,9 +1626,24 @@ function meetTick(s){NOW=s;if(!MT)return;const e=s-MT.t0,lead=AG.find(a=>a.k==='
   else{const L=MT.lines[MT.i];say(L.a,L.t,L.d);MT.next=s+L.d+.4;slideId(L.s||{day:'btst',tech:'d0',fund:'d0',div:'div',ask:LASTQ?'ask':'ov',lead:MT.i>=7?'rep':'ov'}[L.a.k]);SPK=L.a}}}
  else if(MT.st==='bubar'){if(e>.5&&!MT.bye){MT.bye=1;goRoom('home')}if(e>4)MT=null}}
 
+/* Rapat otomatis 16:30: tunggu laporan server selesai, baru rapat dimulai */
+function autoLap(){
+ var n=0;
+ (function t(){
+  n++;
+  var lanjut=function(){if(n>=8){if(MT)MT.ready=true}else setTimeout(t,30000)};
+  var ok=function(d){
+   apply(d);
+   var td=jk().date,ada=d.reports&&d.reports[0]&&d.reports[0].date===td;
+   if(ada){if(MT)MT.ready=true}else lanjut()
+  };
+  if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(lanjut).getDashboardData();
+  else{if(MT)MT.ready=true}
+ })()
+}
 /* ============ LOOP ============ */
 let miniT=0;
-function refreshState(){const w=wmode(),mt=meetMode(),jj=jk();if(jj.wd>=1&&jj.wd<=5&&jj.min>=990&&jj.min<1005&&!MT&&AUTO_MEET!==jj.date){AUTO_MEET=jj.date;startMeeting(true)}
+function refreshState(){const w=wmode(),mt=meetMode(),jj=jk();if(jj.wd>=1&&jj.wd<=5&&jj.min>=990&&jj.min<1005&&!MT&&AUTO_MEET!==jj.date){AUTO_MEET=jj.date;startMeeting(false);autoLap()}
  if(w!==lastWm||mt!==lastMt){lastWm=w;lastMt=mt;SL=slides();goSlide(w==='sharing'?1:0);renderChips();if(mt&&!w)goRoom('meeting')}
  const S=sched();AG.forEach(a=>{a.busy=!!(RUN?RUN.set.has(a.k):S.has(a.k))||(a.k==='ask'&&ASKING)});
  const c=$('clk');if(c)c.textContent=clockText();
@@ -1651,7 +1666,7 @@ setInterval(()=>{if(HAS&&!RUN&&!ASKING)google.script.run.withSuccessHandler(appl
 /* ===== KERANGKA: login, menu, halaman data (tambahan) ===== */
 const KP={kantor:['Kantor AI Agent','Kantor 3D & Jarvis'],dash:['Dashboard Trading','Ringkasan kinerja portofolio, statistik eksekusi & metrik risiko real-time'],log:['Trade Log','Riwayat eksekusi, posisi aktif & hasil transaksi'],calc:['Kalkulator Saham Pro','Alat bantu hitung manajemen risiko, Average Down, dan target profit']};
 const KNAV=[
- {t:'Kantor AI Agent',gi:'fa-building',it:[['Kantor 3D & Jarvis','pg:kantor'],['Input Saham','inp'],['Rencana Beli','ord'],['Portofolio','pf'],['Catat Jual','sell'],['Rapat Evaluasi','meet'],['Laporan 16:30','lap'],['Dividend Hunter','div'],['Daftar Divisi','dv']]},
+ {t:'Kantor AI Agent',gi:'fa-building',it:[['Kantor 3D & Jarvis','pg:kantor'],['Input Saham','inp'],['Rencana Beli','ord'],['Portofolio','pf'],['Catat Jual','sell'],['Laporan & Rapat 16:30','lap'],['Dividend Hunter','div'],['Daftar Divisi','dv']]},
  {t:'Pusat Data & Analitik',gi:'fa-layer-group',it:[['Dashboard Trading','pg:dash'],['Trade Log','pg:log','log']]},
  {t:'Alat & Kalkulator',gi:'fa-calculator',it:[['Kalkulator Saham','pg:calc','7 in 1']]},
  {t:'Manajemen & AI',it:[['Setor / Tarik Dana','akun'],['Asisten J.A.R.V.I.S','ch','ping']]}
@@ -1660,7 +1675,7 @@ const KACT={inp:()=>openInp(),ord:()=>openOrd(),pf:()=>openPf(),sell:()=>openSel
 function togglePop(m){const b=document.body.classList,cur=b.contains('pop-'+m);b.remove('pop-chat','pop-div');if(!cur){b.add('pop-'+m);if(m==='chat')setTimeout(()=>{const q=$('q');if(q)q.focus()},200)}}
 let KPG='kantor',TD={sales:[],open:[],akun:[]},TF={st:'ALL',q:'',d1:'',d2:'',tab:'open'};
 
-const KIC={'Kantor 3D & Jarvis':'building','Input Saham':'keyboard','Rencana Beli':'cart-shopping','Portofolio':'briefcase','Catat Jual':'hand-holding-dollar','Rapat Evaluasi':'people-group','Laporan 16:30':'file-lines','Dividend Hunter':'coins','Daftar Divisi':'sitemap','Dashboard Trading':'chart-pie','Trade Log':'list-check','Kalkulator Saham':'scale-balanced','Setor / Tarik Dana':'wallet','Asisten J.A.R.V.I.S':'robot'};
+const KIC={'Kantor 3D & Jarvis':'building','Input Saham':'keyboard','Rencana Beli':'cart-shopping','Portofolio':'briefcase','Catat Jual':'hand-holding-dollar','Laporan & Rapat 16:30':'people-group','Dividend Hunter':'coins','Daftar Divisi':'sitemap','Dashboard Trading':'chart-pie','Trade Log':'list-check','Kalkulator Saham':'scale-balanced','Setor / Tarik Dana':'wallet','Asisten J.A.R.V.I.S':'robot'};
 function kIc(l){const c=l==='Setor / Tarik Dana'?' ic-g':l==='Asisten J.A.R.V.I.S'?' ic-b':'';return '<i class="fa-solid fa-'+(KIC[l]||'circle')+' w5'+c+'"></i>'}
 function kBdg(b){return b==='ping'?'<span class="pingd"></span>':b==='log'?'<span class="bdg" id="bdg_log">0</span>':b?'<span class="bdg blue">'+b+'</span>':''}
 function kNav(){$('kn').innerHTML=KNAV.map(g=>'<div class="gp open"><div class="gh"><span>'+g.t+'</span>'+(g.gi?'<i class="fa-solid '+g.gi+'"></i>':'')+'</div><div class="its"><div>'+g.it.map(x=>'<button class="it" data-pg="'+(x[1].indexOf('pg:')===0?x[1].slice(3):'')+'" onclick="kClick(\''+x[1]+'\')">'+kIc(x[0])+'<span>'+x[0]+'</span>'+kBdg(x[2])+'</button>').join('')+'</div></div></div>').join('')}
