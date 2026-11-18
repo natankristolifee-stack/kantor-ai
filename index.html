@@ -2374,7 +2374,7 @@ function lgPage(n){TF.pg=n;tLog();var w=document.getElementById('pg-log');if(w)w
 function mktSub(){
  var m=null;
  try{var b=rankRows()[0],x=b?RX(b):null;m=x&&x.mk}catch(e){}
- return(m&&m.lv?'IHSG '+m.lv+' ('+(m.chg>=0?'+':'\u2212')+Math.abs(m.chg).toFixed(1)+'%) \u00B7 ':'IHSG belum dicek \u00B7 ')+'Skor BSJP & Swing /100'}
+ return(m&&m.lv?'IHSG '+m.lv+' ('+(m.chg>=0?'+':'\u2212')+Math.abs(m.chg).toFixed(1)+'%) \u00B7 ':'')+'Skor BSJP & Swing /100'}
 (function(){
  var pg=document.getElementById('pg-hist'),cards=document.getElementById('h_cards');
  if(!pg||!cards)return;
