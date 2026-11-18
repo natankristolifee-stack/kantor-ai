@@ -856,7 +856,7 @@ body.dark .m.u{color:#022c22}
 <div id="pg-log" class="pg"><div class="pw"><h2>Trade Log</h2><div class="sub" id="l_sub">-</div>
 <div class="tg2"><button id="tg_open" onclick="tgTab('open')"><i class="fa-solid fa-thumbtack"></i><span>Posisi Aktif</span></button><button id="tg_done" onclick="tgTab('done')"><i class="fa-solid fa-circle-check"></i><span>Riwayat Selesai</span></button></div>
 <div class="fl"><input type="date" id="l_d1" title="Dari tanggal" onchange="TF.d1=this.value;tLog()"><input type="date" id="l_d2" title="Sampai tanggal" onchange="TF.d2=this.value;tLog()"><button class="sec" onclick="resetTgl()">Reset tanggal</button><input id="l_q" placeholder="Cari kode saham…" oninput="TF.q=this.value;tLog()"><select id="l_st" onchange="TF.st=this.value;tLog()"><option value="ALL">Semua hasil</option><option value="WIN">WIN</option><option value="LOSS">LOSS</option></select><button onclick="loadTrade();spinR(this)"><i class="fa-solid fa-rotate-right"></i><span>Muat Ulang</span></button></div>
-<div class="bx tw" style="padding:0"><table class="tt"><thead><tr><th class="l">Waktu</th><th class="l">Saham</th><th>Lot</th><th>Harga beli</th><th>Harga jual</th><th>Modal (Rp)</th><th>Nilai Jual (Rp)</th><th>Fee</th><th>L/R (Rp)</th><th>L/R %</th><th>Status</th><th>Sesi</th><th class="l">Catatan</th></tr></thead><tbody id="l_tb"></tbody></table></div>
+<div class="bx tw" style="padding:0"><table class="tt"><thead><tr><th class="l">Waktu</th><th class="l">Saham</th><th>Lot</th><th>Harga beli</th><th>Harga jual</th><th>Modal (Rp)</th><th>Nilai Jual (Rp)</th><th>Fee</th><th>L/R (Rp)</th><th>L/R %</th><th>Status</th><th>Sesi</th><th class="l">Catatan</th></tr></thead><tbody id="l_tb"></tbody></table></div><div class="pgr" id="l_pg"></div>
 </div></div>
 </div>
 <button id="fabc" onclick="togglePop('chat')" title="Chat Jarvis"><span class="rb"></span><i class="fa-solid fa-xmark fx"></i></button>
@@ -1717,7 +1717,7 @@ function dIn(d){const R=dRange(),x=String(d||'');return(!R.a||x>=R.a)&&(!R.b||x<
 function dSales(){return TD.sales.filter(s=>dIn(s.tgl))}
 function dAkun(){return TD.akun.filter(a=>dIn(a.tgl))}
 function dPer(v){DP=v;const c=v==='CUS';$('d_c1').style.display=c?'':'none';$('d_c2').style.display=c?'':'none';tDash()}
-function dLbl(){const e=$('d_pertxt');if(!e)return;const R=dRange();e.textContent=DP==='ALL'?'Menampilkan seluruh data sejak awal':'Periode '+(R.a||'awal')+' s/d '+(R.b||'sekarang')+' · '+dSales().length+' transaksi'}
+function dLbl(){const e=$('d_pertxt');if(!e)return;const R=dRange();e.textContent=DP==='ALL'?'Menampilkan seluruh data sejak awal':'periode '+fTgl(R.a||'awal')+' s/d '+fTgl(R.b||'sekarang')+' · '+dSales().length+' transaksi'}
 /* Max Drawdown: penurunan terdalam dari puncak saldo. Dihitung mulai setoran pertama dan, bila ada periode, mulai awal periode. */
 function mddCalc(a,b){let eq=0,pk=0,mdd=0,mddRp=0,on=false,have=false;
  eqEvents().forEach(e=>{if(b&&e.d>b)return;eq+=e.v;
@@ -1882,7 +1882,7 @@ function dkOf_(w){const s=String(w||''),m=s.match(/^(\d{2})-(\d{2})-(\d{4})/);re
 function resetTgl(){TF.d1='';TF.d2='';$('l_d1').value='';$('l_d2').value='';tLog()}
 function tgTab(t){TF.tab=t;tLog()}
 function tLog(){const q=TF.q.trim().toUpperCase(),R=[],op=TF.tab==='open';
- TD.open.forEach(o=>R.push({w:o.waktu,dk:dkOf_(o.waktu),k:o.kode,lot:o.lot,hb:o.hb,hj:null,fee:null,pl:null,pct:null,modal:o.lot*100*o.hb,nilai:null,st:'OPEN',s:'',ket:'T1 '+n0(o.t1)+' · SL '+n0(o.sl)}));
+TD.open.slice().reverse().forEach(o=>R.push({w:o.waktu,dk:dkOf_(o.waktu),k:o.kode,lot:o.lot,hb:o.hb,hj:null,fee:null,pl:null,pct:null,modal:o.lot*100*o.hb,nilai:null,st:'OPEN',s:'',ket:'T1 '+n0(o.t1)+' · SL '+n0(o.sl)}));
  TD.sales.slice().reverse().forEach(s=>R.push({w:s.tgl+' '+s.waktu,dk:String(s.tgl||''),k:s.kode,lot:s.lot,hb:s.hb,hj:s.hj,fee:s.fee,pl:s.pl,pct:s.pct,
    modal:s.modal!=null?s.modal:s.lot*100*s.hb,nilai:s.nilai!=null?s.nilai:s.lot*100*s.hj,
    st:s.pl>0?'WIN':s.pl<0?'LOSS':'BE',s:s.sesi,ket:s.ket}));
@@ -1893,7 +1893,7 @@ function tLog(){const q=TF.q.trim().toUpperCase(),R=[],op=TF.tab==='open';
        cl=v=>v==null?'':v>=0?'g2':'r2';
  const tot=F.reduce((a,r)=>a+(r.pl==null?0:+r.pl),0),mod=F.reduce((a,r)=>a+(+r.modal||0),0),rng=(TF.d1||TF.d2)?' · periode '+(TF.d1||'awal')+' s/d '+(TF.d2||'sekarang'):'';
  $('l_sub').textContent=op?F.length+' posisi aktif'+rng+' · modal terpakai: Rp '+n0(mod)+' · pantau Target 1 dan Stop Loss di kolom catatan':F.length+' transaksi selesai'+rng+' · total L/R: '+rpf(tot)+' · data otomatis dari Portofolio & Penjualan';
- $('l_tb').innerHTML=F.length?F.map((r,i)=>'<tr class="rw-'+r.st+'" style="animation:pgin .35s '+Math.min(i*25,400)+'ms both"><td class="l">'+esc(r.w)+'</td><td class="l"><b>'+esc(r.k)+'</b></td><td>'+n0(r.lot)+'</td><td>'+n0(r.hb)+'</td><td>'+(r.hj==null?'–':n0(r.hj))+'</td><td>'+(r.modal==null?'–':n0(r.modal))+'</td><td>'+(r.nilai==null?'–':n0(r.nilai))+'</td><td>'+(r.fee==null?'–':n0(r.fee))+'</td><td class="'+cl(r.pl)+'">'+(r.pl==null?'–':rpf(r.pl))+'</td><td class="'+cl(r.pct)+'">'+(r.pct==null?'–':(r.pct>=0?'+':'')+(+r.pct).toFixed(2)+'%')+'</td><td><span class="bd '+r.st+'">'+r.st+'</span></td><td>'+(r.s||'–')+'</td><td class="l">'+esc(r.ket)+'</td></tr>').join(''):'<tr><td colspan="13" class="l" style="padding:20px;color:#64748b">'+(op?'Tidak ada posisi aktif pada filter ini.':'Belum ada transaksi selesai pada filter ini.')+'</td></tr>'}
+ var sg=[TF.tab,TF.st,TF.q,TF.d1,TF.d2].join('|');if(sg!==TF.sg){TF.sg=sg;TF.pg=1}kPg('l_pg','lgPage',TF,F.length);const V=F.slice((TF.pg-1)*15,TF.pg*15);$('l_tb').innerHTML=V.length?V.map((r,i)=>'<tr class="rw-'+r.st+'" style="animation:pgin .35s '+Math.min(i*25,400)+'ms both"><td class="l">'+esc(fTgl(r.w))+'</td><td class="l"><b>'+esc(r.k)+'</b></td><td>'+n0(r.lot)+'</td><td>'+n0(r.hb)+'</td><td>'+(r.hj==null?'–':n0(r.hj))+'</td><td>'+(r.modal==null?'–':n0(r.modal))+'</td><td>'+(r.nilai==null?'–':n0(r.nilai))+'</td><td>'+(r.fee==null?'–':n0(r.fee))+'</td><td class="'+cl(r.pl)+'">'+(r.pl==null?'–':rpf(r.pl))+'</td><td class="'+cl(r.pct)+'">'+(r.pct==null?'–':(r.pct>=0?'+':'')+(+r.pct).toFixed(2)+'%')+'</td><td><span class="bd '+r.st+'">'+r.st+'</span></td><td>'+(r.s||'–')+'</td><td class="l">'+esc(r.ket)+'</td></tr>').join(''):'<tr><td colspan="13" class="l" style="padding:20px;color:#64748b">'+(op?'Tidak ada posisi aktif pada filter ini.':'Belum ada transaksi selesai pada filter ini.')+'</td></tr>'}
 
 /* --- Kalender kinerja (heatmap L/R harian) --- */
 let CALM=null;
@@ -2121,7 +2121,7 @@ body.dark #h_sumt th{background:#0e1627}
   '<div class="kg" id="h_cards"></div>'+
   '<div class="rw b"><div class="bx"><h4>Diagram Hasil Evaluasi</h4><canvas id="c_hist"></canvas><div id="h_leg"></div></div>'+
   '<div class="bx"><h4>Ringkasan per Tanggal (klik untuk memilih 1 tanggal)</h4><div class="tw" style="max-height:300px"><table class="tt" id="h_sumt"><thead><tr><th class="l">Tanggal</th><th>Saham</th><th>Berhasil</th><th>Gagal</th><th>Win rate</th></tr></thead><tbody id="h_sum"></tbody></table></div></div></div>'+
-  '<div class="bx tw" style="padding:0"><table class="tt" id="h_tbl"><thead><tr><th class="l">Tanggal</th><th class="l">Saham</th><th>Skor</th><th>Zona beli</th><th>Target 1</th><th>Stop Loss</th><th>Penutupan</th><th>Return Sistem</th><th>Status</th><th>Harga Beli</th><th>Harga Jual</th><th>Harga Tertinggi</th><th>Harga Penutupan</th><th>Return Saya</th><th>L/R saya (Rp)</th><th class="l">Evaluasi</th></tr></thead><tbody id="h_tb"></tbody></table></div></div>';
+  '<div class="bx tw" style="padding:0"><table class="tt" id="h_tbl"><thead><tr><th class="l">Tanggal</th><th class="l">Saham</th><th>Skor</th><th>Zona beli</th><th>Target 1</th><th>Stop Loss</th><th>Penutupan</th><th>Return Sistem</th><th>Status</th><th>Harga Beli</th><th>Harga Jual</th><th>Harga Tertinggi</th><th>Harga Penutupan</th><th>Return Saya</th><th>L/R saya (Rp)</th><th class="l">Evaluasi</th></tr></thead><tbody id="h_tb"></tbody></table></div><div class="pgr" id="h_pg"></div></div>';
  $('pgs').appendChild(pg);
 
  var H={rows:[],sales:[],p:'ALL',d1:'',d2:'',t:'BTST',b:'YA'};
@@ -2172,10 +2172,10 @@ body.dark #h_sumt th{background:#0e1627}
   $('h_leg').innerHTML=['ok','gagal','tb','run'].map(function(k){return'<div class="al-h"><span class="al-d" style="background:'+HL[k][1]+'"></span><span>'+HL[k][0]+'</span><em>'+c[k]+' ('+(tot?(c[k]/tot*100).toFixed(0):0)+'%)</em></div>'}).join('');
   var G={};B.forEach(function(r){var o2=G[r.date]=G[r.date]||{n:0,ok:0,g:0};o2.n++;var k=cls2(r);if(k==='ok')o2.ok++;else if(k==='gagal')o2.g++});
   var ds=Object.keys(G).sort().reverse().slice(0,60);
-  $('h_sum').innerHTML=ds.length?ds.map(function(d){var q=G[d],w=q.ok+q.g?q.ok/(q.ok+q.g)*100:null,on=(H.p!=='ALL'&&inR(d));return'<tr data-d="'+esc(d)+'"'+(on?' class="on"':'')+'><td class="l">'+esc(d)+'</td><td>'+q.n+'</td><td class="g2">'+q.ok+'</td><td class="r2">'+q.g+'</td><td>'+(w===null?'–':w.toFixed(0)+'%')+'</td></tr>'}).join(''):'<tr><td colspan="5" class="l" style="color:#64748b">Belum ada data.</td></tr>';
-  var S=sel.slice().sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:(+y.skor)-(+x.skor)}).slice(0,300),BD={ok:'WIN',gagal:'LOSS',tb:'BE',run:'OPEN'},TX={TP1:'Capai T1',SL:'Kena SL',TUTUP:'Ditutup','TIDAK TERBELI':'Tidak terbeli',GUGUR:'Gugur',OPEN:'Berjalan'};
-  $('h_tb').innerHTML=S.length?S.map(function(r){var k=cls(r),p=r.pl===''||r.pl==null?null:+r.pl,kk=(r.dibeli&&p!==null)?(p>0?'ok':p<0?'gagal':'tb'):k,N=function(x){return x===''||x==null?'–':n0(x)},rp=(r.rps===''||r.rps==null)?null:+r.rps;
-   return'<tr class="rw-'+BD[kk]+'"><td class="l">'+esc(r.date)+'</td><td class="l"><b>'+esc(r.kode)+'</b></td><td>'+(+r.skor).toFixed(0)+'</td><td>'+n0(r.lo)+'–'+n0(r.hi)+'</td><td>'+n0(r.t1)+'</td><td>'+n0(r.sl)+'</td><td><span class="bd '+BD[k]+'">'+esc(TX[r.status]||r.status||'Berjalan')+'</span></td><td class="'+(+r.ret>0?'g2':+r.ret<0?'r2':'')+'">'+fmtR(r.ret)+'</td><td'+(r.dibeli?' title="'+n0(r.lot)+' lot"':'')+'>'+(r.dibeli?'Beli':'Tidak')+'</td><td>'+N(r.hbs)+'</td><td>'+N(r.hjs)+'</td><td>'+N(r.hiJ)+'</td><td>'+N(r.clJ)+'</td><td class="'+(rp===null?'':rp>=0?'g2':'r2')+'">'+(rp===null?'–':fmtR(rp))+'</td><td class="'+(p===null?'':p>=0?'g2':'r2')+'">'+(p===null?'–':rpf(p))+'</td><td class="l">'+esc(r.eval)+'</td></tr>'}).join('')
+  $('h_sum').innerHTML=ds.length?ds.map(function(d){var q=G[d],w=q.ok+q.g?q.ok/(q.ok+q.g)*100:null,on=(H.p!=='ALL'&&inR(d));return'<tr data-d="'+esc(d)+'"'+(on?' class="on"':'')+'><td class="l">'+esc(fTgl(d))+'</td><td>'+q.n+'</td><td class="g2">'+q.ok+'</td><td class="r2">'+q.g+'</td><td>'+(w===null?'–':w.toFixed(0)+'%')+'</td></tr>'}).join(''):'<tr><td colspan="5" class="l" style="color:#64748b">Belum ada data.</td></tr>';
+  var S=sel.slice().sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:(+y.skor)-(+x.skor)}),BD={ok:'WIN',gagal:'LOSS',tb:'BE',run:'OPEN'},TX={TP1:'Capai T1',SL:'Kena SL',TUTUP:'Ditutup','TIDAK TERBELI':'Tidak terbeli',GUGUR:'Gugur',OPEN:'Berjalan'};
+  var sg=[H.p,H.d1,H.d2,H.t,H.b].join('|');if(sg!==H.sg){H.sg=sg;H.pg=1}kPg('h_pg','hsPage',H,S.length);S=S.slice((H.pg-1)*15,H.pg*15);$('h_tb').innerHTML=S.length?S.map(function(r){var k=cls(r),p=r.pl===''||r.pl==null?null:+r.pl,kk=(r.dibeli&&p!==null)?(p>0?'ok':p<0?'gagal':'tb'):k,N=function(x){return x===''||x==null?'–':n0(x)},rp=(r.rps===''||r.rps==null)?null:+r.rps;
+   return'<tr class="rw-'+BD[kk]+'"><td class="l">'+esc(fTgl(r.date))+'</td><td class="l"><b>'+esc(r.kode)+'</b></td><td>'+(+r.skor).toFixed(0)+'</td><td>'+n0(r.lo)+'–'+n0(r.hi)+'</td><td>'+n0(r.t1)+'</td><td>'+n0(r.sl)+'</td><td><span class="bd '+BD[k]+'">'+esc(TX[r.status]||r.status||'Berjalan')+'</span></td><td class="'+(+r.ret>0?'g2':+r.ret<0?'r2':'')+'">'+fmtR(r.ret)+'</td><td'+(r.dibeli?' title="'+n0(r.lot)+' lot"':'')+'>'+(r.dibeli?'Beli':'Tidak')+'</td><td>'+N(r.hbs)+'</td><td>'+N(r.hjs)+'</td><td>'+N(r.hiJ)+'</td><td>'+N(r.clJ)+'</td><td class="'+(rp===null?'':rp>=0?'g2':'r2')+'">'+(rp===null?'–':fmtR(rp))+'</td><td class="'+(p===null?'':p>=0?'g2':'r2')+'">'+(p===null?'–':rpf(p))+'</td><td class="l">'+esc(r.eval)+'</td></tr>'}).join('')
    :'<tr><td colspan="16" class="l" style="padding:20px;color:#64748b">Belum ada data untuk filter ini. Jalankan Laporan 16:30 dulu agar hasil evaluasi terisi.</td></tr>'}
  function demo(){var rows=[],st=['TP1','SL','TUTUP','OPEN'],i,d,k;for(d=1;d<=6;d++)for(k=0;k<4;k++){i=(d+k)%4;rows.push({date:'2026-11-0'+d,tipe:'BTST',kode:['DMAS','HMSP','CARE','ACES'][k],skor:90-k*7,lo:200,hi:210,t1:220,t2:230,sl:195,status:st[i],ret:i===0?4.2:i===1?-3.1:i===2?0.8:'',eval:'(DEMO)',dibeli:k<2,lot:k<2?5:0,pl:k<2?(i===1?-30000:50000):''})}return{rows:rows}}
  function load(){$('h_sub').textContent='Memuat data…';var tm=setTimeout(function(){$('h_sub').textContent='Masih menunggu server Google (bisa 10-20 detik)…'},8000);
@@ -2200,6 +2200,7 @@ body.dark #h_sumt th{background:#0e1627}
  $('h_t').onchange=function(){H.t=this.value;render()};
  $('h_b').onchange=function(){H.b=this.value;render()};
  $('h_r').onclick=function(){load();spinR(this)};
+ window.hsPage=function(n){H.pg=n;render();var w=$('pg-hist');if(w)w.scrollTop=0};
  $('h_sum').addEventListener('click',function(e){var t=e.target.closest('tr[data-d]');if(!t)return;H.p='ONE';H.d1=t.getAttribute('data-d');$('h_p').value='ONE';$('h_d1').value=H.d1;showInputs();render()});
 
  var _s=window.showPg;window.showPg=function(k){var r=_s.apply(this,arguments);if(k==='hist')load();return r};
@@ -2339,6 +2340,34 @@ body:not(.dark) #pg-news .nsum{color:#334155}
  loadS();setInterval(loadS,600000);
  try{SL=slides();dirty=true}catch(e){}
 })();
+</script>
+<style>
+.pgr{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 4px 0;font-size:12px;color:#94a3b8}
+.pgr:empty{display:none}
+.pgb{display:flex;gap:6px;flex-wrap:wrap}
+.pgb button{min-width:32px;height:32px;padding:0 8px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#334155;font:inherit;font-weight:700;cursor:pointer}
+body.dark .pgb button{background:rgba(15,23,42,.6);border-color:rgba(255,255,255,.1);color:#cbd5e1}
+.pgb button:hover:not(:disabled){border-color:#10b981}
+.pgb button.on,body.dark .pgb button.on{background:#10b981;border-color:#10b981;color:#022c22}
+.pgb button:disabled{opacity:.4;cursor:default}
+</style>
+<script>
+/* Paginasi (15 data per halaman) + format tanggal dd-mm-yyyy untuk Trade Log & Histori Evaluasi */
+function fTgl(s){return String(s==null?'':s).replace(/(\d{4})-(\d{2})-(\d{2})/,'$3-$2-$1')}
+function kPg(id,fn,o,n){
+ var PS=15,tp=Math.max(1,Math.ceil(n/PS)),el=document.getElementById(id);
+ o.pg=Math.min(Math.max(1,o.pg||1),tp);
+ if(!el)return;
+ if(n<=PS){el.innerHTML=n?'<span>Menampilkan '+n+' data</span>':'';return}
+ var a=(o.pg-1)*PS+1,b=Math.min(n,o.pg*PS),s=Math.max(1,Math.min(o.pg-2,tp-4)),e=Math.min(tp,s+4),h='',i;
+ h+='<button '+(o.pg<=1?'disabled ':'')+'onclick="'+fn+'(1)">«</button>';
+ h+='<button '+(o.pg<=1?'disabled ':'')+'onclick="'+fn+'('+(o.pg-1)+')">‹</button>';
+ for(i=s;i<=e;i++)h+='<button class="'+(i===o.pg?'on':'')+'" onclick="'+fn+'('+i+')">'+i+'</button>';
+ h+='<button '+(o.pg>=tp?'disabled ':'')+'onclick="'+fn+'('+(o.pg+1)+')">›</button>';
+ h+='<button '+(o.pg>=tp?'disabled ':'')+'onclick="'+fn+'('+tp+')">»</button>';
+ el.innerHTML='<span>Menampilkan '+a+'–'+b+' dari '+n+' data · halaman '+o.pg+'/'+tp+'</span><div class="pgb">'+h+'</div>';
+}
+function lgPage(n){TF.pg=n;tLog();var w=document.getElementById('pg-log');if(w)w.scrollTop=0}
 </script>
 </body>
 </html>
