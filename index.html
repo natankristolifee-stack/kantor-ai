@@ -1386,7 +1386,7 @@ function drawAna(g,s){bg(g,'Agen sedang menganalisis…',RUN.lbl);g.fillStyle='#
  g.fillStyle='#64748b';g.font='18px system-ui';g.fillText('Animasi = indikator proses. Hasil asli muncul setelah server Google selesai (30–90 detik).',40,690)}
 /* ============ SLIDE TAMBAHAN ============ */
 function rankRows(){return latest('BTST').filter(r=>r.status!=='GUGUR').sort((a,b)=>b.skor-a.skor).slice(0,10)}
-function drawRank(g){const R=rankRows();bg(g,'Ranking Rekomendasi Harian','Skor BSJP & Swing /100 · urut skor tertinggi');if(!R.length){empty(g);return}
+function drawRank(g){const R=rankRows();bg(g,'Ranking Rekomendasi Harian',(typeof mktSub==='function'?mktSub():'Skor BSJP & Swing /100'));if(!R.length){empty(g);return}
  const gp=ap(.65),bar=(x,y,w,v,col)=>{gbar(g,x,y,w,v,col,gp);g.fillStyle='rgba(255,255,255,.6)';g.fillRect(x+w*.5-1,y-2,2,14);g.fillRect(x+w*.7-1,y-2,2,14)};
  R.slice(0,9).forEach((r,i)=>{const y=102+i*62,q=bS(r),sx=q?STR[q.st]:null,L=(q&&q.st==='SWING ONLY'&&RX(r).sw)?RX(r).sw:r;g.fillStyle='#131c27';rr2(g,30,y,1220,54);g.textAlign='left';
   g.fillStyle='#f59e0b';g.font='bold 20px '+MONO;g.fillText('#'+(i+1),48,y+34);g.fillStyle='#fff';g.font='bold 26px '+MONO;g.fillText(r.kode,104,y+36);
@@ -2368,6 +2368,38 @@ function kPg(id,fn,o,n){
  el.innerHTML='<span>Menampilkan '+a+'–'+b+' dari '+n+' data · halaman '+o.pg+'/'+tp+'</span><div class="pgb">'+h+'</div>';
 }
 function lgPage(n){TF.pg=n;tLog();var w=document.getElementById('pg-log');if(w)w.scrollTop=0}
+</script>
+<script>
+/* Tambahan: status IHSG di slide ranking + panel Kalibrasi Skor di menu Histori Evaluasi. Hanya tampilan. */
+function mktSub(){
+ var m=null;
+ try{var b=rankRows()[0],x=b?RX(b):null;m=x&&x.mk}catch(e){}
+ return(m&&m.lv?'IHSG '+m.lv+' ('+(m.chg>=0?'+':'\u2212')+Math.abs(m.chg).toFixed(1)+'%) \u00B7 ':'')+'Skor BSJP & Swing /100'}
+(function(){
+ var pg=document.getElementById('pg-hist'),cards=document.getElementById('h_cards');
+ if(!pg||!cards)return;
+ var bx=document.createElement('div');bx.className='bx';bx.style.marginBottom='24px';
+ bx.innerHTML='<h4><i class="fa-solid fa-scale-balanced"></i> Kalibrasi Skor dari Histori Anda</h4><div id="k_msg" style="font-size:13px;line-height:1.6;margin-bottom:12px">Memuat\u2026</div><div id="k_tb"></div><div class="cc-n">Win rate = persen rekomendasi BSJP yang selesai dengan return positif (sebelum fee). Hanya alat bantu, bukan nasihat investasi.</div>';
+ cards.parentNode.insertBefore(bx,cards.nextSibling);
+ function tabel(judul,L){
+  L=(L||[]).filter(function(r){return r.n>0});
+  if(!L.length)return'';
+  return'<h4 style="margin:14px 0 6px;font-size:12px">'+esc(judul)+'</h4><div class="tw"><table class="tt"><thead><tr><th class="l">Kelompok</th><th>Jumlah</th><th>Menang</th><th>Kena T1</th><th>Kena SL</th><th>Rata-rata return</th></tr></thead><tbody>'+
+   L.map(function(r){var a=r.avg;
+    return'<tr><td class="l">'+esc(r.label)+'</td><td>'+r.n+'</td><td>'+(r.wr===null?'\u2013':r.wr+'%')+'</td><td>'+r.tp+'</td><td>'+r.sl+'</td><td class="'+(a===null?'':a>=0?'g2':'r2')+'">'+(a===null?'\u2013':(a>=0?'+':'')+a.toFixed(2)+'%')+'</td></tr>'}).join('')+'</tbody></table></div>'}
+ function render(d){
+  var m=document.getElementById('k_msg'),t=document.getElementById('k_tb');
+  if(!m||!t)return;
+  d=d||{};
+  m.innerHTML='<b>'+(d.total||0)+'</b> rekomendasi BSJP sudah selesai (minimal '+(d.minimal||30)+' agar cukup data). '+esc(d.catatan||'');
+  t.innerHTML=tabel('Berdasarkan skor BSJP',d.skor)+tabel('Berdasarkan keputusan strategi',d.strategi)+tabel('Berdasarkan kondisi IHSG saat input (tercatat sejak filter IHSG dipasang)',d.pasar)}
+ function loadK(){
+  var m=document.getElementById('k_msg');if(m)m.textContent='Memuat\u2026';
+  if(!HAS){render({total:0,minimal:30,catatan:'Mode demo: kalibrasi hanya tersedia di aplikasi asli.',skor:[],strategi:[],pasar:[]});return}
+  google.script.run.withSuccessHandler(render).withFailureHandler(function(e){var m2=document.getElementById('k_msg');if(m2)m2.textContent='Gagal memuat kalibrasi: '+((e&&e.message)||e)}).getKalibrasi()}
+ var _s=window.showPg;
+ window.showPg=function(k){var r=_s.apply(this,arguments);if(k==='hist')loadK();return r};
+})();
 </script>
 </body>
 </html>
