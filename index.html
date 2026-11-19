@@ -2496,5 +2496,63 @@ if(typeof window.kPg!=='function'){
  };
 }
 </script>
+<style>
+/* ===== Sembunyikan angka sensitif (gaya Stockbit) ===== */
+body.hidebal .sv{font-size:0!important}
+body.hidebal .sv::after{content:"●●●●●";font-size:12px;letter-spacing:3px;color:#64748b;font-weight:400}
+body.hidebal .kc b.sv::after{font-size:18px}
+body.hidebal #d_trbig .sv::after{font-size:22px}
+body.hidebal #l_sub.sv::after{content:"Angka disembunyikan  ●●●●●"}
+body.hidebal #c_eq,body.hidebal #c_tr,body.hidebal #c_al{filter:blur(9px)}
+body.hidebal #ktip{display:none!important}
+#eyeb{margin-left:0;cursor:pointer;width:38px;height:38px;padding:0;display:grid;place-items:center}
+</style>
+<script>
+/* Tombol mata + penutup angka sensitif. Hanya tampilan, tidak mengubah data. */
+(function(){
+ var SEL=[
+  '#d_cards .kc:nth-child(1) b','#d_cards .kc:nth-child(2) b','#d_cards .kc:nth-child(5) b',
+  '#d_cards .kc:nth-child(2) em','#d_cards .kc:nth-child(4) em',
+  '#d_wrx .wx b','#d_st .sl:nth-child(n+3) b','.cal-c b','#d_calsum b','#d_allist .al-v',
+  '#d_trbig span','#d_trcards .tr-k:nth-child(n+3) b','#d_trsum .sl:nth-child(-n+3) b','#d_trtb td:nth-child(3)',
+  '#l_tb td:nth-child(n+3):nth-child(-n+9)','#l_sub',
+  '#h_cards .kc:nth-child(5) b','#h_tb td:nth-child(10)','#h_tb td:nth-child(11)','#h_tb td:nth-child(15)',
+  '#pf_sum .cards b'
+ ];
+ var HDR=['lot','rata2 beli','harga kini','p/l','beli','jual','p/l bersih'];
+ function mark(){
+  SEL.forEach(function(s){document.querySelectorAll(s).forEach(function(e){e.classList.add('sv')})});
+  document.querySelectorAll('#pf_body table').forEach(function(t){
+   var idx=[];
+   t.querySelectorAll('tr:first-child th').forEach(function(th,i){
+    if(HDR.indexOf(th.textContent.trim().toLowerCase())>=0)idx.push(i)});
+   t.querySelectorAll('tr').forEach(function(tr,ri){
+    if(!ri)return;
+    idx.forEach(function(i){var c=tr.children[i];if(c)c.classList.add('sv')})});
+  });
+ }
+ var tm=0;
+ function sched(){if(tm)return;tm=setTimeout(function(){tm=0;mark()},200)}
+ function eye(){
+  var on=document.body.classList.contains('hidebal'),b=document.getElementById('eyeb');
+  if(b){b.innerHTML='<i class="fa-solid fa-eye'+(on?'-slash':'')+'"></i>';b.title=on?'Tampilkan angka':'Sembunyikan angka'}
+ }
+ function setHide(on){
+  document.body.classList.toggle('hidebal',on);
+  try{localStorage.setItem('kai_hide',on?'1':'0')}catch(e){}
+  if(on)mark();
+  eye();
+ }
+ var b=document.createElement('button');
+ b.id='eyeb';b.className='dp';
+ b.onclick=function(){setHide(!document.body.classList.contains('hidebal'))};
+ var t=document.getElementById('thb');
+ if(t&&t.parentNode)t.parentNode.insertBefore(b,t);
+ new MutationObserver(function(){if(document.body.classList.contains('hidebal'))sched()})
+  .observe(document.body,{childList:true,subtree:true});
+ var v=null;try{v=localStorage.getItem('kai_hide')}catch(e){}
+ setHide(v!=='0');
+})();
+</script>
 </body>
 </html>
