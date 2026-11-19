@@ -2401,5 +2401,72 @@ function mktSub(){
  window.showPg=function(k){var r=_s.apply(this,arguments);if(k==='hist')loadK();return r};
 })();
 </script>
+<script>
+/* Menu Review Mingguan: review kebiasaan trading dari data penjualan (dibuat otomatis tiap Minggu 17:00). Hanya tampilan. */
+(function(){
+ KP.review=['Review Mingguan','Review kebiasaan trading Anda: yang sudah baik, yang perlu diperbaiki, dan fokus minggu depan'];
+ KIC['Review Mingguan']='clipboard-check';
+ KNAV[1].it.push(['Review Mingguan','pg:review']);
+
+ var pg=document.createElement('div');pg.id='pg-review';pg.className='pg';
+ pg.innerHTML='<div class="pw"><div id="r_sub" style="margin:0 0 14px;font-size:12px;color:#94a3b8">Memuat\u2026</div>'+
+  '<div class="fl" style="margin-bottom:14px"><select id="r_sel"></select>'+
+  '<button id="r_r"><i class="fa-solid fa-rotate-right"></i><span>Muat Ulang</span></button>'+
+  '<button class="sec" id="r_u"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Buat Review Sekarang</span></button></div>'+
+  '<div class="kg" id="r_cards"></div>'+
+  '<div class="rw b"><div class="bx"><h4><i class="fa-solid fa-clipboard-check"></i> Review dari Mentor AI</h4><div id="r_txt" style="font-size:13.5px;line-height:1.7;white-space:pre-wrap"></div></div>'+
+  '<div class="bx"><h4><i class="fa-solid fa-chart-simple"></i> Kebiasaan yang Terukur</h4><div id="r_st"></div></div></div>'+
+  '<div class="cc-n">Review dibuat otomatis dari tab Penjualan dan Portofolio, tiap Minggu pukul 17:00 (periode 7 hari terakhir). Isinya hanya membaca data Anda dan tidak mengubah apa pun. Bukan nasihat investasi.</div></div>';
+ $('pgs').appendChild(pg);
+
+ var R={rows:[],i:0};
+ function ftg(s){return String(s==null?'':s).replace(/(\d{4})-(\d{2})-(\d{2})/g,'$3-$2-$1')}
+ function wrOf(c){return c&&c.n?c.menang/c.n*100:null}
+ function pay(c){return c&&c.menang&&c.kalah?(c.untung_kotor/c.menang)/(c.rugi_kotor/c.kalah):null}
+ function render(){
+  var r=R.rows[R.i],sel=$('r_sel');
+  sel.innerHTML=R.rows.map(function(x,i){return'<option value="'+i+'"'+(i===R.i?' selected':'')+'>'+esc(ftg(x.tgl))+'</option>'}).join('');
+  if(!r){$('r_sub').textContent='Belum ada review. Review dibuat otomatis tiap Minggu 17:00, atau tekan "Buat Review Sekarang".';$('r_cards').innerHTML='';$('r_txt').textContent='';$('r_st').innerHTML='';return}
+  var c=r.cur||{n:0,menang:0,kalah:0,pl:0,fee:0,untung_kotor:0,rugi_kotor:0,per_hari:{},sesi1:{n:0,pl:0},sesi2:{n:0,pl:0}},p=r.prev||null,H=r.hold||[];
+  $('r_sub').textContent='Periode '+ftg(r.periode)+' \u00B7 dibuat '+ftg(r.tgl);
+  var w=wrOf(c),pw=wrOf(p),py=pay(c),
+   K=[['Transaksi Selesai',c.n,'',p?'Periode sebelumnya: '+p.n:'','list-check','bl'],
+      ['Win Rate',w===null?'\u2013':w.toFixed(0)+'%',w!==null&&w>=50?'g2':'r2',pw===null?'':'Periode sebelumnya: '+pw.toFixed(0)+'%','bullseye','am'],
+      ['P/L Bersih',rpf(c.pl),c.pl>=0?'g2':'r2',p?'Periode sebelumnya: '+rpf(p.pl):'','wallet','em'],
+      ['Payoff Ratio',py===null?'\u2013':py.toFixed(2),py!==null&&py>=1?'g2':'r2','Rata-rata untung \u00F7 rata-rata rugi','scale-balanced','pu'],
+      ['Posisi Tertahan',H.length,H.length?'r2':'g2',H.length?H.map(function(h){return esc(h.kode)+' '+h.hari+' hari'}).join(', '):'Tidak ada posisi 2 hari atau lebih','hourglass-half','ro']];
+  $('r_cards').innerHTML=K.map(function(x){return'<div class="kc"><div class="kh"><small>'+x[0]+'</small><span class="ki '+x[5]+'"><i class="fa-solid fa-'+x[4]+'"></i></span></div><b class="'+x[2]+'">'+x[1]+'</b><em>'+x[3]+'</em></div>'}).join('');
+  $('r_txt').textContent=r.review||'';
+  var hk=Object.keys(c.per_hari||{}).map(function(k){return{k:k,pl:c.per_hari[k].pl}}).sort(function(a,b){return b.pl-a.pl}),
+   L=[['Mencapai Target 1',c.capai_t1||0],['Kena Stop Loss',c.kena_sl||0],
+      ['Jual sebelum Target 1',(c.jual_sebelum_t1||0)+' ('+(c.jual_sebelum_t1_untung||0)+' untung)'],
+      ['Sesi 1: '+(c.sesi1?c.sesi1.n:0)+' transaksi',rpf(c.sesi1?c.sesi1.pl:0)],['Sesi 2: '+(c.sesi2?c.sesi2.n:0)+' transaksi',rpf(c.sesi2?c.sesi2.pl:0)],
+      ['Hari terbaik',hk.length?hk[0].k+' ('+rpf(hk[0].pl)+')':'\u2013'],['Hari terburuk',hk.length?hk[hk.length-1].k+' ('+rpf(hk[hk.length-1].pl)+')':'\u2013'],
+      ['Untung terbesar',c.terbesar_untung?esc(c.terbesar_untung.kode)+' '+rpf(c.terbesar_untung.pl):'\u2013'],
+      ['Rugi terbesar',c.terbesar_rugi?esc(c.terbesar_rugi.kode)+' '+rpf(c.terbesar_rugi.pl):'\u2013'],
+      ['Total fee','Rp '+n0(c.fee||0)]];
+  $('r_st').innerHTML=L.map(function(x){return'<div class="sl"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>'}).join('')}
+ function demo(){return{rows:[{tgl:jk().date,periode:jk().date+' s/d '+jk().date,n:6,wr:50,pl:12000,review:'(DEMO) Yang sudah baik:\n- Contoh poin.\nYang perlu diperbaiki:\n- Contoh poin.\nFokus minggu depan: contoh aksi.',
+   cur:{n:6,menang:3,kalah:3,pl:12000,fee:9000,untung_kotor:40000,rugi_kotor:28000,capai_t1:2,kena_sl:1,jual_sebelum_t1:3,jual_sebelum_t1_untung:1,per_hari:{Senin:{n:3,pl:20000},Selasa:{n:3,pl:-8000}},sesi1:{n:4,pl:15000},sesi2:{n:2,pl:-3000},terbesar_untung:{kode:'DMAS',pl:25000,pct:5},terbesar_rugi:{kode:'ACES',pl:-12000,pct:-4}},
+   prev:{n:4,menang:2,kalah:2,pl:5000,untung_kotor:20000,rugi_kotor:15000},hold:[{kode:'SSMS',lot:2,hari:3}]}]}}
+ function setData(d){R.rows=(d&&d.rows)||[];R.i=0;render()}
+ function load(){
+  $('r_sub').textContent='Memuat\u2026';
+  if(!HAS){setData(demo());return}
+  google.script.run.withSuccessHandler(setData).withFailureHandler(function(e){$('r_sub').textContent='Gagal memuat: '+((e&&e.message)||e)}).getReviewMingguan()}
+ function make(){
+  var b=$('r_u');b.disabled=true;b.querySelector('span').textContent='Membuat review\u2026 (bisa 10-40 detik)';
+  var done=function(){b.disabled=false;b.querySelector('span').textContent='Buat Review Sekarang'};
+  if(!HAS){setTimeout(function(){done();setData(demo());toast('Review (DEMO) dibuat')},600);return}
+  google.script.run.withSuccessHandler(function(d){done();setData(d);toast('Review mingguan selesai dibuat')}).withFailureHandler(function(e){done();toast('Gagal: '+((e&&e.message)||e))}).runReviewFromWeb()}
+ $('r_sel').onchange=function(){R.i=+this.value||0;render()};
+ $('r_r').onclick=function(){load();spinR(this)};
+ $('r_u').onclick=make;
+
+ var _s=window.showPg;
+ window.showPg=function(k){var r=_s.apply(this,arguments);if(k==='review')load();return r};
+ kNav();try{document.querySelectorAll('.it').forEach(function(b){b.classList.toggle('on',b.dataset.pg===KPG)})}catch(e){}
+})();
+</script>
 </body>
 </html>
