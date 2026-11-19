@@ -2260,7 +2260,7 @@ body:not(.dark) #pg-news .nsum{color:#334155}
   $('n_sum').textContent=N.ringkasan||'Belum ada ringkasan. Tekan "Perbarui Berita Sekarang" atau tunggu jadwal otomatis.';
   $('n_held').innerHTML=(N.held||[]).map(function(k){var L=R.filter(function(r){return r.kode===k});if(!L.length)return'<span class="nc">'+esc(k)+' · belum ada berita</span>';var v=avg(L);
    return'<span class="nc '+(v>0?'g2':v<0?'r2':'')+'">'+esc(k)+' · '+(v>0?'+':'')+v.toFixed(1)+' ('+L.length+' berita)</span>'}).join('');
-  var F=filt(),sg=[N.g,N.s,N.q].join('|');if(sg!==N.sg){N.sg=sg;N.pg=1}kPg('n_pg','nwPage',N,F.length);F=F.slice(((N.pg||1)-1)*15,(N.pg||1)*15);
+  var F=filt(),pgSig=[N.g,N.s,N.q].join('|');if(pgSig!==N.sg){N.sg=pgSig;N.pg=1}kPg('n_pg','nwPage',N,F.length);F=F.slice(((N.pg||1)-1)*15,(N.pg||1)*15);
   $('n_tb').innerHTML=F.length?F.map(function(r){var u=safeUrl(r.url);
    return'<tr class="rw-'+bc(r.skor)+'"><td class="l">'+esc(r.w)+'</td><td class="l"><b>'+(esc(r.kode)||'–')+'</b></td><td class="nj">'+(u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(r.judul)+'</a>':esc(r.judul))+(r.src?'<span class="nsrc">'+esc(r.src)+'</span>':'')+'</td>'+
     '<td><span class="bd '+bc(r.skor)+'">'+sg(r.skor)+' '+(LB[r.skor]||'')+'</span></td><td class="l">'+esc(r.kat)+'</td><td'+(r.urg==='tinggi'?' class="urt"':'')+'>'+esc(r.urg)+'</td><td class="l">'+esc(r.grp)+'</td><td class="nj">'+esc(r.alasan)+'</td></tr>'}).join('')
