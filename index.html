@@ -2235,7 +2235,7 @@ body:not(.dark) #pg-news .nsum{color:#334155}
   '<button class="sec" id="n_u"><i class="fa-solid fa-bolt"></i><span>Perbarui Berita Sekarang</span></button></div>'+
   '<div class="kg" id="n_cards"></div>'+
   '<div class="bx" style="margin-bottom:24px"><h4><i class="fa-solid fa-newspaper"></i> Ringkasan Analis Sentimen</h4><div class="nsum" id="n_sum"></div><div class="nch" id="n_held"></div></div>'+
-  '<div class="bx tw" style="padding:0"><table class="tt"><thead><tr><th class="l">Waktu</th><th class="l">Kode</th><th class="l">Berita</th><th>Sentimen</th><th class="l">Kategori</th><th>Urgensi</th><th class="l">Kelompok</th><th class="l">Alasan</th></tr></thead><tbody id="n_tb"></tbody></table></div>'+
+  '<div class="bx tw" style="padding:0"><table class="tt"><thead><tr><th class="l">Waktu</th><th class="l">Kode</th><th class="l">Berita</th><th>Sentimen</th><th class="l">Kategori</th><th>Urgensi</th><th class="l">Kelompok</th><th class="l">Alasan</th></tr></thead><tbody id="n_tb"></tbody></table></div><div class="pgr" id="n_pg"></div>'+
   '<div class="cc-n" style="margin-top:10px">Sumber: judul berita Google News, dinilai Gemini hanya dari judulnya. Berita sering sudah tercermin di harga, jadi pakai sebagai filter pendamping, bukan sinyal beli. Bukan nasihat investasi.</div></div>';
  $('pgs').appendChild(pg);
 
@@ -2252,7 +2252,7 @@ body:not(.dark) #pg-news .nsum{color:#334155}
   var R=N.rows,P=R.filter(function(r){return r.grp==='Pasar'}),a=avg(P),pos=R.filter(function(r){return r.skor>0}).length,neg=R.filter(function(r){return r.skor<0}).length,
    net=R.length-pos-neg,urg=R.filter(function(r){return r.urg==='tinggi'}).length,
    lab=!P.length?'–':a>=.4?'Positif':a<=-.4?'Negatif':'Netral',lc=!P.length?'':a>=.4?'g2':a<=-.4?'r2':'';
-  $('n_sub').textContent=R.length+' berita tersimpan (7 hari terakhir) · pembaruan terakhir: '+(N.updated||'belum pernah')+' · berjalan otomatis 06:00, 15:15, dan tiap 30 menit saat bursa buka (saham Portofolio)';
+  $('n_sub').textContent=R.length+' berita terbaru ditampilkan (data 3 hari terakhir) · pembaruan terakhir: '+(N.updated||'belum pernah')+' · berjalan otomatis 06:00, 15:15, dan tiap 30 menit saat bursa buka (saham Portofolio)';
   var K=[['Sentimen Pasar',lab,lc,P.length?'Skor rata-rata '+a.toFixed(2)+' (−2 s/d +2)':'Belum ada berita pasar','gauge-high','bl'],
    ['Berita Positif',pos,'g2','Skor di atas 0','circle-arrow-up','em'],['Berita Negatif',neg,'r2','Skor di bawah 0','circle-arrow-down','ro'],
    ['Berita Netral',net,'','Skor 0','circle-minus','pu'],['Urgensi Tinggi',urg,urg?'r2':'','Bisa menggerakkan harga','triangle-exclamation','am']];
@@ -2260,7 +2260,7 @@ body:not(.dark) #pg-news .nsum{color:#334155}
   $('n_sum').textContent=N.ringkasan||'Belum ada ringkasan. Tekan "Perbarui Berita Sekarang" atau tunggu jadwal otomatis.';
   $('n_held').innerHTML=(N.held||[]).map(function(k){var L=R.filter(function(r){return r.kode===k});if(!L.length)return'<span class="nc">'+esc(k)+' · belum ada berita</span>';var v=avg(L);
    return'<span class="nc '+(v>0?'g2':v<0?'r2':'')+'">'+esc(k)+' · '+(v>0?'+':'')+v.toFixed(1)+' ('+L.length+' berita)</span>'}).join('');
-  var F=filt().slice(0,200);
+  var F=filt(),sg=[N.g,N.s,N.q].join('|');if(sg!==N.sg){N.sg=sg;N.pg=1}kPg('n_pg','nwPage',N,F.length);F=F.slice(((N.pg||1)-1)*15,(N.pg||1)*15);
   $('n_tb').innerHTML=F.length?F.map(function(r){var u=safeUrl(r.url);
    return'<tr class="rw-'+bc(r.skor)+'"><td class="l">'+esc(r.w)+'</td><td class="l"><b>'+(esc(r.kode)||'–')+'</b></td><td class="nj">'+(u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(r.judul)+'</a>':esc(r.judul))+(r.src?'<span class="nsrc">'+esc(r.src)+'</span>':'')+'</td>'+
     '<td><span class="bd '+bc(r.skor)+'">'+sg(r.skor)+' '+(LB[r.skor]||'')+'</span></td><td class="l">'+esc(r.kat)+'</td><td'+(r.urg==='tinggi'?' class="urt"':'')+'>'+esc(r.urg)+'</td><td class="l">'+esc(r.grp)+'</td><td class="nj">'+esc(r.alasan)+'</td></tr>'}).join('')
@@ -2276,7 +2276,7 @@ body:not(.dark) #pg-news .nsum{color:#334155}
    bad=function(e){done();toast('Gagal: '+((e&&e.message)||e))};
   if(HAS)google.script.run.withSuccessHandler(ok).withFailureHandler(bad).refreshSentimenFromWeb();else setTimeout(function(){ok(demo())},800)}
  $('n_g').onchange=function(){N.g=this.value;render()};$('n_s').onchange=function(){N.s=this.value;render()};
- $('n_q').oninput=function(){N.q=this.value;render()};$('n_r').onclick=function(){load();spinR(this)};$('n_u').onclick=refresh;
+ $('n_q').oninput=function(){N.q=this.value;render()};$('n_r').onclick=function(){load();spinR(this)};$('n_u').onclick=refresh;window.nwPage=function(n){N.pg=n;render();var w=$('pg-news');if(w)w.scrollTop=0};
 
  /* Resepsionis -> Analis Sentimen */
  try{
@@ -2467,6 +2467,34 @@ function mktSub(){
  window.showPg=function(k){var r=_s.apply(this,arguments);if(k==='review')load();return r};
  kNav();try{document.querySelectorAll('.it').forEach(function(b){b.classList.toggle('on',b.dataset.pg===KPG)})}catch(e){}
 })();
+</script>
+<style>
+.pgr{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 4px 0;font-size:12px;color:#94a3b8}
+.pgr:empty{display:none}
+.pgb{display:flex;gap:6px;flex-wrap:wrap}
+.pgb button{min-width:32px;height:32px;padding:0 8px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#334155;font:inherit;font-weight:700;cursor:pointer}
+body.dark .pgb button{background:rgba(15,23,42,.6);border-color:rgba(255,255,255,.1);color:#cbd5e1}
+.pgb button:hover:not(:disabled){border-color:#10b981}
+.pgb button.on,body.dark .pgb button.on{background:#10b981;border-color:#10b981;color:#022c22}
+.pgb button:disabled{opacity:.4;cursor:default}
+</style>
+<script>
+/* Pager 15 data per halaman. Hanya dibuat bila belum ada (aman jika blok paginasi sebelumnya sudah terpasang). */
+if(typeof window.kPg!=='function'){
+ window.kPg=function(id,fn,o,n){
+  var PS=15,tp=Math.max(1,Math.ceil(n/PS)),el=document.getElementById(id);
+  o.pg=Math.min(Math.max(1,o.pg||1),tp);
+  if(!el)return;
+  if(n<=PS){el.innerHTML=n?'<span>Menampilkan '+n+' data</span>':'';return}
+  var a=(o.pg-1)*PS+1,b=Math.min(n,o.pg*PS),s=Math.max(1,Math.min(o.pg-2,tp-4)),e=Math.min(tp,s+4),h='',i;
+  h+='<button '+(o.pg<=1?'disabled ':'')+'onclick="'+fn+'(1)">\u00AB</button>';
+  h+='<button '+(o.pg<=1?'disabled ':'')+'onclick="'+fn+'('+(o.pg-1)+')">\u2039</button>';
+  for(i=s;i<=e;i++)h+='<button class="'+(i===o.pg?'on':'')+'" onclick="'+fn+'('+i+')">'+i+'</button>';
+  h+='<button '+(o.pg>=tp?'disabled ':'')+'onclick="'+fn+'('+(o.pg+1)+')">\u203A</button>';
+  h+='<button '+(o.pg>=tp?'disabled ':'')+'onclick="'+fn+'('+tp+')">\u00BB</button>';
+  el.innerHTML='<span>Menampilkan '+a+'\u2013'+b+' dari '+n+' data \u00B7 halaman '+o.pg+'/'+tp+'</span><div class="pgb">'+h+'</div>';
+ };
+}
 </script>
 </body>
 </html>
