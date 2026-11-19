@@ -1520,7 +1520,7 @@ let VOICE=false;
 function toggleVoice(){VOICE=!VOICE;$('vbtn').innerHTML=VOICE?'<i class="fa-solid fa-volume-high"></i>':'<i class="fa-solid fa-volume-xmark"></i>';if(!VOICE&&window.speechSynthesis)speechSynthesis.cancel();toast(VOICE?'Suara jawaban aktif':'Suara jawaban mati')}
 function speak(t){if(!VOICE||!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(String(t||'').replace(/[*_#`]/g,'').slice(0,700));u.lang='id-ID';speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 function listen(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){toast('Browser ini tidak mendukung input suara. Ketik saja.');return}try{const r=new R();r.lang='id-ID';r.onresult=e=>{$('q').value=e.results[0][0].transcript;ask()};r.onerror=e=>toast('Mikrofon tidak bisa dipakai di halaman ini ('+e.error+'). Ketik saja.');r.start();toast('Mendengarkan… silakan bicara')}catch(e){toast('Mikrofon tidak tersedia. Ketik saja.')}}
-function ask(){const q=$('q').value.trim();if(!q||ASKING)return;$('q').value='';addMsg(q,'u');const th=addMsg('Jarvis sedang berpikir…','a t');ASKING=true;$('askb').disabled=true;const hist=CHAT.slice(-12);
+function ask(){const q=$('q').value.trim();if(!q||ASKING)return;$('q').value='';addMsg(q,'u');const th=thinkStart(q);ASKING=true;$('askb').disabled=true;const hist=CHAT.slice(-12);
  const ok=r=>{ASKING=false;$('askb').disabled=false;th.remove();addMsg(r.jawaban||'(tidak ada jawaban)','a');speak(r.jawaban);CHAT.push({r:'u',t:q},{r:'a',t:String(r.jawaban||'').slice(0,700)});
   if((r.poin&&r.poin.length)||r.kesimpulan){LASTQ=r;AG.find(a=>a.k==='ask').done=true;SL=slides();slideId('ask');errand('ask','present',14)}
   sideSig='';if(r.aksi&&r.aksi.length){r.aksi.forEach(a=>addMsg('Aksi: '+(AL[a.t]||a.t)+(a.v?': '+a.v:''),'a t'));runActions(r.aksi)}};
@@ -2553,6 +2553,64 @@ body.hidebal #ktip{display:none!important}
  var v=null;try{v=localStorage.getItem('kai_hide')}catch(e){}
  setHide(v!=='0');
 })();
+</script>
+<style>
+.m.jt{min-width:240px}
+.jt-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.jt-h b{font-size:12.5px}
+.jt-h em{margin-left:auto;font-style:normal;font:700 11px "JetBrains Mono",ui-monospace,monospace;color:#34d399}
+.jt-o{width:9px;height:9px;border-radius:50%;background:#34d399;animation:jtp 1s infinite}
+.jt-s{display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0}
+.jt-s i{width:16px;text-align:center;font-size:12px}
+.jt-s.done{color:#64748b}
+.jt-s.done i{color:#34d399}
+.jt-s.now{color:#e8edf7;font-weight:600}
+.jt-s.now i{color:#fbbf24;animation:jtp 1s infinite}
+.jt-s u{text-decoration:none;opacity:0;animation:jtd 1.2s infinite}
+.jt-s u:nth-of-type(2){animation-delay:.2s}
+.jt-s u:nth-of-type(3){animation-delay:.4s}
+.jt-b{height:3px;border-radius:2px;background:rgba(148,163,184,.2);overflow:hidden;margin-top:8px}
+.jt-b i{display:block;width:40%;height:100%;background:linear-gradient(90deg,transparent,#10b981,transparent);animation:jtb 1.3s linear infinite}
+.jt-n{display:none;font-size:11px;color:#94a3b8;margin-top:6px}
+@keyframes jtp{50%{opacity:.35;transform:scale(1.25)}}
+@keyframes jtd{40%{opacity:1}}
+@keyframes jtb{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+body.jthink .cav{animation:jtp 1s infinite}
+body.jthink #fabc{animation:ringPing 1s infinite}
+</style>
+<script>
+/* Animasi tahapan "Jarvis bekerja". Hanya tampilan, tidak mengubah data. */
+function thinkStart(q){
+ q=String(q||'');
+ var web=/berita|terbaru|terkini|kabar|sentimen|ihsg|msci|rupiah|suku bunga|bursa|ekonomi|politik|cuaca|emas|bitcoin|prospek|isu/i.test(q),
+     ev=/evaluasi|kinerja|win rate|performa|hasil bsjp|kemarin|laporan/i.test(q),
+     S=[['fa-comment-dots','Membaca pertanyaan Anda',2],['fa-database','Mengambil data Portofolio & rekomendasi',6]];
+ if(ev)S.push(['fa-chart-line','Memeriksa hasil evaluasi BSJP',12]);
+ if(web)S.push(['fa-newspaper','Mencari berita & sentimen terbaru',20]);
+ S.push(['fa-calculator','Menghitung angka & menimbang risiko',28]);
+ S.push(['fa-pen-nib','Menyusun jawaban',99999]);
+ var d=addMsg('','a t'),t0=Date.now(),last=-1;
+ d.classList.add('jt');
+ document.body.classList.add('jthink');
+ function draw(){
+  var e=(Date.now()-t0)/1000,c=S.findIndex(function(x){return e<x[2]});
+  if(c<0)c=S.length-1;
+  if(c!==last){
+   last=c;
+   d.innerHTML='<div class="jt-h"><span class="jt-o"></span><b>Jarvis sedang bekerja</b><em></em></div>'+
+    S.slice(0,c+1).map(function(x,i){
+     return '<div class="jt-s '+(i<c?'done':'now')+'"><i class="fa-solid '+(i<c?'fa-check':x[0])+'"></i><span>'+x[1]+(i===c?'<u>.</u><u>.</u><u>.</u>':'')+'</span></div>'}).join('')+
+    '<div class="jt-b"><i></i></div><div class="jt-n">Pertanyaan ini butuh waktu lebih lama, mohon tunggu…</div>';
+  }
+  var em=d.querySelector('.jt-h em');if(em)em.textContent=Math.floor(e)+' dtk';
+  var nt=d.querySelector('.jt-n');if(nt)nt.style.display=e>25?'block':'none';
+  $('msgs').scrollTop=1e9;
+ }
+ draw();
+ var tm=setInterval(draw,400);
+ d.remove=function(){clearInterval(tm);document.body.classList.remove('jthink');Element.prototype.remove.call(d)};
+ return d;
+}
 </script>
 </body>
 </html>
