@@ -1298,7 +1298,7 @@ function chartBox(g,x,y,w,h,r){let ch={};try{ch=JSON.parse(r.chart||'{}')}catch(
  g.font='15px system-ui';g.textAlign='left';g.fillStyle='#f59e0b';g.fillText('— MA20',x+14,y+24);g.fillStyle='#38bdf8';g.fillText('— Harga 40 hari',x+96,y+24)}
 function bullets(t,sep){return String(t||'').split(sep).map(s=>s.trim().replace(/\.$/,'')).filter(Boolean)}
 function detail(r){return g=>{const q=bS(r),x=RX(r);bg(g,r.kode+' · '+(q?'BSJP & Swing':'BSJP'),r.date+' · skor BSJP/Swing '+scBS(r));chartBox(g,36,106,640,364,r);
- [['Beli',n0(r.lo)+'–'+n0(r.hi),'#fff'],['Jual T1',n0(r.t1),'#10b981'],['Jual T2',n0(r.t2),'#10b981'],['Stop Loss',n0(r.sl),'#f43f5e'],['R/R',(+r.rr).toFixed(2),'#fff']].forEach((l,i)=>{const X=36+i*130;g.fillStyle='#131c27';rr2(g,X,484,122,70);g.textAlign='left';g.fillStyle='#7d8fa4';g.font='14px system-ui';g.fillText(l[0],X+12,508);g.fillStyle=l[2];g.font='bold 20px '+MONO;g.fillText(l[1],X+12,538)});
+ [['Beli',n0(r.lo)+'–'+n0(r.hi),'#fff'],['Jual T1',n0(r.t1),'#10b981'],['Jual T2',n0(r.t2),'#10b981'],['Stop Loss',n0(r.sl),'#f43f5e'],['R/R',(+r.rr).toFixed(2),'#fff']].forEach((l,i)=>{const X=36+i*130;g.fillStyle='#131c27';rr2(g,X,484,122,70);g.textAlign='left';g.fillStyle='#7d8fa4';g.font='14px system-ui';g.fillText(l[0],X+12,508);g.fillStyle=l[2];let fs=20;g.font='bold '+fs+'px '+MONO;while(g.measureText(l[1]).width>98&&fs>11){fs--;g.font='bold '+fs+'px '+MONO}g.fillText(l[1],X+12,538)});
  g.fillStyle='#131c27';rr2(g,36,568,640,124);g.textAlign='left';g.fillStyle='#fff';g.font='bold 16px system-ui';g.fillText('Hasil: '+hasil(r),54,596);
  if(q){const sx=STR[q.st]||['#94a3b8',''],gp=ap(.65);
   g.font='13px '+MONO;g.fillStyle='#94a3b8';g.fillText('BSJP',54,626);gbar(g,106,617,120,q.b,STRC.b,gp);g.font='bold 14px '+MONO;g.fillStyle=STRC.b;g.fillText(String(Math.round(q.b)),236,627);
@@ -1319,7 +1319,7 @@ const SWL=['Tren: Price > MA20 > MA50 > MA100 > MA200','Harga dekat MA20 (tidak 
 function detailSwing(r){return g=>{const x=RX(r),q=bS(r)||{b:0,s:0,st:''},sw=x.sw||{},K=x.k||[],sx=STR[q.st]||['#94a3b8',''];
  bg(g,r.kode+' · Swing',r.date+' · skor Swing '+Math.round(q.s));
  chartBox(g,36,110,640,360,Object.assign({},r,{lo:sw.lo,hi:sw.hi,t1:sw.t1,t2:sw.t2,sl:sw.sl}));
- [['Beli',n0(sw.lo)+'–'+n0(sw.hi),'#93c5fd'],['Jual T1',n0(sw.t1),'#10b981'],['Jual T2',n0(sw.t2),'#34d399'],['Stop Loss',n0(sw.sl),'#f43f5e'],['R/R',(+sw.rr).toFixed(2),'#fff']].forEach((l,i)=>{const x0=36+i*130;g.fillStyle='#131c27';rr2(g,x0,490,122,76);g.fillStyle='#94a3b8';g.font='16px system-ui';g.fillText(l[0],x0+10,514);g.fillStyle=l[2];g.font='bold 21px system-ui';g.fillText(l[1],x0+10,548)});
+ [['Beli',n0(sw.lo)+'–'+n0(sw.hi),'#93c5fd'],['Jual T1',n0(sw.t1),'#10b981'],['Jual T2',n0(sw.t2),'#34d399'],['Stop Loss',n0(sw.sl),'#f43f5e'],['R/R',(+sw.rr).toFixed(2),'#fff']].forEach((l,i)=>{const x0=36+i*130;g.fillStyle='#131c27';rr2(g,x0,490,122,76);g.fillStyle='#94a3b8';g.font='16px system-ui';g.fillText(l[0],x0+10,514);g.fillStyle=l[2];let fs=21;g.font='bold '+fs+'px system-ui';while(g.measureText(l[1]).width>102&&fs>11){fs--;g.font='bold '+fs+'px system-ui'}g.fillText(l[1],x0+10,548)});
  chip(g,36,580,'SWING '+Math.round(q.s),STRC.s,16);chip(g,150,580,'BSJP '+Math.round(q.b),STRC.b,16);chip(g,262,580,q.st,sx[0],16);
  g.font='17px system-ui';g.fillStyle='#94a3b8';para(g,sx[1]+' Level di atas dihitung dari ATR dan MA20 untuk hold beberapa hari, bukan target BSJP.',36,640,640,22,3);
  g.fillStyle='#38bdf8';g.font='bold 24px system-ui';g.fillText('Checklist Swing '+Math.round(q.s)+'/100',710,132);
