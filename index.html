@@ -1002,7 +1002,7 @@ body.dark .kc:before{display:none!important}
    resize();
   }catch(e){}
   /* berhenti menggambar 3D bila menu bukan Kantor 3D */
-   try{
+  try{
    var last=0,_loop=window.loop;
    window.loop=function(t){
     var off=(typeof KPG!=='undefined'&&KPG!=='kantor'&&!$('pres').classList.contains('on'))||document.hidden;
