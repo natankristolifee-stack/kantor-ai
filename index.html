@@ -957,6 +957,68 @@ body.dark .m.u{color:#022c22}
   window.google={script:{run:mk(null,null)}};
 })();
 </script>
+<style>
+/* ===== PERFORMA: matikan blur & animasi berulang ===== */
+*{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#fabc,.pingd,.lv i,.jt-o,#login .lx-gc,#login .lx-tl,#login .lx-tr{animation:none!important}
+body.dark .kc:before{display:none!important}
+.pw,.pg.on,.kc,.bx,.tt tbody tr,.m,.modal.on .box{animation:none!important}
+#pg-dash .bx:hover,#pg-log .bx:hover,.kc:hover{transform:none!important}
+</style>
+<script>
+/* ===== PERFORMA: tampilkan data lama dulu, lalu perbarui dari server ===== */
+(function(){
+ try{
+  if(!window.google||!google.script||!google.script.run)return;
+  var base=google.script.run,
+      SW={getSentimenData:1,getTradeData:1,getHistoriEvaluasi:1,getReviewMingguan:1,getKalibrasi:1,getDashboardData:0},
+      served={};
+  function mk(ok,bad){return new Proxy({},{get:function(_,n){
+   if(typeof n!=='string'||n==='then')return undefined;
+   if(n==='withSuccessHandler')return function(f){return mk(f,bad)};
+   if(n==='withFailureHandler')return function(f){return mk(ok,f)};
+   if(!(n in SW))return function(){var r=base;if(ok)r=r.withSuccessHandler(ok);if(bad)r=r.withFailureHandler(bad);return r[n].apply(r,arguments)};
+   return function(){
+    var args=[].slice.call(arguments),key='kai_c_'+n,cached=null;
+    try{cached=localStorage.getItem(key)}catch(e){}
+    if(cached&&ok&&(SW[n]||!served[n])){served[n]=1;setTimeout(function(){try{ok(JSON.parse(cached))}catch(e){}},0)}
+    var h=base.withSuccessHandler(function(r){try{localStorage.setItem(key,JSON.stringify(r))}catch(e){}if(ok)ok(r)});
+    if(bad)h=h.withFailureHandler(bad);
+    h[n].apply(h,args);
+   }
+  }})}
+  google.script.run=mk(null,null);
+ }catch(e){}
+ document.addEventListener('DOMContentLoaded',function(){
+  /* hapus data tersimpan saat Keluar */
+  try{var lo=window.doLogout;window.doLogout=function(){try{Object.keys(localStorage).forEach(function(k){if(k.indexOf('kai_c_')===0)localStorage.removeItem(k)})}catch(e){}return lo.apply(this,arguments)}}catch(e){}
+  /* ringankan 3D */
+  try{
+   var mob=innerWidth<860;
+   ren.setPixelRatio(mob?1:Math.min(devicePixelRatio||1,1.5));
+   AG.forEach(function(a){a.g.traverse(function(o){o.castShadow=false})});
+   NPC.forEach(function(a){a.g.traverse(function(o){o.castShadow=false})});
+   ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=true;
+   resize();
+  }catch(e){}
+  /* berhenti menggambar 3D bila menu bukan Kantor 3D */
+   try{
+   var last=0,_loop=window.loop;
+   window.loop=function(t){
+    var off=(typeof KPG!=='undefined'&&KPG!=='kantor'&&!$('pres').classList.contains('on'))||document.hidden;
+    if(off){
+     requestAnimationFrame(window.loop);
+     var s=t/1000;if(s-tSec>1){tSec=s;try{refreshState()}catch(e){}}
+     return;
+    }
+    if(innerWidth<860&&t-last<33){requestAnimationFrame(window.loop);return}
+    last=t;
+    _loop(t);
+   };
+  }catch(e){}
+ });
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* ============ DATA & STATE ============ */
