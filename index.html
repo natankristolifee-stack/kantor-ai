@@ -2249,7 +2249,7 @@ body.dark #h_sumt th{background:#0e1627}
  function cls2(r){
   if(isPel(r))return'pel';
   if(r.dibeli){var p=(r.pl===''||r.pl==null)?null:+r.pl;if(p===null)return'run';return p>0?'ok':p<0?'gagal':'tb'}
-  var k0=H.b==='TDK'?cls(r):'tb';return k0==='ok'?'sim':k0}
+  var k0=cls(r);return k0==='ok'?'sim':k0}
  function rv(r){
   if(r.dibeli)return(r.rps===''||r.rps==null)?null:+r.rps;
   return(['TP1','SL','TUTUP'].indexOf(r.status)>=0&&r.ret!==''&&r.ret!=null)?+r.ret:null}
