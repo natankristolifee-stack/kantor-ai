@@ -2266,7 +2266,7 @@ body.dark #h_sumt th{background:#0e1627}
  function render(){
   var B=base(),sel=B.filter(function(r){return inR(r.date)}),c={ok:0,gagal:0,pel:0,tb:0,run:0},R=rng();
   c.sim=0;c.pel=0;sel.forEach(function(r){c[cls2(r)]++});
-  var useS=(H.b==='YA'),SS=[];
+  var useS=false,SS=[];
   if(useS){SS=(H.sales||[]).filter(function(s){return inR(s.t)&&(H.t==='ALL'||s.tipe===H.t||s.tipe==='')});
    c={ok:0,sim:0,gagal:0,pel:0,tb:0,run:0};c.sim=0;c.pel=0;SS.forEach(function(s){if(+s.pl>0)c.ok++;else if(+s.pl<0)c.gagal++;else c.tb++});
    sel.forEach(function(r){if(r.dibeli&&(r.pl===''||r.pl==null))c.run++})}
