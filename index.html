@@ -2263,10 +2263,10 @@ body.dark #h_sumt th{background:#0e1627}
   g.font='11px system-ui';g.fillStyle=DK()?'#94a3b8':'#64748b';g.fillText('win rate',cx,cy+24)}
  function render(){
   var B=base(),sel=B.filter(function(r){return inR(r.date)}),c={ok:0,gagal:0,pel:0,tb:0,run:0},R=rng();
-  sel.forEach(function(r){c[cls2(r)]++});
+  c.sim=0;c.pel=0;sel.forEach(function(r){c[cls2(r)]++});
   var useS=(H.b==='YA'),SS=[];
   if(useS){SS=(H.sales||[]).filter(function(s){return inR(s.t)&&(H.t==='ALL'||s.tipe===H.t||s.tipe==='')});
-   c={ok:0,sim:0,gagal:0,pel:0,tb:0,run:0};SS.forEach(function(s){if(+s.pl>0)c.ok++;else if(+s.pl<0)c.gagal++;else c.tb++});
+   c={ok:0,sim:0,gagal:0,pel:0,tb:0,run:0};c.sim=0;c.pel=0;SS.forEach(function(s){if(+s.pl>0)c.ok++;else if(+s.pl<0)c.gagal++;else c.tb++});
    sel.forEach(function(r){if(r.dibeli&&(r.pl===''||r.pl==null))c.run++})}
   var done=c.ok+c.sim+c.gagal,wr=done?(c.ok+c.sim)/done*100:0,rr=sel.map(rv).filter(function(x){return x!==null}),
    avg=rr.length?rr.reduce(function(t,x){return t+x},0)/rr.length:0,pl=sel.reduce(function(t,r){return t+(r.dibeli&&r.pl!==''?+r.pl:0)},0),nb=sel.filter(function(r){return r.dibeli}).length;
