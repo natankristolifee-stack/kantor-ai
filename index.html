@@ -2202,6 +2202,10 @@ body.dark .tt tr.rw-PEL{background:rgba(168,85,247,.18)}
 #h_tbl tr.rw-PEL td:nth-child(-n+2){background:linear-gradient(rgba(168,85,247,.13),rgba(168,85,247,.13)),#fff}
 body.dark #h_tbl tr.rw-PEL td:nth-child(-n+2){background:linear-gradient(rgba(168,85,247,.18),rgba(168,85,247,.18)),#0e1627}
 #h_tbl td.pel{color:#9333ea;font-weight:800}
+.tt tr.rw-SIM{background:rgba(34,211,238,.12)}
+body.dark .tt tr.rw-SIM{background:rgba(34,211,238,.16)}
+#h_tbl tr.rw-SIM td:nth-child(-n+2){background:linear-gradient(rgba(34,211,238,.12),rgba(34,211,238,.12)),#fff}
+body.dark #h_tbl tr.rw-SIM td:nth-child(-n+2){background:linear-gradient(rgba(34,211,238,.16),rgba(34,211,238,.16)),#0e1627}
 body.dark #h_tbl td.pel{color:#c084fc}
 body.dark #h_sumt th{background:#0e1627}
 </style>
@@ -2221,12 +2225,12 @@ body.dark #h_sumt th{background:#0e1627}
   '<button id="h_r"><i class="fa-solid fa-rotate-right"></i><span>Muat Ulang</span></button></div>'+
   '<div class="kg" id="h_cards"></div>'+
   '<div class="rw b"><div class="bx"><h4>Diagram Hasil Evaluasi</h4><canvas id="c_hist"></canvas><div id="h_leg"></div></div>'+
-  '<div class="bx"><h4>Ringkasan per Tanggal (klik untuk memilih 1 tanggal)</h4><div class="tw" style="max-height:300px"><table class="tt" id="h_sumt"><thead><tr><th class="l">Tanggal</th><th>Saham</th><th>Berhasil</th><th>Gagal</th><th>Peluang</th><th>Win rate</th></tr></thead><tbody id="h_sum"></tbody></table></div></div></div>'+
+  '<div class="bx"><h4>Ringkasan per Tanggal (klik untuk memilih 1 tanggal)</h4><div class="tw" style="max-height:300px"><table class="tt" id="h_sumt"><thead><tr><th class="l">Tanggal</th><th>Saham</th><th>Berhasil</th><th>Gagal</th><th>Peluang</th><th>Sistem ✔</th><th>Win rate</th></tr></thead><tbody id="h_sum"></tbody></table></div></div></div>'+
   '<div class="bx tw" style="padding:0"><table class="tt" id="h_tbl"><thead><tr><th class="l">Tanggal</th><th class="l">Saham</th><th>Skor</th><th>Zona beli</th><th>Target 1</th><th>Stop Loss</th><th>Penutupan</th><th>Return Sistem</th><th>Status</th><th>Harga Beli</th><th>Harga Jual</th><th>Harga Tertinggi</th><th>Harga Penutupan</th><th>Return Saya</th><th>L/R saya (Rp)</th><th class="l">Evaluasi</th></tr></thead><tbody id="h_tb"></tbody></table></div><div class="pgr" id="h_pg"></div></div>';
  $('pgs').appendChild(pg);
 
  var H={rows:[],sales:[],p:'ALL',d1:'',d2:'',t:'BTST',b:'YA'};
- var HL={ok:['Berhasil (untung)','#10b981'],gagal:['Gagal (rugi)','#f43f5e'],pel:['Tidak dibeli, tapi harga tertinggi melewati zona beli (peluang jual hijau)','#a855f7'],tb:['Tidak dibeli / impas','#94a3b8'],run:['Belum terjual / berjalan','#3b82f6']};
+ var HL={ok:['Berhasil (untung)','#10b981'],sim:['Tidak dibeli, sistem berhasil (capai T1 / tutup untung)','#22d3ee'],gagal:['Gagal (rugi)','#f43f5e'],pel:['Tidak dibeli, tapi harga tertinggi melewati zona beli (peluang jual hijau)','#a855f7'],tb:['Tidak dibeli / impas','#94a3b8'],run:['Belum terjual / berjalan','#3b82f6']};
  function ago(n){return new Date(new Date(jk().date+'T00:00:00Z').getTime()-n*864e5).toISOString().slice(0,10)}
  function rng(){var td=jk().date,a='',b='';
   if(H.p==='TD'){a=td;b=td}
@@ -2243,7 +2247,7 @@ body.dark #h_sumt th{background:#0e1627}
  function cls2(r){
   if(isPel(r))return'pel';
   if(r.dibeli){var p=(r.pl===''||r.pl==null)?null:+r.pl;if(p===null)return'run';return p>0?'ok':p<0?'gagal':'tb'}
-  return H.b==='TDK'?cls(r):'tb'}
+  var k0=H.b==='TDK'?cls(r):'tb';return k0==='ok'?'sim':k0}
  function rv(r){
   if(r.dibeli)return(r.rps===''||r.rps==null)?null:+r.rps;
   return(['TP1','SL','TUTUP'].indexOf(r.status)>=0&&r.ret!==''&&r.ret!=null)?+r.ret:null}
@@ -2253,7 +2257,7 @@ body.dark #h_sumt th{background:#0e1627}
   var P=H.pie;if(!P)return;var c=P.c,tot=P.tot,o=kcv('c_hist'),g=o.g,cx=o.w/2,cy=o.h/2,Rd=Math.min(cx,cy)-20,sg=[],a=-Math.PI/2;
   g.lineWidth=30;
   if(!tot){g.strokeStyle=DK()?'#22304a':'#e2e8f0';g.beginPath();g.arc(cx,cy,Rd,0,7);g.stroke()}
-  else{['ok','gagal','pel','tb','run'].forEach(function(k){if(!c[k])return;var full=c[k]/tot*Math.PI*2,hv=(H.hv===k);g.lineWidth=hv?38:30;g.strokeStyle=HL[k][1];g.beginPath();g.arc(cx,cy,hv?Rd+2:Rd,a,a+full);g.stroke();sg.push({k:k,a0:a+Math.PI/2,a1:a+Math.PI/2+full});a+=full})}
+  else{['ok','sim','gagal','pel','tb','run'].forEach(function(k){if(!c[k])return;var full=c[k]/tot*Math.PI*2,hv=(H.hv===k);g.lineWidth=hv?38:30;g.strokeStyle=HL[k][1];g.beginPath();g.arc(cx,cy,hv?Rd+2:Rd,a,a+full);g.stroke();sg.push({k:k,a0:a+Math.PI/2,a1:a+Math.PI/2+full});a+=full})}
   P.g={cx:cx,cy:cy,Rd:Rd,segs:sg};
   g.textAlign='center';g.fillStyle=DK()?'#e8edf7':'#0f172a';g.font='800 26px "JetBrains Mono",monospace';g.fillText(P.done?P.wr.toFixed(0)+'%':'–',cx,cy+6);
   g.font='11px system-ui';g.fillStyle=DK()?'#94a3b8':'#64748b';g.fillText('win rate',cx,cy+24)}
@@ -2262,23 +2266,23 @@ body.dark #h_sumt th{background:#0e1627}
   sel.forEach(function(r){c[cls2(r)]++});
   var useS=(H.b==='YA'),SS=[];
   if(useS){SS=(H.sales||[]).filter(function(s){return inR(s.t)&&(H.t==='ALL'||s.tipe===H.t||s.tipe==='')});
-   c={ok:0,gagal:0,pel:0,tb:0,run:0};SS.forEach(function(s){if(+s.pl>0)c.ok++;else if(+s.pl<0)c.gagal++;else c.tb++});
+   c={ok:0,sim:0,gagal:0,pel:0,tb:0,run:0};SS.forEach(function(s){if(+s.pl>0)c.ok++;else if(+s.pl<0)c.gagal++;else c.tb++});
    sel.forEach(function(r){if(r.dibeli&&(r.pl===''||r.pl==null))c.run++})}
-  var done=c.ok+c.gagal,wr=done?c.ok/done*100:0,rr=sel.map(rv).filter(function(x){return x!==null}),
+  var done=c.ok+c.sim+c.gagal,wr=done?(c.ok+c.sim)/done*100:0,rr=sel.map(rv).filter(function(x){return x!==null}),
    avg=rr.length?rr.reduce(function(t,x){return t+x},0)/rr.length:0,pl=sel.reduce(function(t,r){return t+(r.dibeli&&r.pl!==''?+r.pl:0)},0),nb=sel.filter(function(r){return r.dibeli}).length;
   if(useS){avg=SS.length?SS.reduce(function(t,s){return t+(+s.pct||0)},0)/SS.length:0;pl=SS.reduce(function(t,s){return t+(+s.pl||0)},0)}
   $('h_sub').textContent=sel.length+' rekomendasi · '+(H.p==='ALL'?'semua waktu':'periode '+(R.a||'awal')+' s/d '+(R.b||'sekarang'))+' · '+nb+' saham benar-benar Anda beli';
-  var K=[[useS?'Total Transaksi Jual':'Total Rekomendasi',useS?SS.length:sel.length,'',useS?'Dihitung seperti Dashboard':'Sesuai filter di atas','list-check','bl'],['Berhasil',c.ok,'g2','Penjualan untung','circle-check','em'],['Gagal',c.gagal,'r2','Penjualan rugi'+(c.pel?' · '+c.pel+' ungu (peluang jual hijau)':''),'circle-xmark','ro'],
+  var K=[[useS?'Total Transaksi Jual':'Total Rekomendasi',useS?SS.length:sel.length,'',useS?'Dihitung seperti Dashboard':'Sesuai filter di atas','list-check','bl'],['Berhasil',c.ok,'g2','Penjualan untung'+(c.sim?' · +'+c.sim+' tidak dibeli (cyan)':''),'circle-check','em'],['Gagal',c.gagal,'r2','Penjualan rugi'+(c.pel?' · '+c.pel+' ungu (peluang jual hijau)':''),'circle-xmark','ro'],
    ['Win Rate',wr.toFixed(1)+'%',wr>=50?'g2':'r2','Rata-rata return '+(avg>=0?'+':'')+avg.toFixed(2)+'%','bullseye','am'],['L/R Nyata Saya',rpf(pl),pl>=0?'g2':'r2','Dari saham yang Anda beli','wallet','pu']];
   $('h_cards').innerHTML=K.map(function(x){return'<div class="kc"><div class="kh"><small>'+x[0]+'</small><span class="ki '+x[5]+'"><i class="fa-solid fa-'+x[4]+'"></i></span></div><b class="'+x[2]+'">'+x[1]+'</b><em>'+x[3]+'</em></div>'}).join('');
   var tot=useS?(SS.length+c.run):sel.length;H.pie={c:c,tot:tot,done:done,wr:wr};H.hv=null;drawPie();
-  $('h_leg').innerHTML=['ok','gagal','pel','tb','run'].map(function(k){return'<div class="al-h"><span class="al-d" style="background:'+HL[k][1]+'"></span><span>'+HL[k][0]+'</span><em>'+c[k]+' ('+(tot?(c[k]/tot*100).toFixed(0):0)+'%)</em></div>'}).join('');
-  var G={};B.forEach(function(r){var o2=G[r.date]=G[r.date]||{n:0,ok:0,g:0,p:0};o2.n++;var k=cls2(r);if(k==='ok')o2.ok++;else if(k==='gagal')o2.g++;else if(k==='pel')o2.p++});
+  $('h_leg').innerHTML=['ok','sim','gagal','pel','tb','run'].map(function(k){return'<div class="al-h"><span class="al-d" style="background:'+HL[k][1]+'"></span><span>'+HL[k][0]+'</span><em>'+c[k]+' ('+(tot?(c[k]/tot*100).toFixed(0):0)+'%)</em></div>'}).join('');
+  var G={};B.forEach(function(r){var o2=G[r.date]=G[r.date]||{n:0,ok:0,g:0,p:0,s:0};o2.n++;var k=cls2(r);if(k==='ok')o2.ok++;else if(k==='gagal')o2.g++;else if(k==='pel')o2.p++;else if(k==='sim')o2.s++});
   var ds=Object.keys(G).sort().reverse().slice(0,60);
-  $('h_sum').innerHTML=ds.length?ds.map(function(d){var q=G[d],w=q.ok+q.g?q.ok/(q.ok+q.g)*100:null,on=(H.p!=='ALL'&&inR(d));return'<tr data-d="'+esc(d)+'"'+(on?' class="on"':'')+'><td class="l">'+esc(fTgl(d))+'</td><td>'+q.n+'</td><td class="g2">'+q.ok+'</td><td class="r2">'+q.g+'</td><td style="color:#a855f7">'+q.p+'</td><td>'+(w===null?'–':w.toFixed(0)+'%')+'</td></tr>'}).join(''):'<tr><td colspan="5" class="l" style="color:#64748b">Belum ada data.</td></tr>';
+  $('h_sum').innerHTML=ds.length?ds.map(function(d){var q=G[d],w=q.ok+q.s+q.g?(q.ok+q.s)/(q.ok+q.s+q.g)*100:null,on=(H.p!=='ALL'&&inR(d));return'<tr data-d="'+esc(d)+'"'+(on?' class="on"':'')+'><td class="l">'+esc(fTgl(d))+'</td><td>'+q.n+'</td><td class="g2">'+q.ok+'</td><td class="r2">'+q.g+'</td><td style="color:#a855f7">'+q.p+'</td><td style="color:#22d3ee">'+q.s+'</td><td>'+(w===null?'–':w.toFixed(0)+'%')+'</td></tr>'}).join(''):'<tr><td colspan="5" class="l" style="color:#64748b">Belum ada data.</td></tr>';
   var S=sel.slice().sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:(+y.skor)-(+x.skor)}),BD={ok:'WIN',gagal:'LOSS',tb:'BE',run:'OPEN'},TX={TP1:'Capai T1',SL:'Kena SL',TUTUP:'Ditutup','TIDAK TERBELI':'Tidak terbeli',GUGUR:'Gugur',OPEN:'Berjalan'};
   var sg=[H.p,H.d1,H.d2,H.t,H.b].join('|');if(sg!==H.sg){H.sg=sg;H.pg=1}kPg('h_pg','hsPage',H,S.length);S=S.slice((H.pg-1)*15,H.pg*15);$('h_tb').innerHTML=S.length?S.map(function(r){var k=cls(r),p=r.pl===''||r.pl==null?null:+r.pl,kk=(r.dibeli&&p!==null)?(p>0?'ok':p<0?'gagal':'tb'):k,N=function(x){return x===''||x==null?'–':n0(x)},rp=(r.rps===''||r.rps==null)?null:+r.rps;
-   var pel=isPel(r);return'<tr class="rw-'+(pel?'PEL':BD[kk])+'"><td class="l">'+esc(fTgl(r.date))+'</td><td class="l"><b>'+esc(r.kode)+'</b></td><td>'+(+r.skor).toFixed(0)+'</td><td>'+n0(r.lo)+'–'+n0(r.hi)+'</td><td>'+n0(r.t1)+'</td><td>'+n0(r.sl)+'</td><td><span class="bd '+BD[k]+'">'+esc(TX[r.status]||r.status||'Berjalan')+'</span></td><td class="'+(+r.ret>0?'g2':+r.ret<0?'r2':'')+'">'+fmtR(r.ret)+'</td><td'+(r.dibeli?' title="'+n0(r.lot)+' lot"':'')+'>'+(r.dibeli?'Beli':'Tidak')+'</td><td>'+N(r.hbs)+'</td><td>'+N(r.hjs)+'</td><td'+(pel?' class="pel" title="Harga tertinggi melewati zona beli (peluang jual di hijau)"':'')+'>'+N(r.hiJ)+'</td><td>'+N(r.clJ)+'</td><td class="'+(rp===null?'':rp>=0?'g2':'r2')+'">'+(rp===null?'–':fmtR(rp))+'</td><td class="'+(p===null?'':p>=0?'g2':'r2')+'">'+(p===null?'–':rpf(p))+'</td><td class="l">'+esc(r.eval)+'</td></tr>'}).join('')
+   var pel=isPel(r);return'<tr class="rw-'+(pel?'PEL':(!r.dibeli&&kk==='ok'?'SIM':BD[kk]))+'"><td class="l">'+esc(fTgl(r.date))+'</td><td class="l"><b>'+esc(r.kode)+'</b></td><td>'+(+r.skor).toFixed(0)+'</td><td>'+n0(r.lo)+'–'+n0(r.hi)+'</td><td>'+n0(r.t1)+'</td><td>'+n0(r.sl)+'</td><td><span class="bd '+BD[k]+'">'+esc(TX[r.status]||r.status||'Berjalan')+'</span></td><td class="'+(+r.ret>0?'g2':+r.ret<0?'r2':'')+'">'+fmtR(r.ret)+'</td><td'+(r.dibeli?' title="'+n0(r.lot)+' lot"':'')+'>'+(r.dibeli?'<b class="g2">✔ Beli</b>':'<span style="color:#64748b">Tidak</span>')+'</td><td>'+N(r.hbs)+'</td><td>'+N(r.hjs)+'</td><td'+(pel?' class="pel" title="Harga tertinggi melewati zona beli (peluang jual di hijau)"':'')+'>'+N(r.hiJ)+'</td><td>'+N(r.clJ)+'</td><td class="'+(rp===null?'':rp>=0?'g2':'r2')+'">'+(rp===null?'–':fmtR(rp))+'</td><td class="'+(p===null?'':p>=0?'g2':'r2')+'">'+(p===null?'–':rpf(p))+'</td><td class="l">'+esc(r.eval)+'</td></tr>'}).join('')
    :'<tr><td colspan="16" class="l" style="padding:20px;color:#64748b">Belum ada data untuk filter ini. Jalankan Laporan 16:30 dulu agar hasil evaluasi terisi.</td></tr>'}
  function demo(){var rows=[],st=['TP1','SL','TUTUP','OPEN'],i,d,k;for(d=1;d<=6;d++)for(k=0;k<4;k++){i=(d+k)%4;rows.push({date:'2026-11-0'+d,tipe:'BTST',kode:['DMAS','HMSP','CARE','ACES'][k],skor:90-k*7,lo:200,hi:210,t1:220,t2:230,sl:195,status:st[i],ret:i===0?4.2:i===1?-3.1:i===2?0.8:'',eval:'(DEMO)',dibeli:k<2,lot:k<2?5:0,pl:k<2?(i===1?-30000:50000):''})}return{rows:rows}}
  function load(){$('h_sub').textContent='Memuat data…';var tm=setTimeout(function(){$('h_sub').textContent='Masih menunggu server Google (bisa 10-20 detik)…'},8000);
